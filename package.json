@@ -1,0 +1,7 @@
+{
+    "name": "boids",
+    "version": "1.0.0",
+    "main": "app.js",
+    "dependencies": {},
+    "devDependencies": {}
+}
