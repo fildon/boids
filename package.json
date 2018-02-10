@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "app.js",
     "scripts": {
-        "build": "tsc app.ts"
+        "build": "tsc app.ts && browserify app.js -o bundle.js"
     },
     "dependencies": {
         "@types/node": "^9.4.5"
