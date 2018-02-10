@@ -3,10 +3,8 @@ exports.__esModule = true;
 var Boid = /** @class */ (function () {
     function Boid() {
         this.element = document.createElement("div");
-        this.element.style.height = '10px';
-        this.element.style.width = '10px';
+        this.element.className = "boid";
         this.element.style.backgroundColor = Boid.randomColor();
-        this.element.style.position = 'absolute';
         this.x = Math.random() * 100;
         this.y = Math.random() * 100;
     }

@@ -5,14 +5,21 @@ function insertElement(element) {
     var content = document.getElementById('content');
     content.insertAdjacentElement('beforeend', element);
 }
-function start() {
-    var boids = Array.apply(null, { length: 50 }).map(Function.call, new boid_1.Boid);
-    boids.map(function (boid) { return insertElement(boid); });
-    boids.map(function (boid) { return continualUpdate(boid); });
-}
 function continualUpdate(boid) {
     boid.move();
     setTimeout(function () {
         continualUpdate(boid);
     }, 1000 / 12);
 }
+function start() {
+    console.log("started?");
+    var boids = [];
+    for (var i = 0; i < 50; i++) {
+        boids.push(new boid_1.Boid());
+    }
+    boids.map(function (boid) { return insertElement(boid.element); });
+    boids.map(function (boid) { return continualUpdate(boid); });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    start();
+}, false);
