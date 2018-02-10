@@ -31,7 +31,7 @@ function move(boid) {
 }
 
 function start() {
-    var boids = Array.from({length: 100}, (x, i) => createBoid());
+    var boids = Array.from({length: 50}, (x, i) => createBoid());
     boids.map(boid => insertElement(boid));
     boids.map(boid => continualUpdate(boid));
 }
