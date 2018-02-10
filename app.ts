@@ -13,8 +13,6 @@ function continualUpdate(boid) {
 }
 
 function start() {
-    console.log("started?");
-
     var boids: Array<Boid> = [];
     for (var i = 0; i < 50; i++) {
         boids.push(new Boid());
