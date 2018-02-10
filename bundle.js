@@ -2,24 +2,12 @@
 "use strict";
 exports.__esModule = true;
 var boid_1 = require("./boid");
-function insertElement(element) {
-    var content = document.getElementById('content');
-    content.insertAdjacentElement('beforeend', element);
-}
-function continualUpdate(boid) {
-    boid.move();
-    setTimeout(function () {
-        continualUpdate(boid);
-    }, 1000 / 12);
-}
 function start() {
-    console.log("started?");
     var boids = [];
     for (var i = 0; i < 50; i++) {
-        boids.push(new boid_1.Boid());
+        boids.push(new boid_1.Boid(document.getElementById('content')));
     }
-    boids.map(function (boid) { return insertElement(boid.element); });
-    boids.map(function (boid) { return continualUpdate(boid); });
+    boids.map(function (boid) { return boid.start(); });
 }
 document.addEventListener("DOMContentLoaded", function () {
     start();
@@ -29,19 +17,31 @@ document.addEventListener("DOMContentLoaded", function () {
 "use strict";
 exports.__esModule = true;
 var Boid = /** @class */ (function () {
-    function Boid() {
+    function Boid(container) {
         this.element = document.createElement("div");
+        this.attachToContainer(container);
         this.element.className = "boid";
         this.element.style.backgroundColor = Boid.randomColor();
         this.x = Math.random() * 100;
         this.y = Math.random() * 100;
     }
     ;
+    Boid.prototype.attachToContainer = function (container) {
+        container.insertAdjacentElement('beforeend', this.element);
+    };
     Boid.prototype.move = function () {
         this.x = Math.min(Math.max(this.x + Boid.speed * (Math.random() - 0.5), 10), 90);
         this.y = Math.min(Math.max(this.y + Boid.speed * (Math.random() - 0.5), 10), 90);
         this.element.style.left = this.x + 'vw';
         this.element.style.top = this.y + 'vh';
+    };
+    Boid.prototype.start = function () {
+        this.move();
+        (function (_this) {
+            setTimeout(function () {
+                _this.start();
+            }, 1000 / 12);
+        })(this);
     };
     Boid.randomColor = function () {
         var hue = Math.random() * 360;
