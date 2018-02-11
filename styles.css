@@ -4,3 +4,10 @@
     position: absolute;
     border-radius: 5px;
 }
+
+.beak {
+    height: 6px;
+    width: 6px;
+    position: absolute;
+    border-radius: 3px;
+}

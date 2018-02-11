@@ -2,14 +2,13 @@ export class Boid {
     xPos: number;
     yPos: number;
     heading: number; // radians
-    element: HTMLElement;
+    body: HTMLElement;
+    beak: HTMLElement;
     private static speed = 1;
 
     constructor(container: HTMLElement) {
-        this.element = document.createElement("div");
-        this.attachToContainer(container);
-        this.element.className = "boid";
-        this.element.style.backgroundColor = Boid.randomColor();
+        this.buildBody(container);
+        this.buildBeak();
         this.xPos = Math.random() * 80 + 10;
         this.yPos = Math.random() * 80 + 10;
         this.heading = Math.random() * 2 * Math.PI;
@@ -24,13 +23,29 @@ export class Boid {
         }) (this)
     }
 
+    private buildBody(container) {
+        this.body = document.createElement("div");
+        this.attachToContainer(container);
+        this.body.className = "boid";
+        this.body.style.backgroundColor = Boid.randomColor();
+    }
+
+    private buildBeak() {
+        this.beak = document.createElement("div");
+        this.body.insertAdjacentElement('beforeend', this.beak);
+        this.beak.className = "beak";
+        this.beak.style.backgroundColor = Boid.randomColor();
+    }
+
     private move() {
         this.xPos += Boid.speed * Math.cos(this.heading);
         this.yPos += Boid.speed * Math.sin(this.heading);
         this.clipPosition();
         this.heading += Math.random() - 0.5;
-        this.element.style.left = this.xPos + 'vw';
-        this.element.style.top = this.yPos + 'vh';
+        this.body.style.left = this.xPos + 'vw';
+        this.body.style.top = this.yPos + 'vh';
+        this.beak.style.left = 4 * Math.cos(this.heading) + 2 + 'px';
+        this.beak.style.top = 4 * Math.sin(this.heading) + 2 + '2px';
     }
 
     private clipPosition() {
@@ -39,7 +54,7 @@ export class Boid {
     }
 
     private attachToContainer(container: HTMLElement) {
-        container.insertAdjacentElement('beforeend', this.element);
+        container.insertAdjacentElement('beforeend', this.body);
     }
 
     private static randomColor() {
