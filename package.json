@@ -1,12 +1,19 @@
 {
     "name": "boids",
+    "description": "An implementation of boids",
+    "repository": {
+        "type": "git",
+        "url": "https://github.corm/fildon/fildon.github.io"
+    },
+    "license": "MIT",
     "version": "1.0.0",
     "main": "app.js",
     "scripts": {
-        "build": "tsc app.ts && browserify app.js -o bundle.js"
+        "build": "tsc app.ts && browserify app.js -o bundle.js",
+        "build-watch": "nodemon -e ts -x \"npm run build\""
     },
-    "dependencies": {
-        "@types/node": "^9.4.5"
-    },
-    "devDependencies": {}
+    "dependencies": {},
+    "devDependencies": {
+        "nodemon": "^1.14.12"
+    }
 }

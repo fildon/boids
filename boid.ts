@@ -36,7 +36,7 @@ export class Boid {
         this.beak = document.createElement("div");
         this.body.insertAdjacentElement('beforeend', this.beak);
         this.beak.className = "beak";
-        this.beak.style.backgroundColor = this.color;
+        this.beak.style.backgroundColor = "black";
     }
 
     private move() {
