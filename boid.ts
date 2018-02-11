@@ -4,9 +4,11 @@ export class Boid {
     heading: number; // radians
     body: HTMLElement;
     beak: HTMLElement;
+    color: string;
     private static speed = 1;
 
     constructor(container: HTMLElement) {
+        this.color = Boid.randomColor();
         this.buildBody(container);
         this.buildBeak();
         this.xPos = Math.random() * 80 + 10;
@@ -27,14 +29,14 @@ export class Boid {
         this.body = document.createElement("div");
         this.attachToContainer(container);
         this.body.className = "boid";
-        this.body.style.backgroundColor = Boid.randomColor();
+        this.body.style.backgroundColor = this.color;
     }
 
     private buildBeak() {
         this.beak = document.createElement("div");
         this.body.insertAdjacentElement('beforeend', this.beak);
         this.beak.className = "beak";
-        this.beak.style.backgroundColor = Boid.randomColor();
+        this.beak.style.backgroundColor = this.color;
     }
 
     private move() {
@@ -45,7 +47,7 @@ export class Boid {
         this.body.style.left = this.xPos + 'vw';
         this.body.style.top = this.yPos + 'vh';
         this.beak.style.left = 4 * Math.cos(this.heading) + 2 + 'px';
-        this.beak.style.top = 4 * Math.sin(this.heading) + 2 + '2px';
+        this.beak.style.top = 4 * Math.sin(this.heading) + 2 + 'px';
     }
 
     private clipPosition() {
@@ -59,6 +61,6 @@ export class Boid {
 
     private static randomColor() {
         var hue = Math.random() * 360;
-        return 'hsl(' + hue + ", 100%, 50%)";
+        return 'hsl(' + hue + ", 50%, 50%)";
     };
 }
