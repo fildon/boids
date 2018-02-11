@@ -11,3 +11,9 @@
     position: absolute;
     border-radius: 3px;
 }
+
+.title {
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+}
