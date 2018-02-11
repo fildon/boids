@@ -22,19 +22,11 @@ var Boid = /** @class */ (function () {
         this.attachToContainer(container);
         this.element.className = "boid";
         this.element.style.backgroundColor = Boid.randomColor();
-        this.x = Math.random() * 100;
-        this.y = Math.random() * 100;
+        this.xPos = Math.random() * 80 + 10;
+        this.yPos = Math.random() * 80 + 10;
+        this.heading = Math.random() * 2 * Math.PI;
     }
     ;
-    Boid.prototype.attachToContainer = function (container) {
-        container.insertAdjacentElement('beforeend', this.element);
-    };
-    Boid.prototype.move = function () {
-        this.x = Math.min(Math.max(this.x + Boid.speed * (Math.random() - 0.5), 10), 90);
-        this.y = Math.min(Math.max(this.y + Boid.speed * (Math.random() - 0.5), 10), 90);
-        this.element.style.left = this.x + 'vw';
-        this.element.style.top = this.y + 'vh';
-    };
     Boid.prototype.start = function () {
         this.move();
         (function (_this) {
@@ -42,6 +34,21 @@ var Boid = /** @class */ (function () {
                 _this.start();
             }, 1000 / 12);
         })(this);
+    };
+    Boid.prototype.move = function () {
+        this.xPos += Boid.speed * Math.cos(this.heading);
+        this.yPos += Boid.speed * Math.sin(this.heading);
+        this.clipPosition();
+        this.heading += Math.random() - 0.5;
+        this.element.style.left = this.xPos + 'vw';
+        this.element.style.top = this.yPos + 'vh';
+    };
+    Boid.prototype.clipPosition = function () {
+        this.xPos = Math.min(Math.max(this.xPos, 10), 90);
+        this.yPos = Math.min(Math.max(this.yPos, 10), 90);
+    };
+    Boid.prototype.attachToContainer = function (container) {
+        container.insertAdjacentElement('beforeend', this.element);
     };
     Boid.randomColor = function () {
         var hue = Math.random() * 360;

@@ -1,6 +1,7 @@
 export class Boid {
-    x: number;
-    y: number;
+    xPos: number;
+    yPos: number;
+    heading: number; // radians
     element: HTMLElement;
     private static speed = 1;
 
@@ -9,8 +10,9 @@ export class Boid {
         this.attachToContainer(container);
         this.element.className = "boid";
         this.element.style.backgroundColor = Boid.randomColor();
-        this.x = Math.random() * 100;
-        this.y = Math.random() * 100;
+        this.xPos = Math.random() * 80 + 10;
+        this.yPos = Math.random() * 80 + 10;
+        this.heading = Math.random() * 2 * Math.PI;
     };
 
     public start() {
@@ -23,10 +25,17 @@ export class Boid {
     }
 
     private move() {
-        this.x = Math.min(Math.max(this.x + Boid.speed * (Math.random() - 0.5), 10), 90);
-        this.y = Math.min(Math.max(this.y + Boid.speed * (Math.random() - 0.5), 10), 90);
-        this.element.style.left = this.x + 'vw';
-        this.element.style.top = this.y + 'vh';
+        this.xPos += Boid.speed * Math.cos(this.heading);
+        this.yPos += Boid.speed * Math.sin(this.heading);
+        this.clipPosition();
+        this.heading += Math.random() - 0.5;
+        this.element.style.left = this.xPos + 'vw';
+        this.element.style.top = this.yPos + 'vh';
+    }
+
+    private clipPosition() {
+        this.xPos = Math.min(Math.max(this.xPos, 10), 90);
+        this.yPos = Math.min(Math.max(this.yPos, 10), 90);
     }
 
     private attachToContainer(container: HTMLElement) {
