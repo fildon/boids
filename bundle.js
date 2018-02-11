@@ -4,13 +4,13 @@ exports.__esModule = true;
 var boid_1 = require("./boid");
 function start() {
     var boids = [];
-    var contentContainer = document.getElementById('content');
-    if (!contentContainer) {
-        console.log("couldn't find 'content' on document");
+    var boidContainer = document.getElementById('boid-container');
+    if (!boidContainer) {
+        console.log("couldn't find 'boid-container' on document");
         return;
     }
     for (var i = 0; i < 50; i++) {
-        boids.push(new boid_1.Boid(contentContainer));
+        boids.push(new boid_1.Boid(boidContainer, boids));
     }
     boids.map(function (boid) { return boid.start(); });
 }
@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
 "use strict";
 exports.__esModule = true;
 var Boid = /** @class */ (function () {
-    function Boid(container) {
+    function Boid(container, allBoids) {
+        this.allBoids = allBoids;
         this.body = this.buildBodyPart(Boid.randomColor(), "boid");
         container.insertAdjacentElement('beforeend', this.body);
         this.beak = this.buildBodyPart("black", "beak");

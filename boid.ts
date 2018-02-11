@@ -4,9 +4,12 @@ export class Boid {
     heading: number; // radians
     body: HTMLElement;
     beak: HTMLElement;
+    allBoids: Array<Boid>;
     private static speed = 1;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, allBoids: Array<Boid>) {
+        this.allBoids = allBoids;
+
         this.body = this.buildBodyPart(Boid.randomColor(), "boid");
         container.insertAdjacentElement('beforeend', this.body);
 
