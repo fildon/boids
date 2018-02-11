@@ -4,8 +4,13 @@ exports.__esModule = true;
 var boid_1 = require("./boid");
 function start() {
     var boids = [];
+    var contentContainer = document.getElementById('content');
+    if (!contentContainer) {
+        console.log("couldn't find 'content' on document");
+        return;
+    }
     for (var i = 0; i < 50; i++) {
-        boids.push(new boid_1.Boid(document.getElementById('content')));
+        boids.push(new boid_1.Boid(contentContainer));
     }
     boids.map(function (boid) { return boid.start(); });
 }
@@ -19,8 +24,14 @@ exports.__esModule = true;
 var Boid = /** @class */ (function () {
     function Boid(container) {
         this.color = Boid.randomColor();
-        this.buildBody(container);
-        this.buildBeak();
+        this.body = document.createElement("div");
+        this.attachToContainer(container);
+        this.body.className = "boid";
+        this.body.style.backgroundColor = this.color;
+        this.beak = document.createElement("div");
+        this.body.insertAdjacentElement('beforeend', this.beak);
+        this.beak.className = "beak";
+        this.beak.style.backgroundColor = "black";
         this.xPos = Math.random() * 80 + 10;
         this.yPos = Math.random() * 80 + 10;
         this.heading = Math.random() * 2 * Math.PI;
@@ -33,18 +44,6 @@ var Boid = /** @class */ (function () {
                 _this.start();
             }, 1000 / 12);
         })(this);
-    };
-    Boid.prototype.buildBody = function (container) {
-        this.body = document.createElement("div");
-        this.attachToContainer(container);
-        this.body.className = "boid";
-        this.body.style.backgroundColor = this.color;
-    };
-    Boid.prototype.buildBeak = function () {
-        this.beak = document.createElement("div");
-        this.body.insertAdjacentElement('beforeend', this.beak);
-        this.beak.className = "beak";
-        this.beak.style.backgroundColor = "black";
     };
     Boid.prototype.move = function () {
         this.xPos += Boid.speed * Math.cos(this.heading);

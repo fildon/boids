@@ -9,8 +9,17 @@ export class Boid {
 
     constructor(container: HTMLElement) {
         this.color = Boid.randomColor();
-        this.buildBody(container);
-        this.buildBeak();
+
+        this.body = document.createElement("div");
+        this.attachToContainer(container);
+        this.body.className = "boid";
+        this.body.style.backgroundColor = this.color;
+
+        this.beak = document.createElement("div");
+        this.body.insertAdjacentElement('beforeend', this.beak);
+        this.beak.className = "beak";
+        this.beak.style.backgroundColor = "black";
+
         this.xPos = Math.random() * 80 + 10;
         this.yPos = Math.random() * 80 + 10;
         this.heading = Math.random() * 2 * Math.PI;
@@ -23,20 +32,6 @@ export class Boid {
                 _this.start();
             }, 1000 / 12);
         }) (this)
-    }
-
-    private buildBody(container) {
-        this.body = document.createElement("div");
-        this.attachToContainer(container);
-        this.body.className = "boid";
-        this.body.style.backgroundColor = this.color;
-    }
-
-    private buildBeak() {
-        this.beak = document.createElement("div");
-        this.body.insertAdjacentElement('beforeend', this.beak);
-        this.beak.className = "beak";
-        this.beak.style.backgroundColor = "black";
     }
 
     private move() {

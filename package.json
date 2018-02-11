@@ -9,7 +9,7 @@
     "version": "1.0.0",
     "main": "app.js",
     "scripts": {
-        "build": "tsc app.ts && browserify app.js -o bundle.js",
+        "build": "tsc app.ts --strict && browserify app.js -o bundle.js",
         "build-watch": "nodemon -e ts -x \"npm run build\""
     },
     "dependencies": {},
