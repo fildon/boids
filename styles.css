@@ -13,7 +13,5 @@
 }
 
 .title {
-    position: absolute;
-    top: 50vh;
-    left: 50vw;
+    text-align: center;
 }
