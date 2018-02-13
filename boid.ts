@@ -2,15 +2,18 @@ import { Vector2 } from "./vector2";
 
 export class Boid {
     position: Vector2;
-    heading: number; // radians
+    velocity: Vector2;
     body: HTMLElement;
     beak: HTMLElement;
     allBoids: Array<Boid>;
-    private static repulsionRadius = 1;
+    otherBoids: Array<Boid>;
+    private static repulsionRadius = 5;
     private static speed = 1;
+    private static turningMax = 0.5; // maximum rotation in radians per tick
 
     constructor(container: HTMLElement, allBoids: Array<Boid>) {
         this.allBoids = allBoids;
+        this.otherBoids = []; // This gets 'properly' intialized in the start method
 
         this.body = Boid.buildBodyPart(Boid.randomColor(), "boid");
         container.insertAdjacentElement('beforeend', this.body);
@@ -23,14 +26,19 @@ export class Boid {
             Math.random() * 80 + 10
         );
 
-        this.heading = Math.random() * 2 * Math.PI;
+        var heading = Math.random() * 2 * Math.PI;
+        this.velocity = new Vector2(
+            Boid.speed * Math.cos(heading),
+            Boid.speed * Math.sin(heading)
+        );
     };
 
     public start() {
+        this.otherBoids = this.allBoids.filter(boid => boid !== this);
         this.move();
-        ((_this) => {
+        ((thisCaptured) => {
             setTimeout(function() {
-                _this.start();
+                thisCaptured.start();
             }, 1000 / 12);
         }) (this)
     }
@@ -55,8 +63,8 @@ export class Boid {
     }
 
     private advancePosition() {
-        this.position.x += Boid.speed * Math.cos(this.heading);
-        this.position.y += Boid.speed * Math.sin(this.heading);
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
     }
 
     private clipPosition() {
@@ -65,44 +73,38 @@ export class Boid {
     }
 
     private updateHeading() {
-        var nearestNeighbour = nearestNeighbour();
-        if (nearestNeighbour.position.distance(this.position) < Boid.repulsionRadius) {
-            // Be repelled ?
-        } else {
-            this.heading += Math.random() - 0.5;
+        if (this.otherBoids.length > 0) {
+            var nearestNeighbour = this.nearestNeighbour();
+            if (this.distanceToBoid(nearestNeighbour) < Boid.repulsionRadius) {
+                var relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
+                this.velocity.rotateAwayFrom(relativeVectorTo, Boid.turningMax);
+            }
         }
+        this.velocity.rotate(2 * Boid.turningMax * Math.random() - Boid.turningMax);
     }
 
-    private nearestNeighbour(): Boid {
-        var nearestBoid = this.allBoids[0];
-        var nearestDist = this.allBoids[0].position.distance(this.position);
-        var currentDist;
-        this.allBoids.forEach(boid => {
-            if (boid === this) {
-                return;
-            }
-            currentDist = boid.position.distance(this.position);
-            if (currentDist < nearestDist) {
-                nearestBoid = boid;
-                nearestDist = currentDist;
-            }
+    public nearestNeighbour(): Boid {
+        return this.otherBoids.reduce((nearestBoid, currentBoid) => {
+            var nearestDistance = this.distanceToBoid(nearestBoid);
+            var currentDistance = this.distanceToBoid(currentBoid);
+            return currentDistance < nearestDistance ? currentBoid : nearestBoid;
         });
-        return nearestBoid;
+    }
+
+    public distanceToBoid(boid: Boid): number {
+        return this.position.distance(boid.position);
     }
 
     private neighbours(radius: number): Array<Boid> {
-        return this.allBoids.filter(
-            boid => {
-                return boid !== this && 
-                this.position.distance(boid.position) < radius
-            }
+        return this.otherBoids.filter(
+            boid => this.position.distance(boid.position) < radius
         );
     }
 
     private drawSelf() {
         this.body.style.left = this.position.x + 'vw';
         this.body.style.top = this.position.y + 'vh';
-        this.beak.style.left = 4 * Math.cos(this.heading) + 2 + 'px';
-        this.beak.style.top = 4 * Math.sin(this.heading) + 2 + 'px';
+        this.beak.style.left = 4 * this.velocity.x + 2 + 'px';
+        this.beak.style.top = 4 * this.velocity.y + 2 + 'px';
     }
 }
