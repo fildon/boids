@@ -1,16 +1,15 @@
 import { Boid } from "./boid";
 
 function start() {
-    var boids: Array<Boid> = [];
-    var boidContainer = document.getElementById('boid-container');
+    const boids: Boid[] = [];
+    const boidContainer = document.getElementById("boid-container");
     if (!boidContainer) {
-        console.log("couldn't find 'boid-container' on document");
-        return;
+        throw new Error("couldn't find 'boid-container' on document");
     }
-    for (var i = 0; i < 50; i++) {
+    for (let i = 0; i < 50; i++) {
         boids.push(new Boid(boidContainer, boids));
     }
-    boids.map(boid => boid.start());
+    boids.map((boid) => boid.start());
 }
 
 document.addEventListener("DOMContentLoaded", () => {

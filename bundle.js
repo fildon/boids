@@ -3,16 +3,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const boid_1 = require("./boid");
 function start() {
-    var boids = [];
-    var boidContainer = document.getElementById('boid-container');
+    const boids = [];
+    const boidContainer = document.getElementById("boid-container");
     if (!boidContainer) {
-        console.log("couldn't find 'boid-container' on document");
-        return;
+        throw new Error("couldn't find 'boid-container' on document");
     }
-    for (var i = 0; i < 50; i++) {
+    for (let i = 0; i < 50; i++) {
         boids.push(new boid_1.Boid(boidContainer, boids));
     }
-    boids.map(boid => boid.start());
+    boids.map((boid) => boid.start());
 }
 document.addEventListener("DOMContentLoaded", () => {
     start();
@@ -27,52 +26,53 @@ class Boid {
         this.allBoids = allBoids;
         this.otherBoids = []; // This gets 'properly' intialized in the start method
         this.body = Boid.buildBodyPart("black", "boid");
-        container.insertAdjacentElement('beforeend', this.body);
+        container.insertAdjacentElement("beforeend", this.body);
         this.beak = Boid.buildBodyPart("black", "beak");
-        this.body.insertAdjacentElement('beforeend', this.beak);
+        this.body.insertAdjacentElement("beforeend", this.beak);
         this.position = new vector2_1.Vector2(Math.random() * 80 + 10, Math.random() * 80 + 10);
-        var heading = Math.random() * 2 * Math.PI;
+        const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(Boid.speed * Math.cos(heading), Boid.speed * Math.sin(heading));
     }
-    ;
-    start() {
-        this.otherBoids = this.allBoids.filter(boid => boid !== this);
-        this.move();
-        ((thisCaptured) => {
-            setTimeout(function () {
-                thisCaptured.start();
-            }, 1000 / 12);
-        })(this);
-    }
     static randomColor() {
-        var hue = Math.random() * 360;
-        return 'hsl(' + hue + ", 50%, 50%)";
+        const hue = Math.random() * 360;
+        return "hsl(" + hue + ", 50%, 50%)";
     }
     static buildBodyPart(color, className) {
-        var bodyPart = document.createElement("div");
+        const bodyPart = document.createElement("div");
         bodyPart.className = className;
         bodyPart.style.backgroundColor = color;
         return bodyPart;
     }
+    start() {
+        this.otherBoids = this.allBoids.filter((boid) => boid !== this);
+        this.move();
+        ((thisCaptured) => {
+            setTimeout(() => {
+                thisCaptured.start();
+            }, 1000 / 12);
+        })(this);
+    }
+    nearestNeighbour() {
+        return this.otherBoids.reduce((nearestBoid, currentBoid) => {
+            const nearestDistance = this.distanceToBoid(nearestBoid);
+            const currentDistance = this.distanceToBoid(currentBoid);
+            return currentDistance < nearestDistance ? currentBoid : nearestBoid;
+        });
+    }
+    distanceToBoid(boid) {
+        return this.position.distance(boid.position);
+    }
     move() {
-        this.advancePosition();
-        this.clipPosition();
+        this.position.add(this.velocity);
+        this.position.clip(10, 90, 10, 90);
         this.updateHeading();
         this.drawSelf();
     }
-    advancePosition() {
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
-    }
-    clipPosition() {
-        this.position.x = Math.min(Math.max(this.position.x, 10), 90);
-        this.position.y = Math.min(Math.max(this.position.y, 10), 90);
-    }
     updateHeading() {
         if (this.otherBoids.length > 0) {
-            var nearestNeighbour = this.nearestNeighbour();
+            const nearestNeighbour = this.nearestNeighbour();
             if (this.distanceToBoid(nearestNeighbour) < Boid.repulsionRadius) {
-                var relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
+                const relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
                 this.velocity.rotateAwayFrom(relativeVectorTo, Boid.turningMax);
                 this.body.style.backgroundColor = Boid.randomColor();
                 return;
@@ -81,24 +81,14 @@ class Boid {
         this.body.style.backgroundColor = "grey";
         this.velocity.rotate(2 * Boid.turningMax * Math.random() - Boid.turningMax);
     }
-    nearestNeighbour() {
-        return this.otherBoids.reduce((nearestBoid, currentBoid) => {
-            var nearestDistance = this.distanceToBoid(nearestBoid);
-            var currentDistance = this.distanceToBoid(currentBoid);
-            return currentDistance < nearestDistance ? currentBoid : nearestBoid;
-        });
-    }
-    distanceToBoid(boid) {
-        return this.position.distance(boid.position);
-    }
     neighbours(radius) {
-        return this.otherBoids.filter(boid => this.position.distance(boid.position) < radius);
+        return this.otherBoids.filter((boid) => this.position.distance(boid.position) < radius);
     }
     drawSelf() {
-        this.body.style.left = this.position.x + 'vw';
-        this.body.style.top = this.position.y + 'vh';
-        this.beak.style.left = 4 * this.velocity.x + 2 + 'px';
-        this.beak.style.top = 4 * this.velocity.y + 2 + 'px';
+        this.body.style.left = this.position.x + "vw";
+        this.body.style.top = this.position.y + "vh";
+        this.beak.style.left = 4 * this.velocity.x + 2 + "px";
+        this.beak.style.top = 4 * this.velocity.y + 2 + "px";
     }
 }
 Boid.repulsionRadius = 5;
@@ -121,19 +111,27 @@ class Vector2 {
         return new Vector2(vector.x - this.x, vector.y - this.y);
     }
     rotate(radians) {
-        var xcopy = this.x;
-        var ycopy = this.y;
+        const xcopy = this.x;
+        const ycopy = this.y;
         this.x = xcopy * Math.cos(radians) - ycopy * Math.sin(radians);
         this.y = xcopy * Math.sin(radians) + ycopy * Math.cos(radians);
     }
     rotateAwayFrom(vector, angle) {
-        var relativeAngleFromVectorToThis = Math.atan2(vector.x * this.y - vector.y * this.x, vector.x * this.x + vector.y * this.y);
+        const relativeAngleFromVectorToThis = Math.atan2(vector.x * this.y - vector.y * this.x, vector.x * this.x + vector.y * this.y);
         if (relativeAngleFromVectorToThis > 0) {
             this.rotate(Math.min(Math.PI - relativeAngleFromVectorToThis, angle));
         }
         else {
             this.rotate(Math.max(-relativeAngleFromVectorToThis - Math.PI, -angle));
         }
+    }
+    add(v) {
+        this.x += v.x;
+        this.y += v.y;
+    }
+    clip(xMin, xMax, yMin, yMax) {
+        this.x = Math.min(Math.max(this.x, xMin), xMax);
+        this.y = Math.min(Math.max(this.y, yMin), yMax);
     }
 }
 exports.Vector2 = Vector2;
