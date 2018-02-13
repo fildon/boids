@@ -12,7 +12,7 @@
         "build": "npm run lint && tsc && browserify dist/src/app.js -o bundle.js",
         "build-watch": "nodemon -e ts -x \"npm run build\"",
         "clean": "rm -rf dist",
-        "lint": "tslint -c tslint.json 'src/**/*.ts'",
+        "lint": "tslint -c tslint.json \"@(src|tests)\"/**/*.ts",
         "test": "mocha -r ts-node/register/type-check tests/**.ts"
     },
     "dependencies": {
