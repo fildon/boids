@@ -19,4 +19,14 @@ describe("Vector2", () => {
             ).to.equal(0);
         });
     });
+
+    describe("vectorTo", () => {
+        it("computes the distance from one vector to another", () => {
+            const v0 = new Vector2(1, 1);
+            const v1 = new Vector2(2, 3);
+            const actual = v0.vectorTo(v1);
+            const expected = new Vector2(1, 2);
+            expect(actual.equals(expected)).to.be.true;
+        });
+    });
 });

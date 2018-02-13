@@ -42,4 +42,8 @@ export class Vector2 {
         this.x = Math.min(Math.max(this.x, xMin), xMax);
         this.y = Math.min(Math.max(this.y, yMin), yMax);
     }
+
+    public equals(v: Vector2): boolean {
+        return this.x === v.x && this.y === v.y;
+    }
 }

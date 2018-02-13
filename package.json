@@ -11,10 +11,9 @@
     "scripts": {
         "build": "npm run lint && tsc && browserify dist/src/app.js -o bundle.js",
         "build-watch": "nodemon -e ts -x \"npm run build\"",
-        "coverage": "nyc mocha",
-        "clean": "rm -rf dist",
         "lint": "tslint -c tslint.json \"@(src|test)\"/**/*.ts",
-        "test": "mocha -r ts-node/register/type-check test/**.ts"
+        "test": "nyc mocha",
+        "test-watch": "nodemon -e ts -x \"npm run test\""
     },
     "nyc": {
         "include": [
