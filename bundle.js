@@ -74,6 +74,7 @@ class Boid {
             if (this.distanceToBoid(nearestNeighbour) < Boid.repulsionRadius) {
                 var relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
                 this.velocity.rotateAwayFrom(relativeVectorTo, Boid.turningMax);
+                return;
             }
         }
         this.velocity.rotate(2 * Boid.turningMax * Math.random() - Boid.turningMax);
