@@ -2,10 +2,10 @@ node_modules
 
 dist
 
-*.js
-!bundle.js #We need to include this so that github pages can run it!
-
 # Test coverage
 *.map
 .nyc_output
 coverage
+
+*.js
+!bundle.js #We need to include this so that github pages can run it!
