@@ -20,19 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
 },{"./boid":2}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("./config");
 const vector2_1 = require("./vector2");
 class Boid {
-    constructor(container, allBoids) {
-        this.allBoids = allBoids;
-        this.otherBoids = []; // This gets 'properly' intialized in the start method
-        this.body = Boid.buildBodyPart("black", "boid");
-        container.insertAdjacentElement("beforeend", this.body);
-        this.beak = Boid.buildBodyPart("black", "beak");
-        this.body.insertAdjacentElement("beforeend", this.beak);
-        this.position = new vector2_1.Vector2(Math.random() * 80 + 10, Math.random() * 80 + 10);
-        const heading = Math.random() * 2 * Math.PI;
-        this.velocity = new vector2_1.Vector2(Boid.speed * Math.cos(heading), Boid.speed * Math.sin(heading));
-    }
     static randomColor() {
         const hue = Math.random() * 360;
         return "hsl(" + hue + ", 50%, 50%)";
@@ -42,6 +32,17 @@ class Boid {
         bodyPart.className = className;
         bodyPart.style.backgroundColor = color;
         return bodyPart;
+    }
+    constructor(container, allBoids) {
+        this.allBoids = allBoids;
+        this.otherBoids = []; // This gets 'properly' intialized in the start method
+        this.body = Boid.buildBodyPart("black", "boid");
+        container.insertAdjacentElement("beforeend", this.body);
+        this.beak = Boid.buildBodyPart("black", "beak");
+        this.body.insertAdjacentElement("beforeend", this.beak);
+        this.position = new vector2_1.Vector2(Math.random() * 80 + 10, Math.random() * 80 + 10);
+        const heading = Math.random() * 2 * Math.PI;
+        this.velocity = new vector2_1.Vector2(config_1.config.speed * Math.cos(heading), config_1.config.speed * Math.sin(heading));
     }
     start() {
         this.otherBoids = this.allBoids.filter((boid) => boid !== this);
@@ -71,15 +72,15 @@ class Boid {
     updateHeading() {
         if (this.otherBoids.length > 0) {
             const nearestNeighbour = this.nearestNeighbour();
-            if (this.distanceToBoid(nearestNeighbour) < Boid.repulsionRadius) {
+            if (this.distanceToBoid(nearestNeighbour) < config_1.config.repulsionRadius) {
                 const relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
-                this.velocity.rotateAwayFrom(relativeVectorTo, Boid.turningMax);
+                this.velocity.rotateAwayFrom(relativeVectorTo, config_1.config.turningMax);
                 this.body.style.backgroundColor = Boid.randomColor();
                 return;
             }
         }
         this.body.style.backgroundColor = "grey";
-        this.velocity.rotate(2 * Boid.turningMax * Math.random() - Boid.turningMax);
+        this.velocity.rotate(2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax);
     }
     neighbours(radius) {
         return this.otherBoids.filter((boid) => this.position.distance(boid.position) < radius);
@@ -91,12 +92,18 @@ class Boid {
         this.beak.style.top = 4 * this.velocity.y + 2 + "px";
     }
 }
-Boid.repulsionRadius = 5;
-Boid.speed = 1;
-Boid.turningMax = 0.5; // maximum rotation in radians per tick
 exports.Boid = Boid;
 
-},{"./vector2":3}],3:[function(require,module,exports){
+},{"./config":3,"./vector2":4}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.config = {
+    repulsionRadius: 5,
+    speed: 1,
+    turningMax: 0.5,
+};
+
+},{}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {

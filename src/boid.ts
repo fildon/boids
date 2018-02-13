@@ -1,10 +1,7 @@
+import { config } from "./config";
 import { Vector2 } from "./vector2";
 
 export class Boid {
-    private static repulsionRadius = 5;
-    private static speed = 1;
-    private static turningMax = 0.5; // maximum rotation in radians per tick
-
     private static randomColor() {
         const hue = Math.random() * 360;
         return "hsl(" + hue + ", 50%, 50%)";
@@ -41,8 +38,8 @@ export class Boid {
 
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new Vector2(
-            Boid.speed * Math.cos(heading),
-            Boid.speed * Math.sin(heading),
+            config.speed * Math.cos(heading),
+            config.speed * Math.sin(heading),
         );
     }
 
@@ -78,15 +75,15 @@ export class Boid {
     private updateHeading() {
         if (this.otherBoids.length > 0) {
             const nearestNeighbour = this.nearestNeighbour();
-            if (this.distanceToBoid(nearestNeighbour) < Boid.repulsionRadius) {
+            if (this.distanceToBoid(nearestNeighbour) < config.repulsionRadius) {
                 const relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
-                this.velocity.rotateAwayFrom(relativeVectorTo, Boid.turningMax);
+                this.velocity.rotateAwayFrom(relativeVectorTo, config.turningMax);
                 this.body.style.backgroundColor = Boid.randomColor();
                 return;
             }
         }
         this.body.style.backgroundColor = "grey";
-        this.velocity.rotate(2 * Boid.turningMax * Math.random() - Boid.turningMax);
+        this.velocity.rotate(2 * config.turningMax * Math.random() - config.turningMax);
     }
 
     private neighbours(radius: number): Boid[] {
