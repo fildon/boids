@@ -12,5 +12,11 @@ describe("Vector2", () => {
             const distance = v0.distance(v1);
             expect(distance).to.equal(5);
         });
+
+        it("handles 0 distance", () => {
+            expect(
+                new Vector2(1, 1).distance(new Vector2(1, 1)),
+            ).to.equal(0);
+        });
     });
 });
