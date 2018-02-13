@@ -15,7 +15,7 @@ export class Boid {
         this.allBoids = allBoids;
         this.otherBoids = []; // This gets 'properly' intialized in the start method
 
-        this.body = Boid.buildBodyPart(Boid.randomColor(), "boid");
+        this.body = Boid.buildBodyPart("black", "boid");
         container.insertAdjacentElement('beforeend', this.body);
 
         this.beak = Boid.buildBodyPart("black", "beak");
@@ -78,9 +78,11 @@ export class Boid {
             if (this.distanceToBoid(nearestNeighbour) < Boid.repulsionRadius) {
                 var relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
                 this.velocity.rotateAwayFrom(relativeVectorTo, Boid.turningMax);
+                this.body.style.backgroundColor = Boid.randomColor();
                 return;
             }
         }
+        this.body.style.backgroundColor = "grey";
         this.velocity.rotate(2 * Boid.turningMax * Math.random() - Boid.turningMax);
     }
 
