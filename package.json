@@ -11,7 +11,7 @@
     "scripts": {
         "build": "tsc && browserify dist/app.js -o bundle.js",
         "build-watch": "nodemon -e ts -x \"npm run build\"",
-        "test": "mocha -r ts-node/register/type-check Tests/**.ts"
+        "test": "mocha -r ts-node/register/type-check tests/**.ts"
     },
     "dependencies": {
         "@types/node": "^9.4.5",
