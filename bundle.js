@@ -16,7 +16,7 @@ class Boid {
         this.body = null;
         this.beak = null;
         this.otherBoids = [];
-        this.position = new vector2_1.Vector2(Math.random() * 80 + 10, Math.random() * 80 + 10);
+        this.position = new vector2_1.Vector2(Math.random() * (config_1.config.maxX - config_1.config.minX) + config_1.config.minX, Math.random() * (config_1.config.maxY - config_1.config.minY) + config_1.config.minY);
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(config_1.config.speed * Math.cos(heading), config_1.config.speed * Math.sin(heading));
     }
@@ -35,10 +35,17 @@ class Boid {
     }
     move() {
         this.position = this.position.add(this.velocity);
-        this.position = this.position.clip(10, 90, 10, 90);
+        this.position = this.position.clip(config_1.config.minX, config_1.config.maxX, config_1.config.minY, config_1.config.maxY);
         this.updateHeading();
     }
     updateHeading() {
+        const collisionVector = this.collisionVector();
+        if (collisionVector.length() > 0) {
+            const idealTurn = this.velocity.angleTo(collisionVector);
+            const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.turningMax), -config_1.config.turningMax);
+            this.velocity = this.velocity.rotate(limitedTurn);
+            return;
+        }
         const repulsionVector = this.repulsionVector();
         if (repulsionVector.length() > 0) {
             const idealTurn = this.velocity.angleTo(repulsionVector);
@@ -62,6 +69,25 @@ class Boid {
         }
         const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
+    }
+    collisionVector() {
+        const xMin = this.position.x - config_1.config.minX;
+        const xMax = config_1.config.maxX - this.position.x;
+        const yMin = this.position.y - config_1.config.minY;
+        const yMax = config_1.config.maxY - this.position.y;
+        if (xMin < config_1.config.collisionRadius) {
+            return new vector2_1.Vector2(1, 0);
+        }
+        if (xMax < config_1.config.collisionRadius) {
+            return new vector2_1.Vector2(-1, 0);
+        }
+        if (yMin < config_1.config.collisionRadius) {
+            return new vector2_1.Vector2(0, 1);
+        }
+        if (yMax < config_1.config.collisionRadius) {
+            return new vector2_1.Vector2(0, -1);
+        }
+        return new vector2_1.Vector2(0, 0);
     }
     repulsionVector() {
         return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((boid) => {
@@ -177,6 +203,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
     alignmentRadius: 10,
     attractionRadius: 15,
+    collisionRadius: 5,
+    maxX: 90,
+    maxY: 90,
+    minX: 10,
+    minY: 10,
     repulsionRadius: 5,
     speed: 1,
     turningMax: 0.5,

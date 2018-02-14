@@ -10,8 +10,8 @@ export class Boid {
 
     constructor() {
         this.position = new Vector2(
-            Math.random() * 80 + 10,
-            Math.random() * 80 + 10,
+            Math.random() * (config.maxX - config.minX) + config.minX,
+            Math.random() * (config.maxY - config.minY) + config.minY,
         );
 
         const heading = Math.random() * 2 * Math.PI;
@@ -38,11 +38,18 @@ export class Boid {
 
     public move() {
         this.position = this.position.add(this.velocity);
-        this.position = this.position.clip(10, 90, 10, 90);
+        this.position = this.position.clip(config.minX, config.maxX, config.minY, config.maxY);
         this.updateHeading();
     }
 
     public updateHeading() {
+        const collisionVector = this.collisionVector();
+        if (collisionVector.length() > 0) {
+            const idealTurn = this.velocity.angleTo(collisionVector);
+            const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
+            this.velocity = this.velocity.rotate(limitedTurn);
+            return;
+        }
         const repulsionVector = this.repulsionVector();
         if (repulsionVector.length() > 0) {
             const idealTurn = this.velocity.angleTo(repulsionVector);
@@ -66,6 +73,26 @@ export class Boid {
         }
         const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
+    }
+
+    public collisionVector(): Vector2 {
+        const xMin = this.position.x - config.minX;
+        const xMax = config.maxX - this.position.x;
+        const yMin = this.position.y - config.minY;
+        const yMax = config.maxY - this.position.y;
+        if (xMin < config.collisionRadius) {
+            return new Vector2(1, 0);
+        }
+        if (xMax < config.collisionRadius) {
+            return new Vector2(-1, 0);
+        }
+        if (yMin < config.collisionRadius) {
+            return new Vector2(0, 1);
+        }
+        if (yMax < config.collisionRadius) {
+            return new Vector2(0, -1);
+        }
+        return new Vector2(0, 0);
     }
 
     public repulsionVector(): Vector2 {
