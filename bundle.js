@@ -18,7 +18,8 @@ class Boid {
         this.otherBoids = [];
         this.position = new vector2_1.Vector2(Math.random() * (config_1.config.maxX - config_1.config.minX) + config_1.config.minX, Math.random() * (config_1.config.maxY - config_1.config.minY) + config_1.config.minY);
         const heading = Math.random() * 2 * Math.PI;
-        this.velocity = new vector2_1.Vector2(config_1.config.speed * Math.cos(heading), config_1.config.speed * Math.sin(heading));
+        const speed = config_1.config.speed + (Math.random() - 0.5);
+        this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
     nearestNeighbour() {
         if (this.otherBoids.length === 0) {

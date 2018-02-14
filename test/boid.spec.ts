@@ -18,7 +18,8 @@ describe("Boid", () => {
 
         it("sets an intitial speed matching the config", () => {
             const boid = new Boid();
-            expect(boid.velocity.length()).to.approximately(config.speed, 0.0000001);
+            // With some random variance
+            expect(boid.velocity.length()).to.approximately(config.speed, 0.11);
         });
     });
 
