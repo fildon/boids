@@ -1,57 +1,24 @@
 (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const boid_1 = require("./boid");
-function start() {
-    const boids = [];
-    const boidContainer = document.getElementById("boid-container");
-    if (!boidContainer) {
-        throw new Error("couldn't find 'boid-container' on document");
-    }
-    for (let i = 0; i < 50; i++) {
-        boids.push(new boid_1.Boid(boidContainer, boids));
-    }
-    boids.map((boid) => boid.start());
-}
+const boidManager_1 = require("./boidManager");
 document.addEventListener("DOMContentLoaded", () => {
-    start();
+    new boidManager_1.BoidManager(50).runSimulation();
 }, false);
 
-},{"./boid":2}],2:[function(require,module,exports){
+},{"./boidManager":3}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
 const vector2_1 = require("./vector2");
 class Boid {
-    static randomColor() {
-        const hue = Math.random() * 360;
-        return "hsl(" + hue + ", 50%, 50%)";
-    }
-    static buildBodyPart(color, className) {
-        const bodyPart = document.createElement("div");
-        bodyPart.className = className;
-        bodyPart.style.backgroundColor = color;
-        return bodyPart;
-    }
-    constructor(container, allBoids) {
-        this.allBoids = allBoids;
-        this.otherBoids = []; // This gets 'properly' intialized in the start method
-        this.body = Boid.buildBodyPart("black", "boid");
-        container.insertAdjacentElement("beforeend", this.body);
-        this.beak = Boid.buildBodyPart("black", "beak");
-        this.body.insertAdjacentElement("beforeend", this.beak);
+    constructor() {
+        this.body = null;
+        this.beak = null;
+        this.otherBoids = [];
         this.position = new vector2_1.Vector2(Math.random() * 80 + 10, Math.random() * 80 + 10);
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(config_1.config.speed * Math.cos(heading), config_1.config.speed * Math.sin(heading));
-    }
-    start() {
-        this.otherBoids = this.allBoids.filter((boid) => boid !== this);
-        this.move();
-        ((thisCaptured) => {
-            setTimeout(() => {
-                thisCaptured.start();
-            }, 1000 / 12);
-        })(this);
     }
     nearestNeighbour() {
         return this.otherBoids.reduce((nearestBoid, currentBoid) => {
@@ -67,7 +34,6 @@ class Boid {
         this.position.add(this.velocity);
         this.position.clip(10, 90, 10, 90);
         this.updateHeading();
-        this.drawSelf();
     }
     updateHeading() {
         if (this.otherBoids.length > 0) {
@@ -75,26 +41,97 @@ class Boid {
             if (this.distanceToBoid(nearestNeighbour) < config_1.config.repulsionRadius) {
                 const relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
                 this.velocity.rotateAwayFrom(relativeVectorTo, config_1.config.turningMax);
-                this.body.style.backgroundColor = Boid.randomColor();
                 return;
             }
         }
-        this.body.style.backgroundColor = "grey";
         this.velocity.rotate(2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax);
     }
     neighbours(radius) {
         return this.otherBoids.filter((boid) => this.position.distance(boid.position) < radius);
     }
-    drawSelf() {
-        this.body.style.left = this.position.x + "vw";
-        this.body.style.top = this.position.y + "vh";
-        this.beak.style.left = 4 * this.velocity.x + 2 + "px";
-        this.beak.style.top = 4 * this.velocity.y + 2 + "px";
-    }
 }
 exports.Boid = Boid;
 
-},{"./config":3,"./vector2":4}],3:[function(require,module,exports){
+},{"./config":5,"./vector2":6}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const boid_1 = require("./boid");
+const canvas_1 = require("./canvas");
+class BoidManager {
+    constructor(boidQuantity) {
+        this.boids = [];
+        const canvasElement = document.getElementById("canvas");
+        if (!canvasElement) {
+            throw new Error("couldn't find 'canvas' on document");
+        }
+        this.canvas = new canvas_1.Canvas(canvasElement);
+        for (let i = 0; i < boidQuantity; i++) {
+            this.boids.push(new boid_1.Boid());
+        }
+        this.boids.forEach((boid) => {
+            boid.otherBoids = this.boids.filter((otherboid) => otherboid !== boid);
+        });
+    }
+    runSimulation() {
+        this.tick();
+    }
+    tick() {
+        this.boids.forEach((boid) => {
+            boid.move();
+        });
+        this.canvas.update(this.boids);
+        ((thisCaptured) => {
+            setTimeout(() => {
+                thisCaptured.tick();
+            }, 1000 / 12);
+        })(this);
+    }
+}
+exports.BoidManager = BoidManager;
+
+},{"./boid":2,"./canvas":4}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Canvas {
+    static randomColor() {
+        const hue = Math.random() * 360;
+        return "hsl(" + hue + ", 50%, 50%)";
+    }
+    constructor(canvasElement) {
+        this.canvas = canvasElement;
+    }
+    addElement(element) {
+        this.canvas.insertAdjacentElement("beforeend", element);
+    }
+    update(boids) {
+        boids.forEach((boid) => {
+            this.updateBoid(boid);
+        });
+    }
+    updateBoid(boid) {
+        if (!boid.body) {
+            boid.body = this.buildBodyPart(Canvas.randomColor(), "boid");
+            this.canvas.insertAdjacentElement("beforeend", boid.body);
+        }
+        if (!boid.beak) {
+            boid.beak = this.buildBodyPart("black", "beak");
+            boid.body.insertAdjacentElement("beforeend", boid.beak);
+        }
+        boid.body.style.left = boid.position.x + "vw";
+        boid.body.style.top = boid.position.y + "vh";
+        boid.beak.style.left = 4 * boid.velocity.x + 2 + "px";
+        boid.beak.style.top = 4 * boid.velocity.y + 2 + "px";
+    }
+    buildBodyPart(color, className) {
+        const bodyPart = document.createElement("div");
+        bodyPart.className = className;
+        bodyPart.style.backgroundColor = color;
+        return bodyPart;
+    }
+}
+exports.Canvas = Canvas;
+
+},{}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
@@ -103,7 +140,7 @@ exports.config = {
     turningMax: 0.5,
 };
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {

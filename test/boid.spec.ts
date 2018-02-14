@@ -5,11 +5,13 @@ import { Boid } from "../src/boid";
 const expect = chai.expect;
 
 describe("Boid", () => {
-    describe("random colour generator", () => {
-        it("generates a valid colour string", () => {
-            const colour = Boid.randomColor();
-            const regex = /^hsl\([0-9]*\.[0-9]*, 50%, 50%\)$/;
-            expect(regex.test(colour)).to.equal(true);
+    describe("constructor", () => {
+        it("clips position inside area", () => {
+            const boid = new Boid();
+            expect(boid.position.x).to.be.gte(10);
+            expect(boid.position.x).to.be.lte(80);
+            expect(boid.position.y).to.be.gte(10);
+            expect(boid.position.x).to.be.lte(80);
         });
     });
 });
