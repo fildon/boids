@@ -20,6 +20,14 @@ describe("Vector2", () => {
         });
     });
 
+    describe("equality", () => {
+        it("compares x y values, not object equality", () => {
+            const v0 = new Vector2(0, 1);
+            const v1 = new Vector2(0, 1);
+            expect(v0.equals(v1)).to.be.true;
+        });
+    });
+
     describe("vectorTo", () => {
         it("computes the distance from one vector to another", () => {
             const v0 = new Vector2(1, 1);

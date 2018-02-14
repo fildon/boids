@@ -14,11 +14,12 @@ export class Vector2 {
         return new Vector2(vector.x - this.x, vector.y - this.y);
     }
 
-    public rotate(radians: number): void {
+    public rotate(radians: number): Vector2 {
         const xcopy = this.x;
         const ycopy = this.y;
         this.x = xcopy * Math.cos(radians) - ycopy * Math.sin(radians);
         this.y = xcopy * Math.sin(radians) + ycopy * Math.cos(radians);
+        return this;
     }
 
     public rotateAwayFrom(vector: Vector2, angle: number): void {
