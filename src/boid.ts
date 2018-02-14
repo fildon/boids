@@ -45,34 +45,29 @@ export class Boid {
     public updateHeading() {
         const collisionVector = this.collisionVector();
         if (collisionVector.length() > 0) {
-            const idealTurn = this.velocity.angleTo(collisionVector);
-            const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
-            this.velocity = this.velocity.rotate(limitedTurn);
-            return;
+            return this.updateHeadingTowards(collisionVector);
         }
         const repulsionVector = this.repulsionVector();
         if (repulsionVector.length() > 0) {
-            const idealTurn = this.velocity.angleTo(repulsionVector);
-            const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
-            this.velocity = this.velocity.rotate(limitedTurn);
-            return;
+            return this.updateHeadingTowards(repulsionVector);
         }
         const alignmentVector = this.alignmentVector();
         if (alignmentVector.length() > 0) {
-            const idealTurn = this.velocity.angleTo(alignmentVector);
-            const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
-            this.velocity = this.velocity.rotate(limitedTurn);
-            return;
+            return this.updateHeadingTowards(alignmentVector);
         }
         const attractionVector = this.attractionVector();
         if (attractionVector.length() > 0) {
-            const idealTurn = this.velocity.angleTo(attractionVector);
-            const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
-            this.velocity = this.velocity.rotate(limitedTurn);
-            return;
+            return this.updateHeadingTowards(attractionVector);
         }
         const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
+    }
+
+    public updateHeadingTowards(vector: Vector2) {
+        const idealTurn = this.velocity.angleTo(vector);
+        const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
+        this.velocity = this.velocity.rotate(limitedTurn);
+        return;
     }
 
     public collisionVector(): Vector2 {
