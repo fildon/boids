@@ -49,8 +49,14 @@ class Boid {
         }
         this.velocity.rotate(2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax);
     }
+    repulsionVector() {
+        // TODO implement properly
+        return new vector2_1.Vector2(-1, -1);
+    }
     neighbours(radius) {
-        return this.otherBoids.filter((boid) => this.position.distance(boid.position) < radius);
+        return this.otherBoids.filter((boid) => {
+            return this.distanceToBoid(boid) < radius;
+        });
     }
 }
 exports.Boid = Boid;

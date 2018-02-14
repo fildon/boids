@@ -42,7 +42,7 @@ export class Boid {
         this.updateHeading();
     }
 
-    private updateHeading() {
+    public updateHeading() {
         if (this.otherBoids.length > 0) {
             const nearestNeighbour = this.nearestNeighbour();
             if (this.distanceToBoid(nearestNeighbour) < config.repulsionRadius) {
@@ -52,5 +52,16 @@ export class Boid {
             }
         }
         this.velocity.rotate(2 * config.turningMax * Math.random() - config.turningMax);
+    }
+
+    public repulsionVector(): Vector2 {
+        // TODO implement properly
+        return new Vector2(-1, -1);
+    }
+
+    public neighbours(radius: number): Boid[] {
+        return this.otherBoids.filter((boid) => {
+            return this.distanceToBoid(boid) < radius;
+        });
     }
 }
