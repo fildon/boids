@@ -58,7 +58,7 @@ describe("Boid", () => {
             const boid = new Boid();
             boid.position = new Vector2(0, 0);
             const boidA = new Boid();
-            boidA.position = new Vector2(1, 1);
+            boidA.position = new Vector2(1, 1).scaleToLength(config.repulsionRadius / 2);
             boid.otherBoids = [boidA];
 
             const actual = boid.repulsionVector();
@@ -71,9 +71,9 @@ describe("Boid", () => {
             const boid = new Boid();
             boid.position = new Vector2(0, 0);
             const boidA = new Boid();
-            boidA.position = new Vector2(0, 1);
+            boidA.position = new Vector2(0, 1).scaleToLength(config.repulsionRadius / 2);
             const boidB = new Boid();
-            boidB.position = new Vector2(1, 0);
+            boidB.position = new Vector2(1, 0).scaleToLength(config.repulsionRadius / 2);
 
             boid.otherBoids = [boidA, boidB];
 

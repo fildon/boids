@@ -69,4 +69,8 @@ export class Vector2 {
     public scaleByScalar(scale: number): Vector2 {
         return new Vector2(this.x * scale, this.y * scale);
     }
+
+    public scaleToLength(length: number): Vector2 {
+        return this.scaleByScalar(length / this.length());
+    }
 }

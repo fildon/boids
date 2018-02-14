@@ -263,6 +263,9 @@ class Vector2 {
     scaleByScalar(scale) {
         return new Vector2(this.x * scale, this.y * scale);
     }
+    scaleToLength(length) {
+        return this.scaleByScalar(length / this.length());
+    }
 }
 exports.Vector2 = Vector2;
 
