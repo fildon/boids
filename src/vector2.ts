@@ -19,6 +19,11 @@ export class Vector2 {
         this.y = y;
     }
 
+    public unitVector(): Vector2 {
+        const length = this.length();
+        return this.scaleByScalar(1 / length);
+    }
+
     public distance(v: Vector2): number {
         return Math.sqrt(Math.pow(v.x - this.x, 2) + Math.pow(v.y - this.y, 2));
     }
@@ -34,16 +39,12 @@ export class Vector2 {
         );
     }
 
-    public rotateAwayFrom(vector: Vector2, angle: number): Vector2 {
-        const relativeAngleFromVectorToThis = Math.atan2(
-            vector.x * this.y - vector.y * this.x,
-            vector.x * this.x + vector.y * this.y,
+    // Measures anti clockwise from -PI to PI
+    public angleTo(v: Vector2): number {
+        return Math.atan2(
+            this.x * v.y - this.y * v.x,
+            this.x * v.x + this.y * v.y,
         );
-        if (relativeAngleFromVectorToThis > 0) {
-            return this.rotate(Math.min(Math.PI - relativeAngleFromVectorToThis, angle));
-        } else {
-            return this.rotate(Math.max(-relativeAngleFromVectorToThis - Math.PI, -angle));
-        }
     }
 
     public add(v: Vector2): Vector2 {

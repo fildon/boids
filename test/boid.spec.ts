@@ -62,7 +62,23 @@ describe("Boid", () => {
             boid.otherBoids = [boidA];
 
             const actual = boid.repulsionVector();
-            const expected = new Vector2(-1, -1);
+            const expected = new Vector2(-1, -1).unitVector();
+
+            expect(actual.distance(expected)).to.be.lte(0.0000001);
+        });
+
+        it("gets a repulsion vector with multiple boids too near", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            const boidA = new Boid();
+            boidA.position = new Vector2(0, 1);
+            const boidB = new Boid();
+            boidB.position = new Vector2(1, 0);
+
+            boid.otherBoids = [boidA, boidB];
+
+            const actual = boid.repulsionVector();
+            const expected = new Vector2(-1, -1).unitVector();
 
             expect(actual.distance(expected)).to.be.lte(0.0000001);
         });

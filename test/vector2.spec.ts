@@ -53,37 +53,6 @@ describe("Vector2", () => {
         });
     });
 
-    describe("rotateAwayFrom", () => {
-        it("handles clockwise rotation", () => {
-            const v0 = new Vector2(1, 1);
-            const v1 = new Vector2(1, 2);
-            const v2 = v0.rotateAwayFrom(v1, Math.PI / 4);
-            const expected = new Vector2(Math.sqrt(2), 0);
-            expect(fuzzyVectorEquality(expected, v2)).to.equal(true);
-        });
-        it("handles anticlockwise rotation", () => {
-            const v0 = new Vector2(1, 1);
-            const v1 = new Vector2(2, 1);
-            const v2 = v0.rotateAwayFrom(v1, Math.PI / 4);
-            const expected = new Vector2(0, Math.sqrt(2));
-            expect(fuzzyVectorEquality(expected, v2)).to.equal(true);
-        });
-        it("handles clipped clockwise rotation", () => {
-            const v0 = new Vector2(1, 1);
-            const v1 = new Vector2(0, -1);
-            const v2 = v0.rotateAwayFrom(v1, Math.PI / 2);
-            const expected = new Vector2(0, Math.sqrt(2));
-            expect(fuzzyVectorEquality(expected, v2)).to.equal(true);
-        });
-        it("handles clipped anticlockwise rotation", () => {
-            const v0 = new Vector2(1, 1);
-            const v1 = new Vector2(-1, 0);
-            const v2 = v0.rotateAwayFrom(v1, Math.PI / 2);
-            const expected = new Vector2(Math.sqrt(2), 0);
-            expect(fuzzyVectorEquality(expected, v2)).to.equal(true);
-        });
-    });
-
     describe("clip", () => {
         it("does not clip a vector inside the bounds", () => {
             const v0 = new Vector2(1, 1);

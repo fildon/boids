@@ -43,21 +43,23 @@ export class Boid {
     }
 
     public updateHeading() {
-        if (this.otherBoids.length > 0) {
-            const nearestNeighbour = this.nearestNeighbour();
-            if (this.distanceToBoid(nearestNeighbour) < config.repulsionRadius) {
-                const relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
-                this.velocity = this.velocity.rotateAwayFrom(relativeVectorTo, config.turningMax);
-                return;
-            }
+        const repulsionVector = this.repulsionVector();
+        if (repulsionVector.length() > 0) {
+            const idealTurn = this.velocity.angleTo(repulsionVector);
+            const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
+            this.velocity = this.velocity.rotate(limitedTurn);
+            return;
         }
         const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
 
     public repulsionVector(): Vector2 {
-        // TODO implement properly
-        return new Vector2(-1, -1);
+        return Vector2.average(
+            this.neighbours(config.repulsionRadius).map((boid) => {
+                return this.position.vectorTo(boid.position);
+            }),
+        ).unitVector().scaleByScalar(-1);
     }
 
     public neighbours(radius: number): Boid[] {

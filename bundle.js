@@ -39,20 +39,20 @@ class Boid {
         this.updateHeading();
     }
     updateHeading() {
-        if (this.otherBoids.length > 0) {
-            const nearestNeighbour = this.nearestNeighbour();
-            if (this.distanceToBoid(nearestNeighbour) < config_1.config.repulsionRadius) {
-                const relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
-                this.velocity = this.velocity.rotateAwayFrom(relativeVectorTo, config_1.config.turningMax);
-                return;
-            }
+        const repulsionVector = this.repulsionVector();
+        if (repulsionVector.length() > 0) {
+            const idealTurn = this.velocity.angleTo(repulsionVector);
+            const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.turningMax), -config_1.config.turningMax);
+            this.velocity = this.velocity.rotate(limitedTurn);
+            return;
         }
         const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
     repulsionVector() {
-        // TODO implement properly
-        return new vector2_1.Vector2(-1, -1);
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((boid) => {
+            return this.position.vectorTo(boid.position);
+        })).unitVector().scaleByScalar(-1);
     }
     neighbours(radius) {
         return this.otherBoids.filter((boid) => {
@@ -168,6 +168,10 @@ class Vector2 {
         this.x = x;
         this.y = y;
     }
+    unitVector() {
+        const length = this.length();
+        return this.scaleByScalar(1 / length);
+    }
     distance(v) {
         return Math.sqrt(Math.pow(v.x - this.x, 2) + Math.pow(v.y - this.y, 2));
     }
@@ -177,14 +181,9 @@ class Vector2 {
     rotate(radians) {
         return new Vector2(this.x * Math.cos(radians) - this.y * Math.sin(radians), this.x * Math.sin(radians) + this.y * Math.cos(radians));
     }
-    rotateAwayFrom(vector, angle) {
-        const relativeAngleFromVectorToThis = Math.atan2(vector.x * this.y - vector.y * this.x, vector.x * this.x + vector.y * this.y);
-        if (relativeAngleFromVectorToThis > 0) {
-            return this.rotate(Math.min(Math.PI - relativeAngleFromVectorToThis, angle));
-        }
-        else {
-            return this.rotate(Math.max(-relativeAngleFromVectorToThis - Math.PI, -angle));
-        }
+    // Measures anti clockwise from -PI to PI
+    angleTo(v) {
+        return Math.atan2(this.x * v.y - this.y * v.x, this.x * v.x + this.y * v.y);
     }
     add(v) {
         return new Vector2(this.x + v.x, this.y + v.y);
