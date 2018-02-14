@@ -2,7 +2,7 @@ import { config } from "./config";
 import { Vector2 } from "./vector2";
 
 export class Boid {
-    private static randomColor() {
+    public static randomColor() {
         const hue = Math.random() * 360;
         return "hsl(" + hue + ", 50%, 50%)";
     }
