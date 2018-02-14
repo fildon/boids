@@ -32,10 +32,12 @@ describe("Boid", () => {
             const boid = new Boid();
             const nearBoid = new Boid();
             const farBoid = new Boid();
+            const evenFurtherBoid = new Boid();
             boid.position = new Vector2(0, 0);
             nearBoid.position = new Vector2(1, 0);
             farBoid.position = new Vector2(1, 1);
-            boid.otherBoids = [nearBoid, farBoid];
+            evenFurtherBoid.position = new Vector2(2, 2);
+            boid.otherBoids = [farBoid, nearBoid, evenFurtherBoid];
             expect(boid.nearestNeighbour()).to.equal(nearBoid);
         });
     });
