@@ -41,4 +41,15 @@ describe("Boid", () => {
             expect(boid.nearestNeighbour()).to.equal(nearBoid);
         });
     });
+
+    describe("movement", () => {
+        it("adds velocity to position", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(10, 20);
+            boid.velocity = new Vector2(30, 40);
+            boid.move();
+            const expected = new Vector2(40, 60);
+            expect(boid.position.equals(expected)).to.equal(true);
+        });
+    });
 });

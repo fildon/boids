@@ -53,10 +53,4 @@ export class Boid {
         }
         this.velocity.rotate(2 * config.turningMax * Math.random() - config.turningMax);
     }
-
-    private neighbours(radius: number): Boid[] {
-        return this.otherBoids.filter(
-            (boid) => this.position.distance(boid.position) < radius,
-        );
-    }
 }
