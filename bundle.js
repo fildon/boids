@@ -18,7 +18,8 @@ class Boid {
         this.otherBoids = [];
         this.position = new vector2_1.Vector2(Math.random() * (config_1.config.maxX - config_1.config.minX) + config_1.config.minX, Math.random() * (config_1.config.maxY - config_1.config.minY) + config_1.config.minY);
         const heading = Math.random() * 2 * Math.PI;
-        const speed = config_1.config.speed + (Math.random() - 0.5);
+        const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
+        const speed = config_1.config.minSpeed + (Math.random() * speedRange);
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
     nearestNeighbour() {
@@ -153,10 +154,15 @@ exports.BoidManager = BoidManager;
 },{"./boid":2,"./canvas":4}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("./config");
 class Canvas {
     static randomColor() {
         const hue = Math.random() * 360;
         return "hsl(" + hue + ", 50%, 50%)";
+    }
+    // Where speed is 0 to 1, min to max
+    static colorFromSpeed(speed) {
+        return "hsl(" + (speed * 360) + ", 50%, 50%)";
     }
     constructor(canvasElement) {
         this.canvas = canvasElement;
@@ -171,7 +177,10 @@ class Canvas {
     }
     updateBoid(boid) {
         if (!boid.body) {
-            boid.body = this.buildBodyPart(Canvas.randomColor(), "boid");
+            const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
+            const speedProportion = (boid.velocity.length() - config_1.config.minSpeed) / speedRange;
+            const colour = Canvas.colorFromSpeed(speedProportion);
+            boid.body = this.buildBodyPart(colour, "boid");
             this.canvas.insertAdjacentElement("beforeend", boid.body);
         }
         if (!boid.beak) {
@@ -192,19 +201,20 @@ class Canvas {
 }
 exports.Canvas = Canvas;
 
-},{}],5:[function(require,module,exports){
+},{"./config":5}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
     alignmentRadius: 5,
     attractionRadius: 10,
     collisionRadius: 5,
+    maxSpeed: 1.5,
     maxX: 90,
     maxY: 90,
+    minSpeed: 0.5,
     minX: 10,
     minY: 10,
     repulsionRadius: 1,
-    speed: 1,
     turningMax: 0.5,
 };
 

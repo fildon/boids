@@ -15,7 +15,8 @@ export class Boid {
         );
 
         const heading = Math.random() * 2 * Math.PI;
-        const speed = config.speed + (Math.random() - 0.5);
+        const speedRange = config.maxSpeed - config.minSpeed;
+        const speed = config.minSpeed + (Math.random() * speedRange);
         this.velocity = new Vector2(
             speed * Math.cos(heading),
             speed * Math.sin(heading),

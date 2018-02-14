@@ -1,9 +1,15 @@
 import { Boid } from "./boid";
+import { config } from "./config";
 
 export class Canvas {
     public static randomColor() {
         const hue = Math.random() * 360;
         return "hsl(" + hue + ", 50%, 50%)";
+    }
+
+    // Where speed is 0 to 1, min to max
+    public static colorFromSpeed(speed: number) {
+        return "hsl(" + (speed * 360) + ", 50%, 50%)";
     }
 
     private canvas: HTMLElement;
@@ -24,7 +30,10 @@ export class Canvas {
 
     public updateBoid(boid: Boid): void {
         if (!boid.body) {
-            boid.body = this.buildBodyPart(Canvas.randomColor(), "boid");
+            const speedRange = config.maxSpeed - config.minSpeed;
+            const speedProportion = (boid.velocity.length() - config.minSpeed) / speedRange;
+            const colour = Canvas.colorFromSpeed(speedProportion);
+            boid.body = this.buildBodyPart(colour, "boid");
             this.canvas.insertAdjacentElement("beforeend", boid.body);
         }
         if (!boid.beak) {

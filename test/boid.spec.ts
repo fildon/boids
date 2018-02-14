@@ -16,10 +16,10 @@ describe("Boid", () => {
             expect(boid.position.x).to.be.lte(90);
         });
 
-        it("sets an intitial speed matching the config", () => {
+        it("sets an intitial speed within the config", () => {
             const boid = new Boid();
-            // With some random variance
-            expect(boid.velocity.length()).to.approximately(config.speed, 0.11);
+            expect(boid.velocity.length()).to.be.lte(config.maxSpeed);
+            expect(boid.velocity.length()).to.be.gte(config.minSpeed);
         });
     });
 
