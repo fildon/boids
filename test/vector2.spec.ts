@@ -4,6 +4,12 @@ import { Vector2 } from "../src/vector2";
 
 const expect = chai.expect;
 
+// We can't always test exact equality due to tiny rounding errors
+// Particularly during rotations
+const fuzzyVectorEquality = (v1: Vector2, v2: Vector2) => {
+    return v1.distance(v2) < 0.0000001;
+};
+
 describe("Vector2", () => {
     describe("distance", () => {
         it("computes 3-4-5 triangle", () => {
@@ -43,8 +49,38 @@ describe("Vector2", () => {
             const v0 = new Vector2(Math.sqrt(2), 0);
             const v1 = new Vector2(1, 1);
             v0.rotate(Math.PI / 4);
-            // We can't test exact equality due to tiny rounding errors
-            expect(v0.distance(v1)).to.be.lessThan(0.0000001);
+            expect(fuzzyVectorEquality(v0, v1)).to.equal(true);
+        });
+    });
+
+    describe("rotateAwayFrom", () => {
+        it("handles clockwise rotation", () => {
+            const v0 = new Vector2(1, 1);
+            const v1 = new Vector2(1, 2);
+            v0.rotateAwayFrom(v1, Math.PI / 4);
+            const expected = new Vector2(Math.sqrt(2), 0);
+            expect(fuzzyVectorEquality(expected, v0)).to.equal(true);
+        });
+        it("handles anticlockwise rotation", () => {
+            const v0 = new Vector2(1, 1);
+            const v1 = new Vector2(2, 1);
+            v0.rotateAwayFrom(v1, Math.PI / 4);
+            const expected = new Vector2(0, Math.sqrt(2));
+            expect(fuzzyVectorEquality(expected, v0)).to.equal(true);
+        });
+        it("handles clipped clockwise rotation", () => {
+            const v0 = new Vector2(1, 1);
+            const v1 = new Vector2(0, -1);
+            v0.rotateAwayFrom(v1, Math.PI / 2);
+            const expected = new Vector2(0, Math.sqrt(2));
+            expect(fuzzyVectorEquality(expected, v0)).to.equal(true);
+        });
+        it("handles clipped anticlockwise rotation", () => {
+            const v0 = new Vector2(1, 1);
+            const v1 = new Vector2(-1, 0);
+            v0.rotateAwayFrom(v1, Math.PI / 2);
+            const expected = new Vector2(Math.sqrt(2), 0);
+            expect(fuzzyVectorEquality(expected, v0)).to.equal(true);
         });
     });
 
