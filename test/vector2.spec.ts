@@ -37,4 +37,14 @@ describe("Vector2", () => {
             expect(actual.equals(expected)).to.equal(true);
         });
     });
+
+    describe("rotate", () => {
+        it("rotates a vector", () => {
+            const v0 = new Vector2(Math.sqrt(2), 0);
+            const v1 = new Vector2(1, 1);
+            v0.rotate(Math.PI / 4);
+            // We can't test exact equality due to tiny rounding errors
+            expect(v0.distance(v1)).to.be.lessThan(0.0000001);
+        });
+    });
 });
