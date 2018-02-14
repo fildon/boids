@@ -37,8 +37,8 @@ export class Boid {
     }
 
     public move() {
-        this.position.add(this.velocity);
-        this.position.clip(10, 90, 10, 90);
+        this.position = this.position.add(this.velocity);
+        this.position = this.position.clip(10, 90, 10, 90);
         this.updateHeading();
     }
 
@@ -47,11 +47,12 @@ export class Boid {
             const nearestNeighbour = this.nearestNeighbour();
             if (this.distanceToBoid(nearestNeighbour) < config.repulsionRadius) {
                 const relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
-                this.velocity.rotateAwayFrom(relativeVectorTo, config.turningMax);
+                this.velocity = this.velocity.rotateAwayFrom(relativeVectorTo, config.turningMax);
                 return;
             }
         }
-        this.velocity.rotate(2 * config.turningMax * Math.random() - config.turningMax);
+        const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
+        this.velocity = this.velocity.rotate(randomTurn);
     }
 
     public repulsionVector(): Vector2 {

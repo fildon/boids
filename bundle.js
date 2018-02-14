@@ -34,8 +34,8 @@ class Boid {
         return this.position.distance(boid.position);
     }
     move() {
-        this.position.add(this.velocity);
-        this.position.clip(10, 90, 10, 90);
+        this.position = this.position.add(this.velocity);
+        this.position = this.position.clip(10, 90, 10, 90);
         this.updateHeading();
     }
     updateHeading() {
@@ -43,11 +43,12 @@ class Boid {
             const nearestNeighbour = this.nearestNeighbour();
             if (this.distanceToBoid(nearestNeighbour) < config_1.config.repulsionRadius) {
                 const relativeVectorTo = this.position.vectorTo(nearestNeighbour.position);
-                this.velocity.rotateAwayFrom(relativeVectorTo, config_1.config.turningMax);
+                this.velocity = this.velocity.rotateAwayFrom(relativeVectorTo, config_1.config.turningMax);
                 return;
             }
         }
-        this.velocity.rotate(2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax);
+        const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
+        this.velocity = this.velocity.rotate(randomTurn);
     }
     repulsionVector() {
         // TODO implement properly
@@ -153,6 +154,16 @@ exports.config = {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {
+    static average(vectors) {
+        if (vectors.length === 0) {
+            return new Vector2(0, 0);
+        }
+        const totalVector = vectors.reduce((partialSum, current) => {
+            return partialSum.add(current);
+        });
+        const averageVector = totalVector.scaleByScalar(1 / vectors.length);
+        return averageVector;
+    }
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -164,34 +175,31 @@ class Vector2 {
         return new Vector2(vector.x - this.x, vector.y - this.y);
     }
     rotate(radians) {
-        const xcopy = this.x;
-        const ycopy = this.y;
-        this.x = xcopy * Math.cos(radians) - ycopy * Math.sin(radians);
-        this.y = xcopy * Math.sin(radians) + ycopy * Math.cos(radians);
-        return this;
+        return new Vector2(this.x * Math.cos(radians) - this.y * Math.sin(radians), this.x * Math.sin(radians) + this.y * Math.cos(radians));
     }
     rotateAwayFrom(vector, angle) {
         const relativeAngleFromVectorToThis = Math.atan2(vector.x * this.y - vector.y * this.x, vector.x * this.x + vector.y * this.y);
         if (relativeAngleFromVectorToThis > 0) {
-            this.rotate(Math.min(Math.PI - relativeAngleFromVectorToThis, angle));
+            return this.rotate(Math.min(Math.PI - relativeAngleFromVectorToThis, angle));
         }
         else {
-            this.rotate(Math.max(-relativeAngleFromVectorToThis - Math.PI, -angle));
+            return this.rotate(Math.max(-relativeAngleFromVectorToThis - Math.PI, -angle));
         }
     }
     add(v) {
-        this.x += v.x;
-        this.y += v.y;
+        return new Vector2(this.x + v.x, this.y + v.y);
     }
     clip(xMin, xMax, yMin, yMax) {
-        this.x = Math.min(Math.max(this.x, xMin), xMax);
-        this.y = Math.min(Math.max(this.y, yMin), yMax);
+        return new Vector2(Math.min(Math.max(this.x, xMin), xMax), Math.min(Math.max(this.y, yMin), yMax));
     }
     equals(v) {
         return this.x === v.x && this.y === v.y;
     }
     length() {
         return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    }
+    scaleByScalar(scale) {
+        return new Vector2(this.x * scale, this.y * scale);
     }
 }
 exports.Vector2 = Vector2;

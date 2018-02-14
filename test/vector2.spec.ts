@@ -48,8 +48,8 @@ describe("Vector2", () => {
         it("rotates a vector", () => {
             const v0 = new Vector2(Math.sqrt(2), 0);
             const v1 = new Vector2(1, 1);
-            v0.rotate(Math.PI / 4);
-            expect(fuzzyVectorEquality(v0, v1)).to.equal(true);
+            const v2 = v0.rotate(Math.PI / 4);
+            expect(fuzzyVectorEquality(v2, v1)).to.equal(true);
         });
     });
 
@@ -57,46 +57,46 @@ describe("Vector2", () => {
         it("handles clockwise rotation", () => {
             const v0 = new Vector2(1, 1);
             const v1 = new Vector2(1, 2);
-            v0.rotateAwayFrom(v1, Math.PI / 4);
+            const v2 = v0.rotateAwayFrom(v1, Math.PI / 4);
             const expected = new Vector2(Math.sqrt(2), 0);
-            expect(fuzzyVectorEquality(expected, v0)).to.equal(true);
+            expect(fuzzyVectorEquality(expected, v2)).to.equal(true);
         });
         it("handles anticlockwise rotation", () => {
             const v0 = new Vector2(1, 1);
             const v1 = new Vector2(2, 1);
-            v0.rotateAwayFrom(v1, Math.PI / 4);
+            const v2 = v0.rotateAwayFrom(v1, Math.PI / 4);
             const expected = new Vector2(0, Math.sqrt(2));
-            expect(fuzzyVectorEquality(expected, v0)).to.equal(true);
+            expect(fuzzyVectorEquality(expected, v2)).to.equal(true);
         });
         it("handles clipped clockwise rotation", () => {
             const v0 = new Vector2(1, 1);
             const v1 = new Vector2(0, -1);
-            v0.rotateAwayFrom(v1, Math.PI / 2);
+            const v2 = v0.rotateAwayFrom(v1, Math.PI / 2);
             const expected = new Vector2(0, Math.sqrt(2));
-            expect(fuzzyVectorEquality(expected, v0)).to.equal(true);
+            expect(fuzzyVectorEquality(expected, v2)).to.equal(true);
         });
         it("handles clipped anticlockwise rotation", () => {
             const v0 = new Vector2(1, 1);
             const v1 = new Vector2(-1, 0);
-            v0.rotateAwayFrom(v1, Math.PI / 2);
+            const v2 = v0.rotateAwayFrom(v1, Math.PI / 2);
             const expected = new Vector2(Math.sqrt(2), 0);
-            expect(fuzzyVectorEquality(expected, v0)).to.equal(true);
+            expect(fuzzyVectorEquality(expected, v2)).to.equal(true);
         });
     });
 
     describe("clip", () => {
         it("does not clip a vector inside the bounds", () => {
             const v0 = new Vector2(1, 1);
-            v0.clip(0, 2, 0, 2);
-            expect(v0.x).to.equal(1);
-            expect(v0.y).to.equal(1);
+            const v1 = v0.clip(0, 2, 0, 2);
+            expect(v1.x).to.equal(1);
+            expect(v1.y).to.equal(1);
         });
 
         it("clips x and y", () => {
             const v0 = new Vector2(1 , 1);
-            v0.clip(2, 3, 0, 1);
-            expect(v0.x).to.equal(2);
-            expect(v0.y).to.equal(1);
+            const v1 = v0.clip(2, 3, 0, 1);
+            expect(v1.x).to.equal(2);
+            expect(v1.y).to.equal(1);
         });
     });
 
@@ -104,9 +104,37 @@ describe("Vector2", () => {
         it("adds two vectors together", () => {
             const v0 = new Vector2(1, 2);
             const v1 = new Vector2(3, 4);
-            v0.add(v1);
-            expect(v0.x).to.equal(4);
-            expect(v0.y).to.equal(6);
+            const v2 = v0.add(v1);
+            expect(v2.x).to.equal(4);
+            expect(v2.y).to.equal(6);
+        });
+    });
+
+    describe("average", () => {
+        it("returns the zero vector if none input", () => {
+            const actual = Vector2.average([]);
+            expect(actual.x).to.equal(0);
+            expect(actual.y).to.equal(0);
+        });
+
+        it("returns the same vector if only one input", () => {
+            const v = new Vector2(1, 1);
+            const actual = Vector2.average([v]);
+            expect(actual.x).to.equal(v.x);
+            expect(actual.y).to.equal(v.y);
+        });
+
+        it("returns the average of two or more vectors", () => {
+            const v1 = new Vector2(0, 0);
+            const v2 = new Vector2(2, 2);
+            const v3 = new Vector2(0, 2);
+            const v4 = new Vector2(2, 0);
+
+            const expected = new Vector2(1, 1);
+            const actual = Vector2.average([v1, v2, v3, v4]);
+
+            expect(actual.x).to.equal(expected.x);
+            expect(actual.y).to.equal(expected.y);
         });
     });
 });
