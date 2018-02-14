@@ -24,7 +24,7 @@ describe("Vector2", () => {
         it("compares x y values, not object equality", () => {
             const v0 = new Vector2(0, 1);
             const v1 = new Vector2(0, 1);
-            expect(v0.equals(v1)).to.be.true;
+            expect(v0.equals(v1)).to.equal(true);
         });
     });
 
@@ -34,7 +34,7 @@ describe("Vector2", () => {
             const v1 = new Vector2(2, 3);
             const actual = v0.vectorTo(v1);
             const expected = new Vector2(1, 2);
-            expect(actual.equals(expected)).to.be.true;
+            expect(actual.equals(expected)).to.equal(true);
         });
     });
 });

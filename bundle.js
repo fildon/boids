@@ -122,6 +122,7 @@ class Vector2 {
         const ycopy = this.y;
         this.x = xcopy * Math.cos(radians) - ycopy * Math.sin(radians);
         this.y = xcopy * Math.sin(radians) + ycopy * Math.cos(radians);
+        return this;
     }
     rotateAwayFrom(vector, angle) {
         const relativeAngleFromVectorToThis = Math.atan2(vector.x * this.y - vector.y * this.x, vector.x * this.x + vector.y * this.y);
@@ -139,6 +140,9 @@ class Vector2 {
     clip(xMin, xMax, yMin, yMax) {
         this.x = Math.min(Math.max(this.x, xMin), xMax);
         this.y = Math.min(Math.max(this.y, yMin), yMax);
+    }
+    equals(v) {
+        return this.x === v.x && this.y === v.y;
     }
 }
 exports.Vector2 = Vector2;
