@@ -47,4 +47,20 @@ describe("Vector2", () => {
             expect(v0.distance(v1)).to.be.lessThan(0.0000001);
         });
     });
+
+    describe("clip", () => {
+        it("does not clip a vector inside the bounds", () => {
+            const v0 = new Vector2(1, 1);
+            v0.clip(0, 2, 0, 2);
+            expect(v0.x).to.equal(1);
+            expect(v0.y).to.equal(1);
+        });
+
+        it("clips x and y", () => {
+            const v0 = new Vector2(1 , 1);
+            v0.clip(2, 3, 0, 1);
+            expect(v0.x).to.equal(2);
+            expect(v0.y).to.equal(1);
+        });
+    });
 });
