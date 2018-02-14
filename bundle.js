@@ -46,6 +46,13 @@ class Boid {
             this.velocity = this.velocity.rotate(limitedTurn);
             return;
         }
+        const alignmentVector = this.alignmentVector();
+        if (alignmentVector.length() > 0) {
+            const idealTurn = this.velocity.angleTo(alignmentVector);
+            const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.turningMax), -config_1.config.turningMax);
+            this.velocity = this.velocity.rotate(limitedTurn);
+            return;
+        }
         const attractionVector = this.attractionVector();
         if (attractionVector.length() > 0) {
             const idealTurn = this.velocity.angleTo(attractionVector);
@@ -67,6 +74,11 @@ class Boid {
         }
         return vector2_1.Vector2.average(this.neighbours(config_1.config.attractionRadius).map((boid) => {
             return this.position.vectorTo(boid.position);
+        })).unitVector();
+    }
+    alignmentVector() {
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.alignmentRadius).map((boid) => {
+            return boid.velocity;
         })).unitVector();
     }
     neighbours(radius) {
@@ -163,7 +175,8 @@ exports.Canvas = Canvas;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
-    attractionRadius: 10,
+    alignmentRadius: 10,
+    attractionRadius: 15,
     repulsionRadius: 5,
     speed: 1,
     turningMax: 0.5,

@@ -1,4 +1,5 @@
 interface IConfig {
+    alignmentRadius: number;
     attractionRadius: number;
     repulsionRadius: number;
     speed: number;
@@ -6,7 +7,8 @@ interface IConfig {
 }
 
 export const config: IConfig = {
-    attractionRadius: 10,
+    alignmentRadius: 10,
+    attractionRadius: 15,
     repulsionRadius: 5,
     speed: 1,
     turningMax: 0.5,
