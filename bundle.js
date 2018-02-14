@@ -21,6 +21,9 @@ class Boid {
         this.velocity = new vector2_1.Vector2(config_1.config.speed * Math.cos(heading), config_1.config.speed * Math.sin(heading));
     }
     nearestNeighbour() {
+        if (this.otherBoids.length === 0) {
+            throw new Error("No other boids");
+        }
         return this.otherBoids.reduce((nearestBoid, currentBoid) => {
             const nearestDistance = this.distanceToBoid(nearestBoid);
             const currentDistance = this.distanceToBoid(currentBoid);

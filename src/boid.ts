@@ -22,6 +22,9 @@ export class Boid {
     }
 
     public nearestNeighbour(): Boid {
+        if (this.otherBoids.length === 0) {
+            throw new Error("No other boids");
+        }
         return this.otherBoids.reduce((nearestBoid, currentBoid) => {
             const nearestDistance = this.distanceToBoid(nearestBoid);
             const currentDistance = this.distanceToBoid(currentBoid);
