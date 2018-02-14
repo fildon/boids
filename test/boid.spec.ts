@@ -84,6 +84,45 @@ describe("Boid", () => {
         });
     });
 
+    describe("attraction", () => {
+        it("returns the zero vector if no other boids in range", () => {
+            const boid = new Boid();
+
+            const actual = boid.attractionVector();
+            const expected = new Vector2(0, 0);
+
+            expect(actual.distance(expected)).to.be.lte(0.0000001);
+        });
+
+        it("attracts to sole boid in range", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            const nearBoid = new Boid();
+            nearBoid.position = new Vector2(1, 1);
+            boid.otherBoids = [nearBoid];
+
+            const actual = boid.attractionVector();
+            const expected = new Vector2(1, 1).unitVector();
+
+            expect(actual.distance(expected)).to.be.lte(0.0000001);
+        });
+
+        it("attracts to average of multiple near boids", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            const boidA = new Boid();
+            boidA.position = new Vector2(1, 1);
+            const boidB = new Boid();
+            boidB.position = new Vector2(-1, 1);
+            boid.otherBoids = [boidA, boidB];
+
+            const actual = boid.attractionVector();
+            const expected = new Vector2(0, 1);
+
+            expect(actual.distance(expected)).to.be.lte(0.0000001);
+        });
+    });
+
     describe("neighbours", () => {
         it("returns none if there are no other boids", () => {
             const boid = new Boid();

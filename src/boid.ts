@@ -50,6 +50,13 @@ export class Boid {
             this.velocity = this.velocity.rotate(limitedTurn);
             return;
         }
+        const attractionVector = this.attractionVector();
+        if (attractionVector.length() > 0) {
+            const idealTurn = this.velocity.angleTo(attractionVector);
+            const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
+            this.velocity = this.velocity.rotate(limitedTurn);
+            return;
+        }
         const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
@@ -62,7 +69,21 @@ export class Boid {
         ).unitVector().scaleByScalar(-1);
     }
 
+    public attractionVector(): Vector2 {
+        if (this.otherBoids.length === 0) {
+            return new Vector2(0, 0);
+        }
+        return Vector2.average(
+            this.neighbours(config.attractionRadius).map((boid) => {
+                return this.position.vectorTo(boid.position);
+            }),
+        ).unitVector();
+    }
+
     public neighbours(radius: number): Boid[] {
+        if (this.otherBoids.length === 0) {
+            return [];
+        }
         return this.otherBoids.filter((boid) => {
             return this.distanceToBoid(boid) < radius;
         });

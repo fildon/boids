@@ -46,6 +46,13 @@ class Boid {
             this.velocity = this.velocity.rotate(limitedTurn);
             return;
         }
+        const attractionVector = this.attractionVector();
+        if (attractionVector.length() > 0) {
+            const idealTurn = this.velocity.angleTo(attractionVector);
+            const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.turningMax), -config_1.config.turningMax);
+            this.velocity = this.velocity.rotate(limitedTurn);
+            return;
+        }
         const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
@@ -54,7 +61,18 @@ class Boid {
             return this.position.vectorTo(boid.position);
         })).unitVector().scaleByScalar(-1);
     }
+    attractionVector() {
+        if (this.otherBoids.length === 0) {
+            return new vector2_1.Vector2(0, 0);
+        }
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.attractionRadius).map((boid) => {
+            return this.position.vectorTo(boid.position);
+        })).unitVector();
+    }
     neighbours(radius) {
+        if (this.otherBoids.length === 0) {
+            return [];
+        }
         return this.otherBoids.filter((boid) => {
             return this.distanceToBoid(boid) < radius;
         });
@@ -145,6 +163,7 @@ exports.Canvas = Canvas;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
+    attractionRadius: 10,
     repulsionRadius: 5,
     speed: 1,
     turningMax: 0.5,
