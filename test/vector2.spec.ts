@@ -63,4 +63,14 @@ describe("Vector2", () => {
             expect(v0.y).to.equal(1);
         });
     });
+
+    describe("add", () => {
+        it("adds two vectors together", () => {
+            const v0 = new Vector2(1, 2);
+            const v1 = new Vector2(3, 4);
+            v0.add(v1);
+            expect(v0.x).to.equal(4);
+            expect(v0.y).to.equal(6);
+        });
+    });
 });
