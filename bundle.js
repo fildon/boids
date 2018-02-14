@@ -201,14 +201,14 @@ exports.Canvas = Canvas;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
-    alignmentRadius: 10,
-    attractionRadius: 15,
+    alignmentRadius: 5,
+    attractionRadius: 10,
     collisionRadius: 5,
     maxX: 90,
     maxY: 90,
     minX: 10,
     minY: 10,
-    repulsionRadius: 5,
+    repulsionRadius: 1,
     speed: 1,
     turningMax: 0.5,
 };
