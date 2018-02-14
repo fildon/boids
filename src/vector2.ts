@@ -47,4 +47,8 @@ export class Vector2 {
     public equals(v: Vector2): boolean {
         return this.x === v.x && this.y === v.y;
     }
+
+    public length(): number {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    }
 }

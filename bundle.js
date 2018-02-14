@@ -181,6 +181,9 @@ class Vector2 {
     equals(v) {
         return this.x === v.x && this.y === v.y;
     }
+    length() {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    }
 }
 exports.Vector2 = Vector2;
 
