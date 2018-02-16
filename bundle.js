@@ -169,18 +169,22 @@ class Canvas {
         else {
             this.ctx = context;
         }
-        this.canvas.height = config_1.config.maxY;
         this.canvas.width = config_1.config.maxX;
+        this.canvas.height = config_1.config.maxY;
         this.speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
     }
     draw(boids) {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (window) {
             config_1.config.maxX = window.innerWidth * 0.9;
             config_1.config.maxY = window.innerHeight * 0.9;
         }
-        this.ctx.canvas.width = config_1.config.maxX;
-        this.ctx.canvas.height = config_1.config.maxY;
+        if (Math.abs(this.ctx.canvas.width - config_1.config.maxX) > 1) {
+            this.ctx.canvas.width = config_1.config.maxX;
+        }
+        if (Math.abs(this.ctx.canvas.height - config_1.config.maxY) > 1) {
+            this.ctx.canvas.height = config_1.config.maxY;
+        }
         boids.forEach((boid) => {
             this.drawBoid(boid);
         });
