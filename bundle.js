@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const boidManager_1 = require("./boidManager");
 document.addEventListener("DOMContentLoaded", () => {
-    new boidManager_1.BoidManager(50).runSimulation();
+    new boidManager_1.BoidManager(100).runSimulation();
 }, false);
 
 },{"./boidManager":3}],2:[function(require,module,exports){
@@ -215,7 +215,7 @@ exports.config = {
     maxSpeed: 10,
     maxX: 1000,
     maxY: 1000,
-    minSpeed: 5,
+    minSpeed: 7,
     minX: 0,
     minY: 0,
     repulsionRadius: 10,

@@ -1,5 +1,5 @@
 import { BoidManager } from "./boidManager";
 
 document.addEventListener("DOMContentLoaded", () => {
-    new BoidManager(50).runSimulation();
+    new BoidManager(100).runSimulation();
 }, false);

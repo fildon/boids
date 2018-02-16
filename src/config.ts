@@ -19,7 +19,7 @@ export const config: IConfig = {
     maxSpeed: 10,
     maxX: 1000,
     maxY: 1000,
-    minSpeed: 5,
+    minSpeed: 7,
     minX: 0,
     minY: 0,
     repulsionRadius: 10,
