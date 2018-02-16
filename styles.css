@@ -1,13 +1,14 @@
 body {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    height: 100%;
+    margin: 0px;
 }
 
-#canvas {
+canvas {
     border: 1px solid black;
     align-self: center;
-}
-
-.title {
-    text-align: center;
+    position: absolute;
+    top: 5%;
 }

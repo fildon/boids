@@ -25,7 +25,13 @@ export class Canvas {
     }
 
     public draw(boids: Boid[]): void {
-        this.ctx.clearRect(0, 0, config.maxX, config.maxY);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (window) {
+            config.maxX = window.innerWidth * 0.9;
+            config.maxY = window.innerHeight * 0.9;
+        }
+        this.ctx.canvas.width = config.maxX;
+        this.ctx.canvas.height = config.maxY;
         boids.forEach((boid) => {
             this.drawBoid(boid);
         });
