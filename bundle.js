@@ -145,7 +145,7 @@ class BoidManager {
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
-            }, 1000 / 12);
+            }, 1000 / 24);
         })(this);
     }
 }
