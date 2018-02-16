@@ -14,6 +14,7 @@ const vector2_1 = require("./vector2");
 class Boid {
     constructor() {
         this.otherBoids = [];
+        this.mousePosition = new vector2_1.Vector2(-1, -1);
         this.position = new vector2_1.Vector2(0, 0);
         const heading = Math.random() * 2 * Math.PI;
         const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
@@ -39,6 +40,10 @@ class Boid {
         this.updateHeading();
     }
     updateHeading() {
+        const mouseAvoidVector = this.mouseAvoidVector();
+        if (mouseAvoidVector.length() > 0) {
+            return this.updateHeadingTowards(mouseAvoidVector);
+        }
         const collisionVector = this.collisionVector();
         if (collisionVector.length() > 0) {
             return this.updateHeadingTowards(collisionVector);
@@ -63,6 +68,15 @@ class Boid {
         const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.turningMax), -config_1.config.turningMax);
         this.velocity = this.velocity.rotate(limitedTurn);
         return;
+    }
+    mouseAvoidVector() {
+        if (this.mousePosition.x > -1) {
+            const vectorFromMouse = this.mousePosition.vectorTo(this.position);
+            if (vectorFromMouse.length() < config_1.config.mouseRadius) {
+                return vectorFromMouse;
+            }
+        }
+        return new vector2_1.Vector2(0, 0);
     }
     collisionVector() {
         const xMin = this.position.x - config_1.config.minX;
@@ -155,6 +169,7 @@ exports.BoidManager = BoidManager;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
+const vector2_1 = require("./vector2");
 class Canvas {
     // Where speed is 0 to 1, min to max
     static colorFromSpeed(speed) {
@@ -172,6 +187,18 @@ class Canvas {
         this.canvas.height = config_1.config.maxY;
         this.canvas.width = config_1.config.maxX;
         this.speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
+        this.mousePosition = new vector2_1.Vector2(-1, -1);
+        this.canvas.onmousemove = (event) => {
+            this.handleMouseMove(event, this.canvas);
+        };
+        this.canvas.onmouseout = this.handleMouseOut;
+    }
+    handleMouseMove(event, canvas) {
+        const rect = canvas.getBoundingClientRect();
+        this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
+    }
+    handleMouseOut() {
+        this.mousePosition = new vector2_1.Vector2(-1, -1);
     }
     draw(boids) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -186,6 +213,7 @@ class Canvas {
         });
     }
     drawBoid(boid) {
+        boid.mousePosition = this.mousePosition;
         this.drawBoidBody(boid);
         this.drawBoidBeak(boid);
     }
@@ -211,7 +239,7 @@ class Canvas {
 }
 exports.Canvas = Canvas;
 
-},{"./config":5}],5:[function(require,module,exports){
+},{"./config":5,"./vector2":6}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
@@ -225,6 +253,7 @@ exports.config = {
     minSpeed: 7,
     minX: 0,
     minY: 0,
+    mouseRadius: 50,
     repulsionRadius: 10,
     turningMax: 0.5,
 };

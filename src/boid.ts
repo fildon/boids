@@ -5,6 +5,7 @@ export class Boid {
     public position: Vector2;
     public velocity: Vector2;
     public otherBoids: Boid[] = [];
+    public mousePosition: Vector2 = new Vector2(-1, -1);
 
     constructor() {
         this.position = new Vector2(0, 0);
@@ -39,6 +40,10 @@ export class Boid {
     }
 
     public updateHeading() {
+        const mouseAvoidVector = this.mouseAvoidVector();
+        if (mouseAvoidVector.length() > 0) {
+            return this.updateHeadingTowards(mouseAvoidVector);
+        }
         const collisionVector = this.collisionVector();
         if (collisionVector.length() > 0) {
             return this.updateHeadingTowards(collisionVector);
@@ -64,6 +69,16 @@ export class Boid {
         const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
         this.velocity = this.velocity.rotate(limitedTurn);
         return;
+    }
+
+    public mouseAvoidVector(): Vector2 {
+        if (this.mousePosition.x > -1) {
+            const vectorFromMouse = this.mousePosition.vectorTo(this.position);
+            if (vectorFromMouse.length() < config.mouseRadius) {
+                return vectorFromMouse;
+            }
+        }
+        return new Vector2(0, 0);
     }
 
     public collisionVector(): Vector2 {

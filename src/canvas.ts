@@ -1,5 +1,6 @@
 import { Boid } from "./boid";
 import { config } from "./config";
+import { Vector2 } from "./vector2";
 
 export class Canvas {
     // Where speed is 0 to 1, min to max
@@ -10,6 +11,7 @@ export class Canvas {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private speedRange: number;
+    private mousePosition: Vector2;
 
     constructor(canvasElement: HTMLCanvasElement) {
         this.canvas = canvasElement;
@@ -22,6 +24,23 @@ export class Canvas {
         this.canvas.height = config.maxY;
         this.canvas.width = config.maxX;
         this.speedRange = config.maxSpeed - config.minSpeed;
+        this.mousePosition = new Vector2(-1, -1);
+        this.canvas.onmousemove = (event: MouseEvent) => {
+            this.handleMouseMove(event, this.canvas);
+        };
+        this.canvas.onmouseout = this.handleMouseOut;
+    }
+
+    public handleMouseMove(event: MouseEvent, canvas: HTMLCanvasElement) {
+        const rect = canvas.getBoundingClientRect();
+        this.mousePosition = new Vector2(
+            event.clientX - rect.left,
+            event.clientY - rect.top,
+        );
+    }
+
+    public handleMouseOut() {
+        this.mousePosition = new Vector2(-1, -1);
     }
 
     public draw(boids: Boid[]): void {
@@ -38,6 +57,7 @@ export class Canvas {
     }
 
     public drawBoid(boid: Boid): void {
+        boid.mousePosition = this.mousePosition;
         this.drawBoidBody(boid);
         this.drawBoidBeak(boid);
     }

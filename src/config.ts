@@ -9,6 +9,7 @@ interface IConfig {
     minSpeed: number;
     minX: number;
     minY: number;
+    mouseRadius: number;
     repulsionRadius: number;
     turningMax: number; // maximum rotation in radians per tick
 }
@@ -24,6 +25,7 @@ export const config: IConfig = {
     minSpeed: 7,
     minX: 0,
     minY: 0,
+    mouseRadius: 50,
     repulsionRadius: 10,
     turningMax: 0.5,
 };
