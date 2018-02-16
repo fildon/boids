@@ -7,7 +7,6 @@ body {
 }
 
 canvas {
-    border: 1px solid black;
     align-self: center;
     position: absolute;
     top: 5%;
