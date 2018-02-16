@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const boidManager_1 = require("./boidManager");
 document.addEventListener("DOMContentLoaded", () => {
-    new boidManager_1.BoidManager(100).runSimulation();
+    new boidManager_1.BoidManager().runSimulation();
 }, false);
 
 },{"./boidManager":3}],2:[function(require,module,exports){
@@ -117,15 +117,16 @@ exports.Boid = Boid;
 Object.defineProperty(exports, "__esModule", { value: true });
 const boid_1 = require("./boid");
 const canvas_1 = require("./canvas");
+const config_1 = require("./config");
 class BoidManager {
-    constructor(boidQuantity) {
+    constructor() {
         this.boids = [];
         const canvasElement = document.getElementById("canvas");
         if (!canvasElement) {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
-        for (let i = 0; i < boidQuantity; i++) {
+        for (let i = 0; i < config_1.config.boidQuantity; i++) {
             this.boids.push(new boid_1.Boid());
         }
         this.boids.forEach((boid) => {
@@ -149,7 +150,7 @@ class BoidManager {
 }
 exports.BoidManager = BoidManager;
 
-},{"./boid":2,"./canvas":4}],4:[function(require,module,exports){
+},{"./boid":2,"./canvas":4,"./config":5}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
@@ -209,6 +210,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
     alignmentRadius: 25,
     attractionRadius: 50,
+    boidQuantity: 100,
     collisionRadius: 25,
     maxSpeed: 10,
     maxX: 1000,

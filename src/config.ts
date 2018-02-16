@@ -1,6 +1,7 @@
 interface IConfig {
     alignmentRadius: number;
     attractionRadius: number;
+    boidQuantity: number;
     collisionRadius: number;
     maxSpeed: number;
     maxX: number;
@@ -15,6 +16,7 @@ interface IConfig {
 export const config: IConfig = {
     alignmentRadius: 25,
     attractionRadius: 50,
+    boidQuantity: 100,
     collisionRadius: 25,
     maxSpeed: 10,
     maxX: 1000,
