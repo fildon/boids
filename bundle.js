@@ -169,6 +169,7 @@ class Canvas {
         }
         this.canvas.height = config_1.config.maxY;
         this.canvas.width = config_1.config.maxX;
+        this.speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
     }
     draw(boids) {
         this.ctx.clearRect(0, 0, config_1.config.maxX, config_1.config.maxY);
@@ -182,8 +183,7 @@ class Canvas {
     }
     drawBoidBody(boid) {
         this.ctx.beginPath();
-        const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
-        const speedProportion = (boid.velocity.length() - config_1.config.minSpeed) / speedRange;
+        const speedProportion = (boid.velocity.length() - config_1.config.minSpeed) / this.speedRange;
         const colour = Canvas.colorFromSpeed(speedProportion);
         this.ctx.arc(boid.position.x, boid.position.y, 4, 0, 2 * Math.PI);
         this.ctx.fillStyle = colour;
@@ -192,9 +192,7 @@ class Canvas {
         this.ctx.stroke();
     }
     drawBoidBeak(boid) {
-        // TODO duplicate code from the function above, pull out somewhere
-        const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
-        const speedProportion = 0.25 + (boid.velocity.length() - config_1.config.minSpeed) / (2 * speedRange);
+        const speedProportion = 0.25 + (boid.velocity.length() - config_1.config.minSpeed) / (2 * this.speedRange);
         this.ctx.beginPath();
         this.ctx.arc(boid.position.x + speedProportion * boid.velocity.x, boid.position.y + speedProportion * boid.velocity.y, 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";

@@ -9,6 +9,7 @@ export class Canvas {
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
+    private speedRange: number;
 
     constructor(canvasElement: HTMLCanvasElement) {
         this.canvas = canvasElement;
@@ -20,6 +21,7 @@ export class Canvas {
         }
         this.canvas.height = config.maxY;
         this.canvas.width = config.maxX;
+        this.speedRange = config.maxSpeed - config.minSpeed;
     }
 
     public draw(boids: Boid[]): void {
@@ -36,8 +38,7 @@ export class Canvas {
 
     public drawBoidBody(boid: Boid): void {
         this.ctx.beginPath();
-        const speedRange = config.maxSpeed - config.minSpeed;
-        const speedProportion = (boid.velocity.length() - config.minSpeed) / speedRange;
+        const speedProportion = (boid.velocity.length() - config.minSpeed) / this.speedRange;
         const colour = Canvas.colorFromSpeed(speedProportion);
         this.ctx.arc(
             boid.position.x,
@@ -50,10 +51,7 @@ export class Canvas {
     }
 
     public drawBoidBeak(boid: Boid): void {
-        // TODO duplicate code from the function above, pull out somewhere
-        const speedRange = config.maxSpeed - config.minSpeed;
-        const speedProportion = 0.25 + (boid.velocity.length() - config.minSpeed) / (2 * speedRange);
-
+        const speedProportion = 0.25 + (boid.velocity.length() - config.minSpeed) / (2 * this.speedRange);
         this.ctx.beginPath();
         this.ctx.arc(
             boid.position.x + speedProportion * boid.velocity.x,
