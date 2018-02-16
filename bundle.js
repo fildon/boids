@@ -13,8 +13,6 @@ const config_1 = require("./config");
 const vector2_1 = require("./vector2");
 class Boid {
     constructor() {
-        this.body = null;
-        this.beak = null;
         this.otherBoids = [];
         this.position = new vector2_1.Vector2(Math.random() * (config_1.config.maxX - config_1.config.minX) + config_1.config.minX, Math.random() * (config_1.config.maxY - config_1.config.minY) + config_1.config.minY);
         const heading = Math.random() * 2 * Math.PI;
@@ -141,7 +139,7 @@ class BoidManager {
         this.boids.forEach((boid) => {
             boid.move();
         });
-        this.canvas.update(this.boids);
+        this.canvas.draw(this.boids);
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
@@ -156,47 +154,53 @@ exports.BoidManager = BoidManager;
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
 class Canvas {
-    static randomColor() {
-        const hue = Math.random() * 360;
-        return "hsl(" + hue + ", 50%, 50%)";
-    }
     // Where speed is 0 to 1, min to max
     static colorFromSpeed(speed) {
         return "hsl(" + (speed * 360) + ", 50%, 50%)";
     }
     constructor(canvasElement) {
         this.canvas = canvasElement;
+        const context = this.canvas.getContext("2d");
+        if (!context) {
+            throw new Error("could not get canvas context");
+        }
+        else {
+            this.ctx = context;
+        }
+        this.canvas.height = config_1.config.maxY;
+        this.canvas.width = config_1.config.maxX;
     }
-    addElement(element) {
-        this.canvas.insertAdjacentElement("beforeend", element);
-    }
-    update(boids) {
+    draw(boids) {
+        this.ctx.clearRect(0, 0, config_1.config.maxX, config_1.config.maxY);
         boids.forEach((boid) => {
-            this.updateBoid(boid);
+            this.drawBoid(boid);
         });
     }
-    updateBoid(boid) {
-        if (!boid.body) {
-            const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
-            const speedProportion = (boid.velocity.length() - config_1.config.minSpeed) / speedRange;
-            const colour = Canvas.colorFromSpeed(speedProportion);
-            boid.body = this.buildBodyPart(colour, "boid");
-            this.canvas.insertAdjacentElement("beforeend", boid.body);
-        }
-        if (!boid.beak) {
-            boid.beak = this.buildBodyPart("black", "beak");
-            boid.body.insertAdjacentElement("beforeend", boid.beak);
-        }
-        boid.body.style.left = boid.position.x + "vw";
-        boid.body.style.top = boid.position.y + "vh";
-        boid.beak.style.left = 4 * boid.velocity.x + 2 + "px";
-        boid.beak.style.top = 4 * boid.velocity.y + 2 + "px";
+    drawBoid(boid) {
+        this.drawBoidBody(boid);
+        this.drawBoidBeak(boid);
     }
-    buildBodyPart(color, className) {
-        const bodyPart = document.createElement("div");
-        bodyPart.className = className;
-        bodyPart.style.backgroundColor = color;
-        return bodyPart;
+    drawBoidBody(boid) {
+        this.ctx.beginPath();
+        const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
+        const speedProportion = (boid.velocity.length() - config_1.config.minSpeed) / speedRange;
+        const colour = Canvas.colorFromSpeed(speedProportion);
+        this.ctx.arc(boid.position.x, boid.position.y, 4, 0, 2 * Math.PI);
+        this.ctx.fillStyle = colour;
+        this.ctx.fill();
+        this.ctx.strokeStyle = colour;
+        this.ctx.stroke();
+    }
+    drawBoidBeak(boid) {
+        // TODO duplicate code from the function above, pull out somewhere
+        const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
+        const speedProportion = 0.25 + (boid.velocity.length() - config_1.config.minSpeed) / (2 * speedRange);
+        this.ctx.beginPath();
+        this.ctx.arc(boid.position.x + speedProportion * boid.velocity.x, boid.position.y + speedProportion * boid.velocity.y, 2, 0, 2 * Math.PI);
+        this.ctx.fillStyle = "black";
+        this.ctx.fill();
+        this.ctx.strokeStyle = "black";
+        this.ctx.stroke();
     }
 }
 exports.Canvas = Canvas;
@@ -205,16 +209,16 @@ exports.Canvas = Canvas;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
-    alignmentRadius: 5,
-    attractionRadius: 10,
-    collisionRadius: 5,
-    maxSpeed: 1.5,
-    maxX: 90,
-    maxY: 90,
-    minSpeed: 0.5,
-    minX: 10,
-    minY: 10,
-    repulsionRadius: 1,
+    alignmentRadius: 25,
+    attractionRadius: 50,
+    collisionRadius: 25,
+    maxSpeed: 10,
+    maxX: 1000,
+    maxY: 1000,
+    minSpeed: 5,
+    minX: 0,
+    minY: 0,
+    repulsionRadius: 10,
     turningMax: 0.5,
 };
 

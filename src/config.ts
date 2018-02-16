@@ -13,15 +13,15 @@ interface IConfig {
 }
 
 export const config: IConfig = {
-    alignmentRadius: 5,
-    attractionRadius: 10,
-    collisionRadius: 5,
-    maxSpeed: 1.5,
-    maxX: 90,
-    maxY: 90,
-    minSpeed: 0.5,
-    minX: 10,
-    minY: 10,
-    repulsionRadius: 1,
+    alignmentRadius: 25,
+    attractionRadius: 50,
+    collisionRadius: 25,
+    maxSpeed: 10,
+    maxX: 1000,
+    maxY: 1000,
+    minSpeed: 5,
+    minX: 0,
+    minY: 0,
+    repulsionRadius: 10,
     turningMax: 0.5,
 };

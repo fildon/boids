@@ -1,15 +1,11 @@
-.boid {
-    height: 10px;
-    width: 10px;
-    position: absolute;
-    border-radius: 5px;
+body {
+    display: flex;
+    flex-direction: column;
 }
 
-.beak {
-    height: 6px;
-    width: 6px;
-    position: absolute;
-    border-radius: 3px;
+#canvas {
+    border: 1px solid black;
+    align-self: center;
 }
 
 .title {

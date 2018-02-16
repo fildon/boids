@@ -10,10 +10,10 @@ describe("Boid", () => {
     describe("constructor", () => {
         it("clips position inside area", () => {
             const boid = new Boid();
-            expect(boid.position.x).to.be.gte(10);
-            expect(boid.position.x).to.be.lte(90);
-            expect(boid.position.y).to.be.gte(10);
-            expect(boid.position.x).to.be.lte(90);
+            expect(boid.position.x).to.be.gte(config.minX);
+            expect(boid.position.x).to.be.lte(config.maxX);
+            expect(boid.position.y).to.be.gte(config.minY);
+            expect(boid.position.y).to.be.lte(config.maxY);
         });
 
         it("sets an intitial speed within the config", () => {

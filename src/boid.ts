@@ -4,8 +4,6 @@ import { Vector2 } from "./vector2";
 export class Boid {
     public position: Vector2;
     public velocity: Vector2;
-    public body: HTMLElement | null = null;
-    public beak: HTMLElement | null = null;
     public otherBoids: Boid[] = [];
 
     constructor() {

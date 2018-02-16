@@ -2,54 +2,66 @@ import { Boid } from "./boid";
 import { config } from "./config";
 
 export class Canvas {
-    public static randomColor() {
-        const hue = Math.random() * 360;
-        return "hsl(" + hue + ", 50%, 50%)";
-    }
-
     // Where speed is 0 to 1, min to max
     public static colorFromSpeed(speed: number) {
         return "hsl(" + (speed * 360) + ", 50%, 50%)";
     }
 
-    private canvas: HTMLElement;
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
 
-    constructor(canvasElement: HTMLElement) {
+    constructor(canvasElement: HTMLCanvasElement) {
         this.canvas = canvasElement;
+        const context = this.canvas.getContext("2d");
+        if (!context) {
+            throw new Error("could not get canvas context");
+        } else {
+            this.ctx = context;
+        }
+        this.canvas.height = config.maxY;
+        this.canvas.width = config.maxX;
     }
 
-    public addElement(element: HTMLElement) {
-        this.canvas.insertAdjacentElement("beforeend", element);
-    }
-
-    public update(boids: Boid[]): void {
+    public draw(boids: Boid[]): void {
+        this.ctx.clearRect(0, 0, config.maxX, config.maxY);
         boids.forEach((boid) => {
-            this.updateBoid(boid);
+            this.drawBoid(boid);
         });
     }
 
-    public updateBoid(boid: Boid): void {
-        if (!boid.body) {
-            const speedRange = config.maxSpeed - config.minSpeed;
-            const speedProportion = (boid.velocity.length() - config.minSpeed) / speedRange;
-            const colour = Canvas.colorFromSpeed(speedProportion);
-            boid.body = this.buildBodyPart(colour, "boid");
-            this.canvas.insertAdjacentElement("beforeend", boid.body);
-        }
-        if (!boid.beak) {
-            boid.beak = this.buildBodyPart("black", "beak");
-            boid.body.insertAdjacentElement("beforeend", boid.beak);
-        }
-        boid.body.style.left = boid.position.x + "vw";
-        boid.body.style.top = boid.position.y + "vh";
-        boid.beak.style.left = 4 * boid.velocity.x + 2 + "px";
-        boid.beak.style.top = 4 * boid.velocity.y + 2 + "px";
+    public drawBoid(boid: Boid): void {
+        this.drawBoidBody(boid);
+        this.drawBoidBeak(boid);
     }
 
-    public buildBodyPart(color: string, className: string) {
-        const bodyPart = document.createElement("div");
-        bodyPart.className = className;
-        bodyPart.style.backgroundColor = color;
-        return bodyPart;
+    public drawBoidBody(boid: Boid): void {
+        this.ctx.beginPath();
+        const speedRange = config.maxSpeed - config.minSpeed;
+        const speedProportion = (boid.velocity.length() - config.minSpeed) / speedRange;
+        const colour = Canvas.colorFromSpeed(speedProportion);
+        this.ctx.arc(
+            boid.position.x,
+            boid.position.y,
+            4, 0, 2 * Math.PI);
+        this.ctx.fillStyle = colour;
+        this.ctx.fill();
+        this.ctx.strokeStyle = colour;
+        this.ctx.stroke();
+    }
+
+    public drawBoidBeak(boid: Boid): void {
+        // TODO duplicate code from the function above, pull out somewhere
+        const speedRange = config.maxSpeed - config.minSpeed;
+        const speedProportion = 0.25 + (boid.velocity.length() - config.minSpeed) / (2 * speedRange);
+
+        this.ctx.beginPath();
+        this.ctx.arc(
+            boid.position.x + speedProportion * boid.velocity.x,
+            boid.position.y + speedProportion * boid.velocity.y,
+            2, 0, 2 * Math.PI);
+        this.ctx.fillStyle = "black";
+        this.ctx.fill();
+        this.ctx.strokeStyle = "black";
+        this.ctx.stroke();
     }
 }

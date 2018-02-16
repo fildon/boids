@@ -6,7 +6,7 @@ export class BoidManager {
     private canvas: Canvas;
     constructor(boidQuantity: number) {
         this.boids = [];
-        const canvasElement = document.getElementById("canvas");
+        const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
         if (!canvasElement) {
             throw new Error("couldn't find 'canvas' on document");
         }
@@ -27,7 +27,7 @@ export class BoidManager {
         this.boids.forEach((boid) => {
             boid.move();
         });
-        this.canvas.update(this.boids);
+        this.canvas.draw(this.boids);
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
