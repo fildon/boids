@@ -191,7 +191,7 @@ class Canvas {
         this.canvas.onmousemove = (event) => {
             this.handleMouseMove(event, this.canvas);
         };
-        this.canvas.onmouseout = this.handleMouseOut;
+        this.canvas.onmouseout = () => { this.handleMouseOut(); };
     }
     handleMouseMove(event, canvas) {
         const rect = canvas.getBoundingClientRect();

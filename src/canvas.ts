@@ -28,7 +28,7 @@ export class Canvas {
         this.canvas.onmousemove = (event: MouseEvent) => {
             this.handleMouseMove(event, this.canvas);
         };
-        this.canvas.onmouseout = this.handleMouseOut;
+        this.canvas.onmouseout = () => { this.handleMouseOut(); };
     }
 
     public handleMouseMove(event: MouseEvent, canvas: HTMLCanvasElement) {
