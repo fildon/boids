@@ -14,7 +14,7 @@ const vector2_1 = require("./vector2");
 class Boid {
     constructor() {
         this.otherBoids = [];
-        this.position = new vector2_1.Vector2(Math.random() * (config_1.config.maxX - config_1.config.minX) + config_1.config.minX, Math.random() * (config_1.config.maxY - config_1.config.minY) + config_1.config.minY);
+        this.position = new vector2_1.Vector2(0, 0);
         const heading = Math.random() * 2 * Math.PI;
         const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
         const speed = config_1.config.minSpeed + (Math.random() * speedRange);
@@ -69,19 +69,20 @@ class Boid {
         const xMax = config_1.config.maxX - this.position.x;
         const yMin = this.position.y - config_1.config.minY;
         const yMax = config_1.config.maxY - this.position.y;
+        let result = new vector2_1.Vector2(0, 0);
         if (xMin < config_1.config.collisionRadius) {
-            return new vector2_1.Vector2(1, 0);
+            result = result.add(new vector2_1.Vector2(1, 0));
         }
         if (xMax < config_1.config.collisionRadius) {
-            return new vector2_1.Vector2(-1, 0);
+            result = result.add(new vector2_1.Vector2(-1, 0));
         }
         if (yMin < config_1.config.collisionRadius) {
-            return new vector2_1.Vector2(0, 1);
+            result = result.add(new vector2_1.Vector2(0, 1));
         }
         if (yMax < config_1.config.collisionRadius) {
-            return new vector2_1.Vector2(0, -1);
+            result = result.add(new vector2_1.Vector2(0, -1));
         }
-        return new vector2_1.Vector2(0, 0);
+        return result;
     }
     repulsionVector() {
         return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((boid) => {

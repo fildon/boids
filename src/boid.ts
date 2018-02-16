@@ -7,11 +7,7 @@ export class Boid {
     public otherBoids: Boid[] = [];
 
     constructor() {
-        this.position = new Vector2(
-            Math.random() * (config.maxX - config.minX) + config.minX,
-            Math.random() * (config.maxY - config.minY) + config.minY,
-        );
-
+        this.position = new Vector2(0, 0);
         const heading = Math.random() * 2 * Math.PI;
         const speedRange = config.maxSpeed - config.minSpeed;
         const speed = config.minSpeed + (Math.random() * speedRange);
@@ -75,19 +71,20 @@ export class Boid {
         const xMax = config.maxX - this.position.x;
         const yMin = this.position.y - config.minY;
         const yMax = config.maxY - this.position.y;
+        let result = new Vector2(0, 0);
         if (xMin < config.collisionRadius) {
-            return new Vector2(1, 0);
+            result = result.add(new Vector2(1, 0));
         }
         if (xMax < config.collisionRadius) {
-            return new Vector2(-1, 0);
+            result = result.add(new Vector2(-1, 0));
         }
         if (yMin < config.collisionRadius) {
-            return new Vector2(0, 1);
+            result = result.add(new Vector2(0, 1));
         }
         if (yMax < config.collisionRadius) {
-            return new Vector2(0, -1);
+            result = result.add(new Vector2(0, -1));
         }
-        return new Vector2(0, 0);
+        return result;
     }
 
     public repulsionVector(): Vector2 {
