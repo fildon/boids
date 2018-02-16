@@ -14,8 +14,8 @@ interface IConfig {
 }
 
 export const config: IConfig = {
-    alignmentRadius: 25,
-    attractionRadius: 50,
+    alignmentRadius: 40,
+    attractionRadius: 100,
     boidQuantity: 100,
     collisionRadius: 25,
     maxSpeed: 10,
