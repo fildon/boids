@@ -3,8 +3,8 @@ import { config } from "./config";
 
 export class Canvas {
     // Where speed is 0 to 1, min to max
-    public static colorFromSpeed(speed: number) {
-        return "hsl(" + (speed * 360) + ", 50%, 50%)";
+    public static hslString(hue: number, saturation: number, lightness: number) {
+        return "hsl(" + hue + ", " + saturation + "%, " + lightness + "%)";
     }
 
     private canvas: HTMLCanvasElement;
@@ -47,29 +47,37 @@ export class Canvas {
     }
 
     public drawBoidBody(boid: Boid): void {
-        this.ctx.beginPath();
         const speedProportion = (boid.velocity.length() - config.minSpeed) / this.speedRange;
-        const colour = Canvas.colorFromSpeed(speedProportion);
-        this.ctx.arc(
-            boid.position.x,
-            boid.position.y,
-            4, 0, 2 * Math.PI);
-        this.ctx.fillStyle = colour;
-        this.ctx.fill();
-        this.ctx.strokeStyle = colour;
-        this.ctx.stroke();
+        const hue = 360 * speedProportion;
+        this.drawFadingCircle(boid.position.x, boid.position.y, 4, hue, 50);
     }
 
     public drawBoidBeak(boid: Boid): void {
         const speedProportion = 0.25 + (boid.velocity.length() - config.minSpeed) / (2 * this.speedRange);
-        this.ctx.beginPath();
-        this.ctx.arc(
+        this.drawFadingCircle(
             boid.position.x + speedProportion * boid.velocity.x,
             boid.position.y + speedProportion * boid.velocity.y,
-            2, 0, 2 * Math.PI);
-        this.ctx.fillStyle = "black";
-        this.ctx.fill();
-        this.ctx.strokeStyle = "black";
-        this.ctx.stroke();
+            2);
+    }
+
+    public drawFadingCircle(x: number, y: number, radius: number, hue?: number, lightness?: number) {
+        const fadeTicks = 10;
+        const ctx = this.ctx;
+        let i = 0;
+        const lightnessDelta = hue ? 50 / fadeTicks : 100 / fadeTicks;
+        const hueOrBlack = hue ? hue : 0;
+        const saturation = hue ? 50 : 0;
+        const interval = setInterval(() => {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = Canvas.hslString(hueOrBlack, saturation, 50 + i * lightnessDelta);
+            ctx.fill();
+            ctx.strokeStyle = Canvas.hslString(hueOrBlack, saturation, 50 + i * lightnessDelta);
+            ctx.stroke();
+            i++;
+            if (i === fadeTicks) {
+                clearInterval(interval);
+            }
+        }, 1000 / config.tickRate);
     }
 }

@@ -32,7 +32,7 @@ export class BoidManager {
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
-            }, 1000 / 24);
+            }, 1000 / config.tickRate);
         }) (this);
     }
 }

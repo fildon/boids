@@ -145,7 +145,7 @@ class BoidManager {
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
-            }, 1000 / 24);
+            }, 1000 / config_1.config.tickRate);
         })(this);
     }
 }
@@ -157,8 +157,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
 class Canvas {
     // Where speed is 0 to 1, min to max
-    static colorFromSpeed(speed) {
-        return "hsl(" + (speed * 360) + ", 50%, 50%)";
+    static hslString(hue, saturation, lightness) {
+        return "hsl(" + hue + ", " + saturation + "%, " + lightness + "%)";
     }
     constructor(canvasElement) {
         this.canvas = canvasElement;
@@ -194,23 +194,33 @@ class Canvas {
         this.drawBoidBeak(boid);
     }
     drawBoidBody(boid) {
-        this.ctx.beginPath();
         const speedProportion = (boid.velocity.length() - config_1.config.minSpeed) / this.speedRange;
-        const colour = Canvas.colorFromSpeed(speedProportion);
-        this.ctx.arc(boid.position.x, boid.position.y, 4, 0, 2 * Math.PI);
-        this.ctx.fillStyle = colour;
-        this.ctx.fill();
-        this.ctx.strokeStyle = colour;
-        this.ctx.stroke();
+        const hue = 360 * speedProportion;
+        this.drawFadingCircle(boid.position.x, boid.position.y, 4, hue, 50);
     }
     drawBoidBeak(boid) {
         const speedProportion = 0.25 + (boid.velocity.length() - config_1.config.minSpeed) / (2 * this.speedRange);
-        this.ctx.beginPath();
-        this.ctx.arc(boid.position.x + speedProportion * boid.velocity.x, boid.position.y + speedProportion * boid.velocity.y, 2, 0, 2 * Math.PI);
-        this.ctx.fillStyle = "black";
-        this.ctx.fill();
-        this.ctx.strokeStyle = "black";
-        this.ctx.stroke();
+        this.drawFadingCircle(boid.position.x + speedProportion * boid.velocity.x, boid.position.y + speedProportion * boid.velocity.y, 2);
+    }
+    drawFadingCircle(x, y, radius, hue, lightness) {
+        const fadeTicks = 10;
+        const ctx = this.ctx;
+        let i = 0;
+        const lightnessDelta = hue ? 50 / fadeTicks : 100 / fadeTicks;
+        const hueOrBlack = hue ? hue : 0;
+        const saturation = hue ? 50 : 0;
+        const interval = setInterval(() => {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = Canvas.hslString(hueOrBlack, saturation, 50 + i * lightnessDelta);
+            ctx.fill();
+            ctx.strokeStyle = Canvas.hslString(hueOrBlack, saturation, 50 + i * lightnessDelta);
+            ctx.stroke();
+            i++;
+            if (i === fadeTicks) {
+                clearInterval(interval);
+            }
+        }, 1000 / config_1.config.tickRate);
     }
 }
 exports.Canvas = Canvas;
@@ -230,6 +240,7 @@ exports.config = {
     minX: 0,
     minY: 0,
     repulsionRadius: 10,
+    tickRate: 24,
     turningMax: 0.5,
 };
 
