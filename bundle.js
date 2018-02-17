@@ -13,9 +13,13 @@ const config_1 = require("./config");
 const vector2_1 = require("./vector2");
 class Boid {
     constructor() {
+        this.history = [];
         this.otherBoids = [];
         this.mousePosition = new vector2_1.Vector2(-1, -1);
         this.position = new vector2_1.Vector2(0, 0);
+        for (let i = 0; i < config_1.config.maxHistory; i++) {
+            this.history.push(new vector2_1.Vector2(0, 0));
+        }
         const heading = Math.random() * 2 * Math.PI;
         const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
         const speed = config_1.config.minSpeed + (Math.random() * speedRange);
@@ -35,6 +39,10 @@ class Boid {
         return this.position.distance(boid.position);
     }
     move() {
+        this.history.push(this.position);
+        while (this.history.length > config_1.config.maxHistory) {
+            this.history = this.history.slice(1);
+        }
         this.position = this.position.add(this.velocity);
         this.position = this.position.clip(config_1.config.minX, config_1.config.maxX, config_1.config.minY, config_1.config.maxY);
         this.updateHeading();
@@ -208,24 +216,40 @@ class Canvas {
         }
         this.ctx.canvas.width = config_1.config.maxX;
         this.ctx.canvas.height = config_1.config.maxY;
+        this.drawGhosts(boids);
         boids.forEach((boid) => {
             this.drawBoid(boid);
         });
     }
+    drawGhosts(boids) {
+        if (!config_1.config.maxHistory) {
+            return;
+        }
+        for (let i = 0; i < config_1.config.maxHistory; i++) {
+            this.ctx.globalAlpha = (i + 1) / config_1.config.maxHistory;
+            boids.forEach((boid) => {
+                this.drawGhost(boid, i);
+            });
+        }
+    }
+    drawGhost(boid, historyIndex) {
+        this.drawBoidBody(boid, historyIndex);
+    }
     drawBoid(boid) {
-        boid.mousePosition = this.mousePosition;
         this.drawBoidBody(boid);
         this.drawBoidBeak(boid);
     }
-    drawBoidBody(boid) {
+    drawBoidBody(boid, historyIndex) {
+        const position = historyIndex ? boid.history[historyIndex] : boid.position;
+        const radius = historyIndex ?
+            4 * (historyIndex / config_1.config.maxHistory) :
+            4;
         this.ctx.beginPath();
         const speedProportion = (boid.velocity.length() - config_1.config.minSpeed) / this.speedRange;
         const colour = Canvas.colorFromSpeed(speedProportion);
-        this.ctx.arc(boid.position.x, boid.position.y, 4, 0, 2 * Math.PI);
+        this.ctx.arc(position.x, position.y, radius, 0, 2 * Math.PI);
         this.ctx.fillStyle = colour;
         this.ctx.fill();
-        this.ctx.strokeStyle = colour;
-        this.ctx.stroke();
     }
     drawBoidBeak(boid) {
         const speedProportion = 0.25 + (boid.velocity.length() - config_1.config.minSpeed) / (2 * this.speedRange);
@@ -233,8 +257,6 @@ class Canvas {
         this.ctx.arc(boid.position.x + speedProportion * boid.velocity.x, boid.position.y + speedProportion * boid.velocity.y, 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
-        this.ctx.strokeStyle = "black";
-        this.ctx.stroke();
     }
 }
 exports.Canvas = Canvas;
@@ -247,6 +269,7 @@ exports.config = {
     attractionRadius: 100,
     boidQuantity: 100,
     collisionRadius: 25,
+    maxHistory: 3,
     maxSpeed: 10,
     maxX: 1000,
     maxY: 1000,

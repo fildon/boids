@@ -4,11 +4,15 @@ import { Vector2 } from "./vector2";
 export class Boid {
     public position: Vector2;
     public velocity: Vector2;
+    public history: Vector2[] = [];
     public otherBoids: Boid[] = [];
     public mousePosition: Vector2 = new Vector2(-1, -1);
 
     constructor() {
         this.position = new Vector2(0, 0);
+        for (let i = 0; i < config.maxHistory; i++) {
+            this.history.push(new Vector2(0, 0));
+        }
         const heading = Math.random() * 2 * Math.PI;
         const speedRange = config.maxSpeed - config.minSpeed;
         const speed = config.minSpeed + (Math.random() * speedRange);
@@ -34,6 +38,10 @@ export class Boid {
     }
 
     public move() {
+        this.history.push(this.position);
+        while (this.history.length > config.maxHistory) {
+            this.history = this.history.slice(1);
+        }
         this.position = this.position.add(this.velocity);
         this.position = this.position.clip(config.minX, config.maxX, config.minY, config.maxY);
         this.updateHeading();

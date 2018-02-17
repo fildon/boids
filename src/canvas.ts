@@ -51,29 +51,48 @@ export class Canvas {
         }
         this.ctx.canvas.width = config.maxX;
         this.ctx.canvas.height = config.maxY;
+        this.drawGhosts(boids);
         boids.forEach((boid) => {
             this.drawBoid(boid);
         });
     }
 
+    public drawGhosts(boids: Boid[]) {
+        if (!config.maxHistory) {
+            return;
+        }
+        for (let i = 0; i < config.maxHistory; i++) {
+            this.ctx.globalAlpha = (i + 1) / config.maxHistory;
+            boids.forEach((boid) => {
+                this.drawGhost(boid, i);
+            });
+        }
+    }
+
+    public drawGhost(boid: Boid, historyIndex: number) {
+        this.drawBoidBody(boid, historyIndex);
+    }
+
     public drawBoid(boid: Boid): void {
-        boid.mousePosition = this.mousePosition;
         this.drawBoidBody(boid);
         this.drawBoidBeak(boid);
     }
 
-    public drawBoidBody(boid: Boid): void {
+    public drawBoidBody(boid: Boid, historyIndex?: number): void {
+        const position = historyIndex ? boid.history[historyIndex] : boid.position;
+        const radius = historyIndex ?
+            4 * (historyIndex / config.maxHistory) :
+            4;
         this.ctx.beginPath();
         const speedProportion = (boid.velocity.length() - config.minSpeed) / this.speedRange;
         const colour = Canvas.colorFromSpeed(speedProportion);
         this.ctx.arc(
-            boid.position.x,
-            boid.position.y,
-            4, 0, 2 * Math.PI);
+            position.x,
+            position.y,
+            radius,
+            0, 2 * Math.PI);
         this.ctx.fillStyle = colour;
         this.ctx.fill();
-        this.ctx.strokeStyle = colour;
-        this.ctx.stroke();
     }
 
     public drawBoidBeak(boid: Boid): void {
@@ -85,7 +104,5 @@ export class Canvas {
             2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
-        this.ctx.strokeStyle = "black";
-        this.ctx.stroke();
     }
 }

@@ -3,6 +3,7 @@ interface IConfig {
     attractionRadius: number;
     boidQuantity: number;
     collisionRadius: number;
+    maxHistory: number;
     maxSpeed: number;
     maxX: number;
     maxY: number;
@@ -19,6 +20,7 @@ export const config: IConfig = {
     attractionRadius: 100,
     boidQuantity: 100,
     collisionRadius: 25,
+    maxHistory: 3,
     maxSpeed: 10,
     maxX: 1000,
     maxY: 1000,
