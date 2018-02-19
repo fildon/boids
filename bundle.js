@@ -167,7 +167,7 @@ class BoidManager {
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
-            }, 1000 / 24);
+            }, 1000 / 60);
         })(this);
     }
 }
@@ -269,16 +269,16 @@ exports.config = {
     attractionRadius: 100,
     boidQuantity: 100,
     collisionRadius: 25,
-    maxHistory: 3,
-    maxSpeed: 10,
+    maxHistory: 5,
+    maxSpeed: 4,
     maxX: 1000,
     maxY: 1000,
-    minSpeed: 7,
+    minSpeed: 3,
     minX: 0,
     minY: 0,
     mouseRadius: 50,
-    repulsionRadius: 10,
-    turningMax: 0.5,
+    repulsionRadius: 20,
+    turningMax: 0.2,
 };
 
 },{}],6:[function(require,module,exports){
