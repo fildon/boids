@@ -25,16 +25,6 @@ class Boid {
         const speed = config_1.config.minSpeed + (Math.random() * speedRange);
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
-    nearestNeighbour() {
-        if (this.otherBoids.length === 0) {
-            throw new Error("No other boids");
-        }
-        return this.otherBoids.reduce((nearestBoid, currentBoid) => {
-            const nearestDistance = this.distanceToBoid(nearestBoid);
-            const currentDistance = this.distanceToBoid(currentBoid);
-            return currentDistance < nearestDistance ? currentBoid : nearestBoid;
-        });
-    }
     distanceToBoid(boid) {
         return this.position.distance(boid.position);
     }
@@ -44,7 +34,7 @@ class Boid {
             this.history = this.history.slice(1);
         }
         this.position = this.position.add(this.velocity);
-        this.position = this.position.clip(config_1.config.minX, config_1.config.maxX, config_1.config.minY, config_1.config.maxY);
+        this.position = this.position.clip(0, config_1.config.maxX, 0, config_1.config.maxY);
         this.updateHeading();
     }
     updateHeading() {
@@ -78,18 +68,18 @@ class Boid {
         return;
     }
     mouseAvoidVector() {
-        if (this.mousePosition.x > -1) {
+        if (this.mousePosition.x !== -1) {
             const vectorFromMouse = this.mousePosition.vectorTo(this.position);
             if (vectorFromMouse.length() < config_1.config.mouseRadius) {
-                return vectorFromMouse;
+                return vectorFromMouse.unitVector();
             }
         }
         return new vector2_1.Vector2(0, 0);
     }
     collisionVector() {
-        const xMin = this.position.x - config_1.config.minX;
+        const xMin = this.position.x;
         const xMax = config_1.config.maxX - this.position.x;
-        const yMin = this.position.y - config_1.config.minY;
+        const yMin = this.position.y;
         const yMax = config_1.config.maxY - this.position.y;
         let result = new vector2_1.Vector2(0, 0);
         if (xMin < config_1.config.collisionRadius) {
@@ -125,9 +115,6 @@ class Boid {
         })).unitVector();
     }
     neighbours(radius) {
-        if (this.otherBoids.length === 0) {
-            return [];
-        }
         return this.otherBoids.filter((boid) => {
             return this.distanceToBoid(boid) < radius;
         });
@@ -220,11 +207,11 @@ exports.config = {
     collisionRadius: 25,
     maxHistory: 5,
     maxSpeed: 4,
+    // maxX and maxY are overwritten at run time
+    // according to actual screen size
     maxX: 1000,
     maxY: 1000,
     minSpeed: 3,
-    minX: 0,
-    minY: 0,
     mouseRadius: 50,
     repulsionRadius: 20,
     turningMax: 0.2,

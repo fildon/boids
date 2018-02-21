@@ -10,9 +10,9 @@ describe("Boid", () => {
     describe("constructor", () => {
         it("clips position inside area", () => {
             const boid = new Boid();
-            expect(boid.position.x).to.be.gte(config.minX);
+            expect(boid.position.x).to.be.gte(0);
             expect(boid.position.x).to.be.lte(config.maxX);
-            expect(boid.position.y).to.be.gte(config.minY);
+            expect(boid.position.y).to.be.gte(0);
             expect(boid.position.y).to.be.lte(config.maxY);
         });
 
@@ -20,26 +20,6 @@ describe("Boid", () => {
             const boid = new Boid();
             expect(boid.velocity.length()).to.be.lte(config.maxSpeed);
             expect(boid.velocity.length()).to.be.gte(config.minSpeed);
-        });
-    });
-
-    describe("nearest neighbour", () => {
-        it("throws if no other boids", () => {
-            const boid = new Boid();
-            expect(boid.nearestNeighbour.bind(boid)).to.throw();
-        });
-
-        it("returns the nearest boid", () => {
-            const boid = new Boid();
-            const nearBoid = new Boid();
-            const farBoid = new Boid();
-            const evenFurtherBoid = new Boid();
-            boid.position = new Vector2(0, 0);
-            nearBoid.position = new Vector2(1, 0);
-            farBoid.position = new Vector2(1, 1);
-            evenFurtherBoid.position = new Vector2(2, 2);
-            boid.otherBoids = [farBoid, nearBoid, evenFurtherBoid];
-            expect(boid.nearestNeighbour()).to.equal(nearBoid);
         });
     });
 
@@ -163,13 +143,126 @@ describe("Boid", () => {
             const nearBoid = new Boid();
             nearBoid.position = new Vector2(0, 1);
             const farBoid = new Boid();
-            farBoid.position = new Vector2(2, 1);
+            farBoid.position = new Vector2(2, 0);
             boid.otherBoids = [nearBoid, farBoid];
 
             const actual = boid.neighbours(2);
 
             expect(actual.length).to.equal(1);
             expect(actual[0]).to.be.equal(nearBoid);
+        });
+    });
+
+    describe("collisionVector", () => {
+        it("points away from the edges", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            const expected = new Vector2(1, 1);
+            expect(boid.collisionVector().equals(expected)).to.equal(true);
+        });
+
+        it("points away from the edges", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(config.maxX, config.maxY);
+            const expected = new Vector2(-1, -1);
+            expect(boid.collisionVector().equals(expected)).to.equal(true);
+        });
+
+        it("points away from the edges", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, config.maxY);
+            const expected = new Vector2(1, -1);
+            expect(boid.collisionVector().equals(expected)).to.equal(true);
+        });
+
+        it("points away from the edges", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(config.maxX, 0);
+            const expected = new Vector2(-1, 1);
+            expect(boid.collisionVector().equals(expected)).to.equal(true);
+        });
+
+        it("does not repeal exactly at collision radius", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(
+                config.collisionRadius,
+                config.collisionRadius,
+            );
+            const expected = new Vector2(0, 0);
+            expect(boid.collisionVector().equals(expected)).to.equal(true);
+        });
+
+        it("does not repeal exactly at collision radius", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(
+                config.maxX - config.collisionRadius,
+                config.maxY - config.collisionRadius,
+            );
+            const expected = new Vector2(0, 0);
+            expect(boid.collisionVector().equals(expected)).to.equal(true);
+        });
+    });
+
+    describe("mouse avoid vector", () => {
+        it("points away from the mouse when within it's radius", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            boid.mousePosition = new Vector2(1, 1);
+            const actual = boid.mouseAvoidVector();
+            const expected = new Vector2(-1, -1).unitVector();
+            expect(actual.distance(expected)).to.be.lessThan(0.0000001);
+        });
+
+        it("uses strict equality distance checking", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            boid.mousePosition = new Vector2(config.mouseRadius, 0);
+            const actual = boid.mouseAvoidVector();
+            const expected = new Vector2(0, 0);
+            expect(actual.equals(expected)).to.equal(true);
+        });
+
+        it("returns zero-vector if mouse is out of area", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            boid.mousePosition = new Vector2(-1, -1);
+            const actual = boid.mouseAvoidVector();
+            const expected = new Vector2(0, 0);
+            expect(actual.equals(expected)).to.equal(true);
+        });
+    });
+
+    describe("update heading towards", () => {
+        it("limits the turn by the turningMax", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            boid.velocity = new Vector2(1, 1).scaleToLength(config.maxSpeed);
+            const expected = boid.velocity.rotate(config.turningMax);
+            boid.updateHeadingTowards(new Vector2(-1, -0.9));
+            const actual = boid.velocity;
+            expect(actual.equals(expected)).to.equal(true);
+        });
+
+        it("limits the turn by the turningMax", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(0, 0);
+            boid.velocity = new Vector2(1, 1).scaleToLength(config.maxSpeed);
+            const expected = boid.velocity.rotate(-config.turningMax);
+            boid.updateHeadingTowards(new Vector2(-0.9, -1));
+            const actual = boid.velocity;
+            expect(actual.equals(expected)).to.equal(true);
+        });
+    });
+
+    describe("update heading", () => {
+        it("rotates by a boundedly random turn if no ideal vectors", () => {
+            const boid = new Boid();
+            boid.position = new Vector2(500, 500);
+            boid.velocity = new Vector2(1, 1);
+            const expectedMin = boid.velocity.rotate(-config.turningMax);
+            boid.updateHeading();
+            expect(expectedMin.angleTo(boid.velocity) < config.turningMax * 2)
+                .to.equal(true);
         });
     });
 });

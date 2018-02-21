@@ -22,17 +22,6 @@ export class Boid {
         );
     }
 
-    public nearestNeighbour(): Boid {
-        if (this.otherBoids.length === 0) {
-            throw new Error("No other boids");
-        }
-        return this.otherBoids.reduce((nearestBoid, currentBoid) => {
-            const nearestDistance = this.distanceToBoid(nearestBoid);
-            const currentDistance = this.distanceToBoid(currentBoid);
-            return currentDistance < nearestDistance ? currentBoid : nearestBoid;
-        });
-    }
-
     public distanceToBoid(boid: Boid): number {
         return this.position.distance(boid.position);
     }
@@ -43,7 +32,7 @@ export class Boid {
             this.history = this.history.slice(1);
         }
         this.position = this.position.add(this.velocity);
-        this.position = this.position.clip(config.minX, config.maxX, config.minY, config.maxY);
+        this.position = this.position.clip(0, config.maxX, 0, config.maxY);
         this.updateHeading();
     }
 
@@ -80,19 +69,19 @@ export class Boid {
     }
 
     public mouseAvoidVector(): Vector2 {
-        if (this.mousePosition.x > -1) {
+        if (this.mousePosition.x !== -1) {
             const vectorFromMouse = this.mousePosition.vectorTo(this.position);
             if (vectorFromMouse.length() < config.mouseRadius) {
-                return vectorFromMouse;
+                return vectorFromMouse.unitVector();
             }
         }
         return new Vector2(0, 0);
     }
 
     public collisionVector(): Vector2 {
-        const xMin = this.position.x - config.minX;
+        const xMin = this.position.x;
         const xMax = config.maxX - this.position.x;
-        const yMin = this.position.y - config.minY;
+        const yMin = this.position.y;
         const yMax = config.maxY - this.position.y;
         let result = new Vector2(0, 0);
         if (xMin < config.collisionRadius) {
@@ -138,9 +127,6 @@ export class Boid {
     }
 
     public neighbours(radius: number): Boid[] {
-        if (this.otherBoids.length === 0) {
-            return [];
-        }
         return this.otherBoids.filter((boid) => {
             return this.distanceToBoid(boid) < radius;
         });
