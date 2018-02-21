@@ -74,6 +74,7 @@ export class Canvas {
     }
 
     public drawBoid(boid: Boid): void {
+        boid.mousePosition = this.mousePosition;
         this.drawBoidBody(boid);
         this.drawBoidBeak(boid);
     }

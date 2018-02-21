@@ -236,6 +236,7 @@ class Canvas {
         this.drawBoidBody(boid, historyIndex);
     }
     drawBoid(boid) {
+        boid.mousePosition = this.mousePosition;
         this.drawBoidBody(boid);
         this.drawBoidBeak(boid);
     }

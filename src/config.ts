@@ -1,21 +1,4 @@
-interface IConfig {
-    alignmentRadius: number;
-    attractionRadius: number;
-    boidQuantity: number;
-    collisionRadius: number;
-    maxHistory: number;
-    maxSpeed: number;
-    maxX: number;
-    maxY: number;
-    minSpeed: number;
-    minX: number;
-    minY: number;
-    mouseRadius: number;
-    repulsionRadius: number;
-    turningMax: number; // maximum rotation in radians per tick
-}
-
-export const config: IConfig = {
+export const config = {
     alignmentRadius: 40,
     attractionRadius: 100,
     boidQuantity: 100,
@@ -29,5 +12,5 @@ export const config: IConfig = {
     minY: 0,
     mouseRadius: 50,
     repulsionRadius: 20,
-    turningMax: 0.2,
+    turningMax: 0.2, // radians
 };
