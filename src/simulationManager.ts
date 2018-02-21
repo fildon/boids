@@ -1,6 +1,9 @@
+import * as ko from "knockout";
+
 import { Boid } from "./boid";
 import { Canvas } from "./canvas";
 import { config } from "./config";
+import { ConfigViewModel } from "./configViewModel";
 import { MouseHandler } from "./mouseHandler";
 
 export class SimulationManager {
@@ -21,6 +24,7 @@ export class SimulationManager {
             boid.otherBoids = this.boids.filter((otherboid) => otherboid !== boid);
         });
         this.mouseHandler = new MouseHandler(canvasElement);
+        ko.applyBindings(new ConfigViewModel());
     }
 
     public runSimulation(): void {

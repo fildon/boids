@@ -28,7 +28,9 @@
         "all": true
     },
     "dependencies": {
+        "@types/knockout": "^3.4.51",
         "@types/node": "^9.4.5",
+        "knockout": "^3.5.0-beta",
         "typescript": "^2.7.1"
     },
     "devDependencies": {
