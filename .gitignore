@@ -9,3 +9,4 @@ coverage
 
 *.js
 !bundle.js #We need to include this so that github pages can run it!
+!stryker.conf.js
