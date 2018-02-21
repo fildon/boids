@@ -32,6 +32,12 @@ describe("Vector2", () => {
             const v1 = new Vector2(0, 1);
             expect(v0.equals(v1)).to.equal(true);
         });
+
+        it("rejects inequal vectors", () => {
+            const v0 = new Vector2(0, 1);
+            const v1 = new Vector2(0, 3);
+            expect(v0.equals(v1)).to.equal(false);
+        });
     });
 
     describe("vectorTo", () => {
@@ -51,6 +57,20 @@ describe("Vector2", () => {
             const v2 = v0.rotate(Math.PI / 4);
             expect(fuzzyVectorEquality(v2, v1)).to.equal(true);
         });
+
+        it("rotates a vector", () => {
+            const v0 = new Vector2(1, 1);
+            const v1 = new Vector2(-1, 1);
+            const v2 = v0.rotate(Math.PI / 2);
+            expect(fuzzyVectorEquality(v2, v1)).to.equal(true);
+        });
+
+        it("rotates a vector", () => {
+            const v0 = new Vector2(1, 1);
+            const v1 = new Vector2(0, Math.sqrt(2));
+            const v2 = v0.rotate(Math.PI / 4);
+            expect(fuzzyVectorEquality(v2, v1)).to.equal(true);
+        });
     });
 
     describe("clip", () => {
@@ -66,6 +86,29 @@ describe("Vector2", () => {
             const v1 = v0.clip(2, 3, 0, 1);
             expect(v1.x).to.equal(2);
             expect(v1.y).to.equal(1);
+        });
+    });
+
+    describe("angleTo", () => {
+        it("measures the angle from one vector to another", () => {
+            const v0 = new Vector2(3, 4);
+            const v1 = new Vector2(-4, 3);
+            expect(v0.angleTo(v1)).to.be.lessThan((Math.PI / 2) + 0.001);
+            expect(v0.angleTo(v1)).to.be.greaterThan((Math.PI / 2) - 0.001);
+        });
+
+        it("measures the angle from one vector to another", () => {
+            const v0 = new Vector2(5, 9);
+            const v1 = new Vector2(-4.87, 9.07);
+            expect(v0.angleTo(v1)).to.be.lessThan(1 + 0.001);
+            expect(v0.angleTo(v1)).to.be.greaterThan(1 - 0.001);
+        });
+
+        it("measures clockwise angles", () => {
+            const v0 = new Vector2(-4, 3);
+            const v1 = new Vector2(3, 4);
+            expect(v0.angleTo(v1)).to.be.lessThan((-Math.PI / 2) + 0.001);
+            expect(v0.angleTo(v1)).to.be.greaterThan((-Math.PI / 2) - 0.001);
         });
     });
 
