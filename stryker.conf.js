@@ -12,7 +12,10 @@ module.exports = function(config) {
     tsconfigFile: "tsconfig.json",
     mutate: [
       "src/**/*.ts",
-      "!src/app.ts"
+      "!src/app.ts",
+      "!src/simulationManager.ts",
+      '!src/mouseHandler.ts',
+      "!src/canvas.ts"
     ]
   });
 };
