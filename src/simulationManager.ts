@@ -1,10 +1,12 @@
 import { Boid } from "./boid";
 import { Canvas } from "./canvas";
 import { config } from "./config";
+import { MouseHandler } from "./mouseHandler";
 
-export class BoidManager {
+export class SimulationManager {
     public boids: Boid[];
     private canvas: Canvas;
+    private mouseHandler: MouseHandler;
     constructor() {
         this.boids = [];
         const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
@@ -18,6 +20,7 @@ export class BoidManager {
         this.boids.forEach((boid) => {
             boid.otherBoids = this.boids.filter((otherboid) => otherboid !== boid);
         });
+        this.mouseHandler = new MouseHandler(canvasElement);
     }
 
     public runSimulation(): void {
@@ -26,6 +29,7 @@ export class BoidManager {
 
     public tick(): void {
         this.boids.forEach((boid) => {
+            boid.mousePosition = this.mouseHandler.mousePosition;
             boid.move();
         });
         this.canvas.draw(this.boids);

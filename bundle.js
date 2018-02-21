@@ -1,12 +1,12 @@
 (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const boidManager_1 = require("./boidManager");
+const simulationManager_1 = require("./simulationManager");
 document.addEventListener("DOMContentLoaded", () => {
-    new boidManager_1.BoidManager().runSimulation();
+    new simulationManager_1.SimulationManager().runSimulation();
 }, false);
 
-},{"./boidManager":3}],2:[function(require,module,exports){
+},{"./simulationManager":6}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
@@ -135,49 +135,10 @@ class Boid {
 }
 exports.Boid = Boid;
 
-},{"./config":5,"./vector2":6}],3:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const boid_1 = require("./boid");
-const canvas_1 = require("./canvas");
-const config_1 = require("./config");
-class BoidManager {
-    constructor() {
-        this.boids = [];
-        const canvasElement = document.getElementById("canvas");
-        if (!canvasElement) {
-            throw new Error("couldn't find 'canvas' on document");
-        }
-        this.canvas = new canvas_1.Canvas(canvasElement);
-        for (let i = 0; i < config_1.config.boidQuantity; i++) {
-            this.boids.push(new boid_1.Boid());
-        }
-        this.boids.forEach((boid) => {
-            boid.otherBoids = this.boids.filter((otherboid) => otherboid !== boid);
-        });
-    }
-    runSimulation() {
-        this.tick();
-    }
-    tick() {
-        this.boids.forEach((boid) => {
-            boid.move();
-        });
-        this.canvas.draw(this.boids);
-        ((thisCaptured) => {
-            setTimeout(() => {
-                thisCaptured.tick();
-            }, 1000 / 60);
-        })(this);
-    }
-}
-exports.BoidManager = BoidManager;
-
-},{"./boid":2,"./canvas":4,"./config":5}],4:[function(require,module,exports){
+},{"./config":4,"./vector2":7}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
-const vector2_1 = require("./vector2");
 class Canvas {
     // Where speed is 0 to 1, min to max
     static colorFromSpeed(speed) {
@@ -195,18 +156,6 @@ class Canvas {
         this.canvas.height = config_1.config.maxY;
         this.canvas.width = config_1.config.maxX;
         this.speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
-        this.mousePosition = new vector2_1.Vector2(-1, -1);
-        this.canvas.onmousemove = (event) => {
-            this.handleMouseMove(event, this.canvas);
-        };
-        this.canvas.onmouseout = () => { this.handleMouseOut(); };
-    }
-    handleMouseMove(event, canvas) {
-        const rect = canvas.getBoundingClientRect();
-        this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
-    }
-    handleMouseOut() {
-        this.mousePosition = new vector2_1.Vector2(-1, -1);
     }
     draw(boids) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -236,7 +185,6 @@ class Canvas {
         this.drawBoidBody(boid, historyIndex);
     }
     drawBoid(boid) {
-        boid.mousePosition = this.mousePosition;
         this.drawBoidBody(boid);
         this.drawBoidBeak(boid);
     }
@@ -262,7 +210,7 @@ class Canvas {
 }
 exports.Canvas = Canvas;
 
-},{"./config":5,"./vector2":6}],5:[function(require,module,exports){
+},{"./config":4}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
@@ -282,7 +230,71 @@ exports.config = {
     turningMax: 0.2,
 };
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const vector2_1 = require("./vector2");
+class MouseHandler {
+    constructor(mouseArea) {
+        this.mousePosition = new vector2_1.Vector2(-1, -1);
+        this.mouseArea = mouseArea;
+        this.mouseArea.onmousemove = (event) => {
+            this.handleMouseMove(event);
+        };
+        this.mouseArea.onmouseout = () => { this.handleMouseOut(); };
+    }
+    handleMouseMove(event) {
+        const rect = this.mouseArea.getBoundingClientRect();
+        this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
+    }
+    handleMouseOut() {
+        this.mousePosition = new vector2_1.Vector2(-1, -1);
+    }
+}
+exports.MouseHandler = MouseHandler;
+
+},{"./vector2":7}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const boid_1 = require("./boid");
+const canvas_1 = require("./canvas");
+const config_1 = require("./config");
+const mouseHandler_1 = require("./mouseHandler");
+class SimulationManager {
+    constructor() {
+        this.boids = [];
+        const canvasElement = document.getElementById("canvas");
+        if (!canvasElement) {
+            throw new Error("couldn't find 'canvas' on document");
+        }
+        this.canvas = new canvas_1.Canvas(canvasElement);
+        for (let i = 0; i < config_1.config.boidQuantity; i++) {
+            this.boids.push(new boid_1.Boid());
+        }
+        this.boids.forEach((boid) => {
+            boid.otherBoids = this.boids.filter((otherboid) => otherboid !== boid);
+        });
+        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
+    }
+    runSimulation() {
+        this.tick();
+    }
+    tick() {
+        this.boids.forEach((boid) => {
+            boid.mousePosition = this.mouseHandler.mousePosition;
+            boid.move();
+        });
+        this.canvas.draw(this.boids);
+        ((thisCaptured) => {
+            setTimeout(() => {
+                thisCaptured.tick();
+            }, 1000 / 60);
+        })(this);
+    }
+}
+exports.SimulationManager = SimulationManager;
+
+},{"./boid":2,"./canvas":3,"./config":4,"./mouseHandler":5}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {
