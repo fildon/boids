@@ -206,7 +206,7 @@ exports.config = {
     boidQuantity: 100,
     collisionRadius: 25,
     maxHistory: 5,
-    maxSpeed: 4,
+    maxSpeed: 3.1,
     // maxX and maxY are overwritten at run time
     // according to actual screen size
     maxX: 1000,
