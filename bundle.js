@@ -38,25 +38,18 @@ class Boid {
         this.updateHeading();
     }
     updateHeading() {
-        const mouseAvoidVector = this.mouseAvoidVector();
-        if (mouseAvoidVector.length() > 0) {
-            return this.updateHeadingTowards(mouseAvoidVector);
-        }
-        const collisionVector = this.collisionVector();
-        if (collisionVector.length() > 0) {
-            return this.updateHeadingTowards(collisionVector);
-        }
-        const repulsionVector = this.repulsionVector();
-        if (repulsionVector.length() > 0) {
-            return this.updateHeadingTowards(repulsionVector);
-        }
-        const alignmentVector = this.alignmentVector();
-        if (alignmentVector.length() > 0) {
-            return this.updateHeadingTowards(alignmentVector);
-        }
-        const attractionVector = this.attractionVector();
-        if (attractionVector.length() > 0) {
-            return this.updateHeadingTowards(attractionVector);
+        const priorities = [
+            () => this.mouseAvoidVector(),
+            () => this.collisionVector(),
+            () => this.repulsionVector(),
+            () => this.alignmentVector(),
+            () => this.attractionVector(),
+        ];
+        for (const priority of priorities) {
+            const priorityVector = priority();
+            if (priorityVector.length() > 0) {
+                return this.updateHeadingTowards(priorityVector);
+            }
         }
         const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
@@ -227,6 +220,10 @@ class ConfigViewModel {
         this.mouseRadius = ko.observable(config_1.config.mouseRadius);
         this.mouseRadius.subscribe((newValue) => {
             config_1.config.mouseRadius = newValue;
+        });
+        this.turningMax = ko.observable(config_1.config.turningMax);
+        this.turningMax.subscribe((newValue) => {
+            config_1.config.turningMax = newValue;
         });
     }
 }
