@@ -6,37 +6,120 @@ document.addEventListener("DOMContentLoaded", () => {
     new simulationManager_1.SimulationManager().runSimulation();
 }, false);
 
-},{"./simulationManager":7}],2:[function(require,module,exports){
+},{"./simulationManager":9}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
-const vector2_1 = require("./vector2");
-class Boid {
-    constructor() {
-        this.history = [];
-        this.otherBoids = [];
-        this.mousePosition = new vector2_1.Vector2(-1, -1);
-        this.position = new vector2_1.Vector2(0, 0);
+class Canvas {
+    constructor(canvasElement) {
+        this.canvas = canvasElement;
+        const context = this.canvas.getContext("2d");
+        if (!context) {
+            throw new Error("could not get canvas context");
+        }
+        else {
+            this.ctx = context;
+        }
+        this.canvas.height = config_1.config.maxY;
+        this.canvas.width = config_1.config.maxX;
+        this.speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
+    }
+    draw(creatures) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (window) {
+            config_1.config.maxX = window.innerWidth * 0.9;
+            config_1.config.maxY = window.innerHeight * 0.9;
+        }
+        this.ctx.canvas.width = config_1.config.maxX;
+        this.ctx.canvas.height = config_1.config.maxY;
+        this.drawGhosts(creatures);
+        creatures.forEach((creature) => {
+            this.drawCreature(creature);
+        });
+    }
+    drawGhosts(creatures) {
+        if (!config_1.config.maxHistory) {
+            return;
+        }
         for (let i = 0; i < config_1.config.maxHistory; i++) {
-            this.history.push(new vector2_1.Vector2(0, 0));
+            this.ctx.globalAlpha = (i + 1) / config_1.config.maxHistory;
+            creatures.forEach((creature) => {
+                this.drawGhost(creature, i);
+            });
         }
-        const heading = Math.random() * 2 * Math.PI;
-        const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
-        const speed = config_1.config.minSpeed + (Math.random() * speedRange);
-        this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
-    distanceToBoid(boid) {
-        return this.position.distance(boid.position);
+    drawGhost(creature, historyIndex) {
+        this.drawCreatureBody(creature, historyIndex);
     }
-    move() {
-        this.history.push(this.position);
-        while (this.history.length > config_1.config.maxHistory) {
-            this.history = this.history.slice(1);
-        }
-        this.position = this.position.add(this.velocity);
-        this.position = this.position.clip(0, config_1.config.maxX, 0, config_1.config.maxY);
-        this.updateHeading();
+    drawCreature(creature) {
+        this.drawCreatureBody(creature);
+        this.drawCreatureBeak(creature);
     }
+    drawCreatureBody(creature, historyIndex) {
+        const position = historyIndex ? creature.history[historyIndex] : creature.position;
+        const radius = historyIndex ?
+            4 * (historyIndex / config_1.config.maxHistory) :
+            4;
+        this.ctx.beginPath();
+        this.ctx.arc(position.x, position.y, radius, 0, 2 * Math.PI);
+        this.ctx.fillStyle = creature.colour;
+        this.ctx.fill();
+    }
+    drawCreatureBeak(creature) {
+        const speedProportion = 0.25 + (creature.velocity.length() - config_1.config.minSpeed) / (2 * this.speedRange);
+        this.ctx.beginPath();
+        this.ctx.arc(creature.position.x + speedProportion * creature.velocity.x, creature.position.y + speedProportion * creature.velocity.y, 2, 0, 2 * Math.PI);
+        this.ctx.fillStyle = "black";
+        this.ctx.fill();
+    }
+}
+exports.Canvas = Canvas;
+
+},{"./config":3}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.config = {
+    alignmentRadius: 40,
+    attractionRadius: 100,
+    boidQuantity: 100,
+    collisionRadius: 25,
+    maxHistory: 5,
+    maxSpeed: 3.1,
+    // maxX and maxY are overwritten at run time
+    // according to actual screen size
+    maxX: 1000,
+    maxY: 1000,
+    minSpeed: 3,
+    mouseRadius: 50,
+    repulsionRadius: 20,
+    turningMax: 0.2,
+};
+
+},{}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const ko = require("knockout");
+const config_1 = require("./config");
+class ConfigViewModel {
+    constructor() {
+        this.mouseRadius = ko.observable(config_1.config.mouseRadius);
+        this.mouseRadius.subscribe((newValue) => {
+            config_1.config.mouseRadius = newValue;
+        });
+        this.turningMax = ko.observable(config_1.config.turningMax);
+        this.turningMax.subscribe((newValue) => {
+            config_1.config.turningMax = newValue;
+        });
+    }
+}
+exports.ConfigViewModel = ConfigViewModel;
+
+},{"./config":3,"knockout":11}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("../config");
+const creature_1 = require("./creature");
+class Boid extends creature_1.Creature {
     updateHeading() {
         const priorities = [
             () => this.mouseAvoidVector(),
@@ -53,6 +136,46 @@ class Boid {
         }
         const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
+    }
+}
+exports.Boid = Boid;
+
+},{"../config":3,"./creature":6}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("../config");
+const vector2_1 = require("../vector2");
+class Creature {
+    constructor() {
+        this.history = [];
+        this.otherCreatures = [];
+        this.mousePosition = new vector2_1.Vector2(-1, -1);
+        this.position = new vector2_1.Vector2(0, 0);
+        for (let i = 0; i < config_1.config.maxHistory; i++) {
+            this.history.push(new vector2_1.Vector2(0, 0));
+        }
+        const heading = Math.random() * 2 * Math.PI;
+        const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
+        const speed = config_1.config.minSpeed + (Math.random() * speedRange);
+        this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
+        const speedProportion = (this.velocity.length() - config_1.config.minSpeed) / (config_1.config.maxSpeed - config_1.config.minSpeed);
+        this.colour = Creature.colorFromSpeed(speedProportion);
+    }
+    // Where speed is 0 to 1, min to max
+    static colorFromSpeed(speed) {
+        return "hsl(" + (speed * 360) + ", 50%, 50%)";
+    }
+    distanceToCreature(creature) {
+        return this.position.distance(creature.position);
+    }
+    move() {
+        this.history.push(this.position);
+        while (this.history.length > config_1.config.maxHistory) {
+            this.history = this.history.slice(1);
+        }
+        this.position = this.position.add(this.velocity);
+        this.position = this.position.clip(0, config_1.config.maxX, 0, config_1.config.maxY);
+        this.updateHeading();
     }
     updateHeadingTowards(vector) {
         const idealTurn = this.velocity.angleTo(vector);
@@ -90,146 +213,72 @@ class Boid {
         return result;
     }
     repulsionVector() {
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((boid) => {
-            return this.position.vectorTo(boid.position);
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((creature) => {
+            return this.position.vectorTo(creature.position);
         })).unitVector().scaleByScalar(-1);
     }
     attractionVector() {
-        if (this.otherBoids.length === 0) {
+        if (this.otherCreatures.length === 0) {
             return new vector2_1.Vector2(0, 0);
         }
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.attractionRadius).map((boid) => {
-            return this.position.vectorTo(boid.position);
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.attractionRadius).map((creature) => {
+            return this.position.vectorTo(creature.position);
         })).unitVector();
     }
     alignmentVector() {
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.alignmentRadius).map((boid) => {
-            return boid.velocity;
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.alignmentRadius).map((creature) => {
+            return creature.velocity;
         })).unitVector();
     }
     neighbours(radius) {
-        return this.otherBoids.filter((boid) => {
-            return this.distanceToBoid(boid) < radius;
+        return this.otherCreatures.filter((creature) => {
+            return this.distanceToCreature(creature) < radius;
         });
     }
 }
-exports.Boid = Boid;
+exports.Creature = Creature;
 
-},{"./config":4,"./vector2":8}],3:[function(require,module,exports){
+},{"../config":3,"../vector2":10}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("./config");
-class Canvas {
-    // Where speed is 0 to 1, min to max
-    static colorFromSpeed(speed) {
-        return "hsl(" + (speed * 360) + ", 50%, 50%)";
+const config_1 = require("../config");
+const vector2_1 = require("../vector2");
+const creature_1 = require("./creature");
+class Hunter extends creature_1.Creature {
+    constructor() {
+        super();
+        this.colour = "black";
+        const speed = config_1.config.minSpeed / 2;
+        const heading = Math.random() * 2 * Math.PI;
+        this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
-    constructor(canvasElement) {
-        this.canvas = canvasElement;
-        const context = this.canvas.getContext("2d");
-        if (!context) {
-            throw new Error("could not get canvas context");
+    updateHeading() {
+        let prey = null;
+        let distanceToPrey = Infinity;
+        for (const creature of this.otherCreatures) {
+            if (creature instanceof Hunter) {
+                continue;
+            }
+            else {
+                const vectorToCreature = this.position.vectorTo(creature.position);
+                if (vectorToCreature.length() < distanceToPrey) {
+                    prey = creature;
+                    distanceToPrey = vectorToCreature.length();
+                }
+            }
+        }
+        if (prey !== null) {
+            this.updateHeadingTowards(this.position.vectorTo(prey.position));
         }
         else {
-            this.ctx = context;
+            const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
+            this.velocity = this.velocity.rotate(randomTurn);
         }
-        this.canvas.height = config_1.config.maxY;
-        this.canvas.width = config_1.config.maxX;
-        this.speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
-    }
-    draw(boids) {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        if (window) {
-            config_1.config.maxX = window.innerWidth * 0.9;
-            config_1.config.maxY = window.innerHeight * 0.9;
-        }
-        this.ctx.canvas.width = config_1.config.maxX;
-        this.ctx.canvas.height = config_1.config.maxY;
-        this.drawGhosts(boids);
-        boids.forEach((boid) => {
-            this.drawBoid(boid);
-        });
-    }
-    drawGhosts(boids) {
-        if (!config_1.config.maxHistory) {
-            return;
-        }
-        for (let i = 0; i < config_1.config.maxHistory; i++) {
-            this.ctx.globalAlpha = (i + 1) / config_1.config.maxHistory;
-            boids.forEach((boid) => {
-                this.drawGhost(boid, i);
-            });
-        }
-    }
-    drawGhost(boid, historyIndex) {
-        this.drawBoidBody(boid, historyIndex);
-    }
-    drawBoid(boid) {
-        this.drawBoidBody(boid);
-        this.drawBoidBeak(boid);
-    }
-    drawBoidBody(boid, historyIndex) {
-        const position = historyIndex ? boid.history[historyIndex] : boid.position;
-        const radius = historyIndex ?
-            4 * (historyIndex / config_1.config.maxHistory) :
-            4;
-        this.ctx.beginPath();
-        const speedProportion = (boid.velocity.length() - config_1.config.minSpeed) / this.speedRange;
-        const colour = Canvas.colorFromSpeed(speedProportion);
-        this.ctx.arc(position.x, position.y, radius, 0, 2 * Math.PI);
-        this.ctx.fillStyle = colour;
-        this.ctx.fill();
-    }
-    drawBoidBeak(boid) {
-        const speedProportion = 0.25 + (boid.velocity.length() - config_1.config.minSpeed) / (2 * this.speedRange);
-        this.ctx.beginPath();
-        this.ctx.arc(boid.position.x + speedProportion * boid.velocity.x, boid.position.y + speedProportion * boid.velocity.y, 2, 0, 2 * Math.PI);
-        this.ctx.fillStyle = "black";
-        this.ctx.fill();
     }
 }
-exports.Canvas = Canvas;
+exports.Hunter = Hunter;
 
-},{"./config":4}],4:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = {
-    alignmentRadius: 40,
-    attractionRadius: 100,
-    boidQuantity: 100,
-    collisionRadius: 25,
-    maxHistory: 5,
-    maxSpeed: 3.1,
-    // maxX and maxY are overwritten at run time
-    // according to actual screen size
-    maxX: 1000,
-    maxY: 1000,
-    minSpeed: 3,
-    mouseRadius: 50,
-    repulsionRadius: 20,
-    turningMax: 0.2,
-};
-
-},{}],5:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const ko = require("knockout");
-const config_1 = require("./config");
-class ConfigViewModel {
-    constructor() {
-        this.mouseRadius = ko.observable(config_1.config.mouseRadius);
-        this.mouseRadius.subscribe((newValue) => {
-            config_1.config.mouseRadius = newValue;
-        });
-        this.turningMax = ko.observable(config_1.config.turningMax);
-        this.turningMax.subscribe((newValue) => {
-            config_1.config.turningMax = newValue;
-        });
-    }
-}
-exports.ConfigViewModel = ConfigViewModel;
-
-},{"./config":4,"knockout":9}],6:[function(require,module,exports){
+},{"../config":3,"../vector2":10,"./creature":6}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
@@ -252,28 +301,30 @@ class MouseHandler {
 }
 exports.MouseHandler = MouseHandler;
 
-},{"./vector2":8}],7:[function(require,module,exports){
+},{"./vector2":10}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
-const boid_1 = require("./boid");
 const canvas_1 = require("./canvas");
 const config_1 = require("./config");
 const configViewModel_1 = require("./configViewModel");
+const boid_1 = require("./creatures/boid");
+const hunter_1 = require("./creatures/hunter");
 const mouseHandler_1 = require("./mouseHandler");
 class SimulationManager {
     constructor() {
-        this.boids = [];
+        this.creatures = [];
         const canvasElement = document.getElementById("canvas");
         if (!canvasElement) {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         for (let i = 0; i < config_1.config.boidQuantity; i++) {
-            this.boids.push(new boid_1.Boid());
+            this.creatures.push(new boid_1.Boid());
         }
-        this.boids.forEach((boid) => {
-            boid.otherBoids = this.boids.filter((otherboid) => otherboid !== boid);
+        this.creatures.push(new hunter_1.Hunter());
+        this.creatures.forEach((creature) => {
+            creature.otherCreatures = this.creatures.filter((othercreature) => othercreature !== creature);
         });
         this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
         ko.applyBindings(new configViewModel_1.ConfigViewModel());
@@ -282,11 +333,11 @@ class SimulationManager {
         this.tick();
     }
     tick() {
-        this.boids.forEach((boid) => {
-            boid.mousePosition = this.mouseHandler.mousePosition;
-            boid.move();
+        this.creatures.forEach((creature) => {
+            creature.mousePosition = this.mouseHandler.mousePosition;
+            creature.move();
         });
-        this.canvas.draw(this.boids);
+        this.canvas.draw(this.creatures);
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
@@ -296,7 +347,7 @@ class SimulationManager {
 }
 exports.SimulationManager = SimulationManager;
 
-},{"./boid":2,"./canvas":3,"./config":4,"./configViewModel":5,"./mouseHandler":6,"knockout":9}],8:[function(require,module,exports){
+},{"./canvas":2,"./config":3,"./configViewModel":4,"./creatures/boid":5,"./creatures/hunter":7,"./mouseHandler":8,"knockout":11}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {
@@ -352,7 +403,7 @@ class Vector2 {
 }
 exports.Vector2 = Vector2;
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.5.0-beta
  * (c) The Knockout.js team - http://knockoutjs.com/

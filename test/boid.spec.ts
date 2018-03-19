@@ -1,7 +1,7 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
-import { Boid } from "../src/boid";
 import { config } from "../src/config";
+import { Boid } from "../src/creatures/boid";
 import { Vector2 } from "../src/vector2";
 
 const expect = chai.expect;
@@ -40,7 +40,7 @@ describe("Boid", () => {
             boid.position = new Vector2(0, 0);
             const boidA = new Boid();
             boidA.position = new Vector2(1, 1).scaleToLength(config.repulsionRadius / 2);
-            boid.otherBoids = [boidA];
+            boid.otherCreatures = [boidA];
 
             const actual = boid.repulsionVector();
             const expected = new Vector2(-1, -1).unitVector();
@@ -56,7 +56,7 @@ describe("Boid", () => {
             const boidB = new Boid();
             boidB.position = new Vector2(1, 0).scaleToLength(config.repulsionRadius / 2);
 
-            boid.otherBoids = [boidA, boidB];
+            boid.otherCreatures = [boidA, boidB];
 
             const actual = boid.repulsionVector();
             const expected = new Vector2(-1, -1).unitVector();
@@ -80,7 +80,7 @@ describe("Boid", () => {
             boid.position = new Vector2(0, 0);
             const nearBoid = new Boid();
             nearBoid.position = new Vector2(1, 1);
-            boid.otherBoids = [nearBoid];
+            boid.otherCreatures = [nearBoid];
 
             const actual = boid.attractionVector();
             const expected = new Vector2(1, 1).unitVector();
@@ -95,7 +95,7 @@ describe("Boid", () => {
             boidA.position = new Vector2(1, 1);
             const boidB = new Boid();
             boidB.position = new Vector2(-1, 1);
-            boid.otherBoids = [boidA, boidB];
+            boid.otherCreatures = [boidA, boidB];
 
             const actual = boid.attractionVector();
             const expected = new Vector2(0, 1);
@@ -129,7 +129,7 @@ describe("Boid", () => {
             boid.position = new Vector2(0, 0);
             const nearBoid = new Boid();
             nearBoid.position = new Vector2(1, 1);
-            boid.otherBoids = [nearBoid];
+            boid.otherCreatures = [nearBoid];
 
             const actual = boid.neighbours(2);
 
@@ -144,7 +144,7 @@ describe("Boid", () => {
             nearBoid.position = new Vector2(0, 1);
             const farBoid = new Boid();
             farBoid.position = new Vector2(2, 0);
-            boid.otherBoids = [nearBoid, farBoid];
+            boid.otherCreatures = [nearBoid, farBoid];
 
             const actual = boid.neighbours(2);
 

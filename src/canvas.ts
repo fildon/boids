@@ -1,13 +1,8 @@
-import { Boid } from "./boid";
 import { config } from "./config";
+import { Creature } from "./creatures/creature";
 import { Vector2 } from "./vector2";
 
 export class Canvas {
-    // Where speed is 0 to 1, min to max
-    public static colorFromSpeed(speed: number) {
-        return "hsl(" + (speed * 360) + ", 50%, 50%)";
-    }
-
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private speedRange: number;
@@ -25,7 +20,7 @@ export class Canvas {
         this.speedRange = config.maxSpeed - config.minSpeed;
     }
 
-    public draw(boids: Boid[]): void {
+    public draw(creatures: Creature[]): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (window) {
             config.maxX = window.innerWidth * 0.9;
@@ -33,56 +28,54 @@ export class Canvas {
         }
         this.ctx.canvas.width = config.maxX;
         this.ctx.canvas.height = config.maxY;
-        this.drawGhosts(boids);
-        boids.forEach((boid) => {
-            this.drawBoid(boid);
+        this.drawGhosts(creatures);
+        creatures.forEach((creature) => {
+            this.drawCreature(creature);
         });
     }
 
-    public drawGhosts(boids: Boid[]) {
+    public drawGhosts(creatures: Creature[]) {
         if (!config.maxHistory) {
             return;
         }
         for (let i = 0; i < config.maxHistory; i++) {
             this.ctx.globalAlpha = (i + 1) / config.maxHistory;
-            boids.forEach((boid) => {
-                this.drawGhost(boid, i);
+            creatures.forEach((creature) => {
+                this.drawGhost(creature, i);
             });
         }
     }
 
-    public drawGhost(boid: Boid, historyIndex: number) {
-        this.drawBoidBody(boid, historyIndex);
+    public drawGhost(creature: Creature, historyIndex: number) {
+        this.drawCreatureBody(creature, historyIndex);
     }
 
-    public drawBoid(boid: Boid): void {
-        this.drawBoidBody(boid);
-        this.drawBoidBeak(boid);
+    public drawCreature(creature: Creature): void {
+        this.drawCreatureBody(creature);
+        this.drawCreatureBeak(creature);
     }
 
-    public drawBoidBody(boid: Boid, historyIndex?: number): void {
-        const position = historyIndex ? boid.history[historyIndex] : boid.position;
+    public drawCreatureBody(creature: Creature, historyIndex?: number): void {
+        const position = historyIndex ? creature.history[historyIndex] : creature.position;
         const radius = historyIndex ?
             4 * (historyIndex / config.maxHistory) :
             4;
         this.ctx.beginPath();
-        const speedProportion = (boid.velocity.length() - config.minSpeed) / this.speedRange;
-        const colour = Canvas.colorFromSpeed(speedProportion);
         this.ctx.arc(
             position.x,
             position.y,
             radius,
             0, 2 * Math.PI);
-        this.ctx.fillStyle = colour;
+        this.ctx.fillStyle = creature.colour;
         this.ctx.fill();
     }
 
-    public drawBoidBeak(boid: Boid): void {
-        const speedProportion = 0.25 + (boid.velocity.length() - config.minSpeed) / (2 * this.speedRange);
+    public drawCreatureBeak(creature: Creature): void {
+        const speedProportion = 0.25 + (creature.velocity.length() - config.minSpeed) / (2 * this.speedRange);
         this.ctx.beginPath();
         this.ctx.arc(
-            boid.position.x + speedProportion * boid.velocity.x,
-            boid.position.y + speedProportion * boid.velocity.y,
+            creature.position.x + speedProportion * creature.velocity.x,
+            creature.position.y + speedProportion * creature.velocity.y,
             2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();

@@ -1,12 +1,18 @@
-import { config } from "./config";
-import { Vector2 } from "./vector2";
+import { config } from "../config";
+import { Vector2 } from "../vector2";
 
-export class Boid {
+export abstract class Creature {
+    // Where speed is 0 to 1, min to max
+    public static colorFromSpeed(speed: number) {
+        return "hsl(" + (speed * 360) + ", 50%, 50%)";
+    }
+
     public position: Vector2;
     public velocity: Vector2;
     public history: Vector2[] = [];
-    public otherBoids: Boid[] = [];
+    public otherCreatures: Creature[] = [];
     public mousePosition: Vector2 = new Vector2(-1, -1);
+    public colour: string;
 
     constructor() {
         this.position = new Vector2(0, 0);
@@ -20,10 +26,12 @@ export class Boid {
             speed * Math.cos(heading),
             speed * Math.sin(heading),
         );
+        const speedProportion = (this.velocity.length() - config.minSpeed) / (config.maxSpeed - config.minSpeed);
+        this.colour = Creature.colorFromSpeed(speedProportion);
     }
 
-    public distanceToBoid(boid: Boid): number {
-        return this.position.distance(boid.position);
+    public distanceToCreature(creature: Creature): number {
+        return this.position.distance(creature.position);
     }
 
     public move() {
@@ -36,23 +44,7 @@ export class Boid {
         this.updateHeading();
     }
 
-    public updateHeading() {
-        const priorities = [
-            () => this.mouseAvoidVector(),
-            () => this.collisionVector(),
-            () => this.repulsionVector(),
-            () => this.alignmentVector(),
-            () => this.attractionVector(),
-        ];
-        for (const priority of priorities) {
-            const priorityVector = priority();
-            if (priorityVector.length() > 0) {
-                return this.updateHeadingTowards(priorityVector);
-            }
-        }
-        const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
-        this.velocity = this.velocity.rotate(randomTurn);
-    }
+    public abstract updateHeading(): void;
 
     public updateHeadingTowards(vector: Vector2) {
         const idealTurn = this.velocity.angleTo(vector);
@@ -94,34 +86,34 @@ export class Boid {
 
     public repulsionVector(): Vector2 {
         return Vector2.average(
-            this.neighbours(config.repulsionRadius).map((boid) => {
-                return this.position.vectorTo(boid.position);
+            this.neighbours(config.repulsionRadius).map((creature) => {
+                return this.position.vectorTo(creature.position);
             }),
         ).unitVector().scaleByScalar(-1);
     }
 
     public attractionVector(): Vector2 {
-        if (this.otherBoids.length === 0) {
+        if (this.otherCreatures.length === 0) {
             return new Vector2(0, 0);
         }
         return Vector2.average(
-            this.neighbours(config.attractionRadius).map((boid) => {
-                return this.position.vectorTo(boid.position);
+            this.neighbours(config.attractionRadius).map((creature) => {
+                return this.position.vectorTo(creature.position);
             }),
         ).unitVector();
     }
 
     public alignmentVector(): Vector2 {
         return Vector2.average(
-            this.neighbours(config.alignmentRadius).map((boid) => {
-                return boid.velocity;
+            this.neighbours(config.alignmentRadius).map((creature) => {
+                return creature.velocity;
             }),
         ).unitVector();
     }
 
-    public neighbours(radius: number): Boid[] {
-        return this.otherBoids.filter((boid) => {
-            return this.distanceToBoid(boid) < radius;
+    public neighbours(radius: number): Creature[] {
+        return this.otherCreatures.filter((creature) => {
+            return this.distanceToCreature(creature) < radius;
         });
     }
 }
