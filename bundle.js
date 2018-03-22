@@ -22,16 +22,20 @@ class Canvas {
         }
         this.canvas.height = config_1.config.maxY;
         this.canvas.width = config_1.config.maxX;
+        this.setScreenSize();
         this.speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
     }
-    draw(creatures) {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    setScreenSize() {
         if (window) {
             config_1.config.maxX = window.innerWidth * 0.9;
             config_1.config.maxY = window.innerHeight * 0.9;
         }
         this.ctx.canvas.width = config_1.config.maxX;
         this.ctx.canvas.height = config_1.config.maxY;
+    }
+    draw(creatures) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.setScreenSize();
         this.drawGhosts(creatures);
         creatures.forEach((creature) => {
             this.drawCreature(creature);
@@ -85,7 +89,7 @@ exports.config = {
     collisionRadius: 25,
     eatRadius: 10,
     maxHistory: 5,
-    maxSpeed: 3.1,
+    maxSpeed: 6,
     // maxX and maxY are overwritten at run time
     // according to actual screen size
     maxX: 1000,
@@ -152,7 +156,7 @@ class Creature {
         this.mousePosition = new vector2_1.Vector2(-1, -1);
         this.id = id;
         this.creatures = creatures;
-        this.position = new vector2_1.Vector2(Math.random() * 100, Math.random() * 100);
+        this.position = new vector2_1.Vector2(Math.random() * config_1.config.maxX, Math.random() * config_1.config.maxY);
         for (let i = 0; i < config_1.config.maxHistory; i++) {
             this.history.push(new vector2_1.Vector2(0, 0));
         }
@@ -259,7 +263,7 @@ class Hunter extends creature_1.Creature {
     constructor(id, creatures) {
         super(id, creatures);
         this.colour = "black";
-        const speed = config_1.config.minSpeed / 2;
+        const speed = config_1.config.minSpeed;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
@@ -298,8 +302,6 @@ class Hunter extends creature_1.Creature {
             }
             else {
                 if (this.position.distance(creature.position) < config_1.config.eatRadius) {
-                    // tslint:disable-next-line
-                    console.log("OM NOM NOM");
                     creature.die();
                 }
             }

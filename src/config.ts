@@ -5,7 +5,7 @@ export const config = {
     collisionRadius: 25,
     eatRadius: 10,
     maxHistory: 5,
-    maxSpeed: 3.1,
+    maxSpeed: 6,
     // maxX and maxY are overwritten at run time
     // according to actual screen size
     maxX: 1000,

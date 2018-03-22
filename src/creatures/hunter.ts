@@ -6,7 +6,7 @@ export class Hunter extends Creature {
     constructor(id: number, creatures: Map<number, Creature>) {
         super(id, creatures);
         this.colour = "black";
-        const speed = config.minSpeed / 2;
+        const speed = config.minSpeed;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new Vector2(
             speed * Math.cos(heading),
