@@ -3,8 +3,8 @@ import { Vector2 } from "../vector2";
 import { Creature } from "./creature";
 
 export class Hunter extends Creature {
-    constructor() {
-        super();
+    constructor(id: number, creatures: Map<number, Creature>) {
+        super(id, creatures);
         this.colour = "black";
         const speed = config.minSpeed / 2;
         const heading = Math.random() * 2 * Math.PI;
@@ -14,10 +14,15 @@ export class Hunter extends Creature {
         );
     }
 
+    public update() {
+        this.eat();
+        this.move();
+    }
+
     public updateHeading() {
         let prey = null;
         let distanceToPrey = Infinity;
-        for (const creature of this.otherCreatures) {
+        for (const creature of this.otherCreatures()) {
             if (creature instanceof Hunter) {
                 continue;
             } else {
@@ -33,6 +38,21 @@ export class Hunter extends Creature {
         } else {
             const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
             this.velocity = this.velocity.rotate(randomTurn);
+        }
+    }
+
+    private eat() {
+        // DUPLICATED code TODO add a utility for filtering creature by type
+        for (const creature of this.otherCreatures()) {
+            if (creature instanceof Hunter) {
+                continue;
+            } else {
+                if (this.position.distance(creature.position) < config.eatRadius) {
+                    // tslint:disable-next-line
+                    console.log("OM NOM NOM");
+                    creature.die();
+                }
+            }
         }
     }
 }

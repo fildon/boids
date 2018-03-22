@@ -3,6 +3,7 @@ export const config = {
     attractionRadius: 100,
     boidQuantity: 100,
     collisionRadius: 25,
+    eatRadius: 10,
     maxHistory: 5,
     maxSpeed: 3.1,
     // maxX and maxY are overwritten at run time

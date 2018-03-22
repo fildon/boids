@@ -7,15 +7,18 @@ export abstract class Creature {
         return "hsl(" + (speed * 360) + ", 50%, 50%)";
     }
 
+    public id: number;
     public position: Vector2;
     public velocity: Vector2;
     public history: Vector2[] = [];
-    public otherCreatures: Creature[] = [];
+    public creatures: Map<number, Creature>;
     public mousePosition: Vector2 = new Vector2(-1, -1);
     public colour: string;
 
-    constructor() {
-        this.position = new Vector2(0, 0);
+    constructor(id: number, creatures: Map<number, Creature>) {
+        this.id = id;
+        this.creatures = creatures;
+        this.position = new Vector2(Math.random() * 100, Math.random() * 100);
         for (let i = 0; i < config.maxHistory; i++) {
             this.history.push(new Vector2(0, 0));
         }
@@ -32,6 +35,10 @@ export abstract class Creature {
 
     public distanceToCreature(creature: Creature): number {
         return this.position.distance(creature.position);
+    }
+
+    public update() {
+        this.move();
     }
 
     public move() {
@@ -93,7 +100,7 @@ export abstract class Creature {
     }
 
     public attractionVector(): Vector2 {
-        if (this.otherCreatures.length === 0) {
+        if (this.otherCreatures().length === 0) {
             return new Vector2(0, 0);
         }
         return Vector2.average(
@@ -112,8 +119,16 @@ export abstract class Creature {
     }
 
     public neighbours(radius: number): Creature[] {
-        return this.otherCreatures.filter((creature) => {
+        return this.otherCreatures().filter((creature) => {
             return this.distanceToCreature(creature) < radius;
         });
+    }
+
+    public otherCreatures(): Creature[] {
+        return [...this.creatures.values()].filter((creature) => creature.id !== this.id);
+    }
+
+    public die(): void {
+        this.creatures.delete(this.id);
     }
 }
