@@ -48,8 +48,6 @@ export class Hunter extends Creature {
                 continue;
             } else {
                 if (this.position.distance(creature.position) < config.eatRadius) {
-                    // tslint:disable-next-line
-                    console.log("OM NOM NOM");
                     creature.die();
                 }
             }

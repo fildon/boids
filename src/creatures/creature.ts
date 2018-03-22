@@ -18,7 +18,7 @@ export abstract class Creature {
     constructor(id: number, creatures: Map<number, Creature>) {
         this.id = id;
         this.creatures = creatures;
-        this.position = new Vector2(Math.random() * 100, Math.random() * 100);
+        this.position = new Vector2(Math.random() * config.maxX, Math.random() * config.maxY);
         for (let i = 0; i < config.maxHistory; i++) {
             this.history.push(new Vector2(0, 0));
         }

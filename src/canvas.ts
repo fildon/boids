@@ -17,17 +17,24 @@ export class Canvas {
         }
         this.canvas.height = config.maxY;
         this.canvas.width = config.maxX;
+
+        this.setScreenSize();
+
         this.speedRange = config.maxSpeed - config.minSpeed;
     }
 
-    public draw(creatures: Creature[]): void {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    public setScreenSize(): void {
         if (window) {
             config.maxX = window.innerWidth * 0.9;
             config.maxY = window.innerHeight * 0.9;
         }
         this.ctx.canvas.width = config.maxX;
         this.ctx.canvas.height = config.maxY;
+    }
+
+    public draw(creatures: Creature[]): void {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.setScreenSize();
         this.drawGhosts(creatures);
         creatures.forEach((creature) => {
             this.drawCreature(creature);
