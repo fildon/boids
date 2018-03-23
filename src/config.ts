@@ -5,7 +5,7 @@ export const config = {
     collisionRadius: 25,
     eatRadius: 10,
     hunterFearRadius: 30,
-    hunterQuantity: 5,
+    hunterQuantity: 7,
     maxHistory: 5,
     maxSpeed: 6,
     // maxX and maxY are overwritten at run time
@@ -14,6 +14,6 @@ export const config = {
     maxY: 1000,
     minSpeed: 3,
     mouseRadius: 50,
-    repulsionRadius: 20,
+    repulsionRadius: 30,
     turningMax: 0.2, // radians
 };
