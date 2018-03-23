@@ -12,6 +12,8 @@
             <input data-bind="value: mouseRadius" id="mouseRadius"></input>
             <label for="turningMax">Turning max</label>
             <input data-bind="value: turningMax" id="turningMax"></input>
+            <span>Boids still alive: </span>
+            <span data-bind="text: numberOfBoids">&nbsp;</span>
         </div>
         <canvas id='canvas'></canvas>
     </body>

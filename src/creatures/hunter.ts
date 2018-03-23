@@ -4,13 +4,15 @@ import { Boid } from "./boid";
 import { Creature } from "./creature";
 
 export class Hunter extends Creature {
+    public eatCallback: () => void;
     public priorities = [
         () => this.collisionVector(),
         () => this.repulsionVector(),
         () => this.huntingVector(),
     ];
-    constructor(id: number, creatures: Map<number, Creature>) {
+    constructor(id: number, creatures: Map<number, Creature>, eatCallback: () => void) {
         super(id, creatures);
+        this.eatCallback = eatCallback;
         this.colour = "black";
         const speed = config.minSpeed;
         const heading = Math.random() * 2 * Math.PI;
@@ -50,6 +52,7 @@ export class Hunter extends Creature {
         for (const creature of this.otherCreaturesOfType(Boid)) {
             if (this.position.distance(creature.position) < config.eatRadius) {
                 creature.die();
+                this.eatCallback();
             }
         }
     }

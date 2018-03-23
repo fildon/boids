@@ -117,6 +117,10 @@ class ConfigViewModel {
         this.turningMax.subscribe((newValue) => {
             config_1.config.turningMax = newValue;
         });
+        this.numberOfBoids = ko.observable(config_1.config.boidQuantity);
+    }
+    updateBoidCount(boidsRemaining) {
+        this.numberOfBoids(boidsRemaining);
     }
 }
 exports.ConfigViewModel = ConfigViewModel;
@@ -287,13 +291,14 @@ const vector2_1 = require("../vector2");
 const boid_1 = require("./boid");
 const creature_1 = require("./creature");
 class Hunter extends creature_1.Creature {
-    constructor(id, creatures) {
+    constructor(id, creatures, eatCallback) {
         super(id, creatures);
         this.priorities = [
             () => this.collisionVector(),
             () => this.repulsionVector(),
             () => this.huntingVector(),
         ];
+        this.eatCallback = eatCallback;
         this.colour = "black";
         const speed = config_1.config.minSpeed;
         const heading = Math.random() * 2 * Math.PI;
@@ -327,6 +332,7 @@ class Hunter extends creature_1.Creature {
         for (const creature of this.otherCreaturesOfType(boid_1.Boid)) {
             if (this.position.distance(creature.position) < config_1.config.eatRadius) {
                 creature.die();
+                this.eatCallback();
             }
         }
     }
@@ -378,10 +384,14 @@ class SimulationManager {
             this.creatures.set(this.creatures.size, new boid_1.Boid(this.creatures.size, this.creatures));
         }
         for (let i = 0; i < config_1.config.hunterQuantity; i++) {
-            this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures));
+            this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures, () => this.updateBoidCount()));
         }
         this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
-        ko.applyBindings(new configViewModel_1.ConfigViewModel());
+        this.configViewModel = new configViewModel_1.ConfigViewModel();
+        ko.applyBindings(this.configViewModel);
+    }
+    updateBoidCount() {
+        this.configViewModel.updateBoidCount(this.creatures.size - config_1.config.hunterQuantity);
     }
     runSimulation() {
         this.tick();
