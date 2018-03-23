@@ -1,22 +1,34 @@
 import { config } from "../config";
+import { Vector2 } from "../vector2";
 import { Creature } from "./creature";
+import { Hunter } from "./hunter";
 
 export class Boid extends Creature {
-    public updateHeading() {
-        const priorities = [
-            () => this.mouseAvoidVector(),
-            () => this.collisionVector(),
-            () => this.repulsionVector(),
-            () => this.alignmentVector(),
-            () => this.attractionVector(),
-        ];
-        for (const priority of priorities) {
-            const priorityVector = priority();
-            if (priorityVector.length() > 0) {
-                return this.updateHeadingTowards(priorityVector);
-            }
+    public priorities = [
+        () => this.mouseAvoidVector(),
+        () => this.collisionVector(),
+        () => this.hunterEvasionVector(),
+        () => this.repulsionVector(),
+        () => this.alignmentVector(),
+        () => this.attractionVector(),
+    ];
+
+    public otherCreaturesOfSameType(): Creature[] {
+        return this.otherCreaturesOfType(Boid);
+    }
+
+    public hunterEvasionVector(): Vector2 {
+        const hunters = this.otherCreaturesOfType(Hunter);
+        const huntersNearBy = hunters.filter((hunter) =>
+            this.distanceToCreature(hunter) < config.hunterFearRadius);
+        if (huntersNearBy.length === 0) {
+            return new Vector2(0, 0);
         }
-        const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
-        this.velocity = this.velocity.rotate(randomTurn);
+        const fearVectors = huntersNearBy.map((hunter) => {
+            return this.position.vectorTo(hunter.position);
+        });
+        return Vector2.average(
+            fearVectors,
+        ).unitVector().scaleByScalar(-1);
     }
 }

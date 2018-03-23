@@ -14,6 +14,7 @@ export abstract class Creature {
     public creatures: Map<number, Creature>;
     public mousePosition: Vector2 = new Vector2(-1, -1);
     public colour: string;
+    public abstract priorities: Array<(() => Vector2)>;
 
     constructor(id: number, creatures: Map<number, Creature>) {
         this.id = id;
@@ -51,7 +52,17 @@ export abstract class Creature {
         this.updateHeading();
     }
 
-    public abstract updateHeading(): void;
+    public updateHeading(): void {
+        for (const priority of this.priorities) {
+            const priorityVector = priority();
+            if (priorityVector.length() > 0) {
+                this.updateHeadingTowards(priorityVector);
+                return;
+            }
+        }
+        const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
+        this.velocity = this.velocity.rotate(randomTurn);
+    }
 
     public updateHeadingTowards(vector: Vector2) {
         const idealTurn = this.velocity.angleTo(vector);
@@ -119,7 +130,7 @@ export abstract class Creature {
     }
 
     public neighbours(radius: number): Creature[] {
-        return this.otherCreatures().filter((creature) => {
+        return this.otherCreaturesOfSameType().filter((creature) => {
             return this.distanceToCreature(creature) < radius;
         });
     }
@@ -127,6 +138,12 @@ export abstract class Creature {
     public otherCreatures(): Creature[] {
         return [...this.creatures.values()].filter((creature) => creature.id !== this.id);
     }
+
+    public otherCreaturesOfType(creatureType: any): Creature[] {
+        return this.otherCreatures().filter((creature) => creature instanceof creatureType);
+    }
+
+    public abstract otherCreaturesOfSameType(): Creature[];
 
     public die(): void {
         this.creatures.delete(this.id);

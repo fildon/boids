@@ -88,6 +88,8 @@ exports.config = {
     boidQuantity: 100,
     collisionRadius: 25,
     eatRadius: 10,
+    hunterFearRadius: 30,
+    hunterQuantity: 5,
     maxHistory: 5,
     maxSpeed: 6,
     // maxX and maxY are overwritten at run time
@@ -123,29 +125,39 @@ exports.ConfigViewModel = ConfigViewModel;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
+const vector2_1 = require("../vector2");
 const creature_1 = require("./creature");
+const hunter_1 = require("./hunter");
 class Boid extends creature_1.Creature {
-    updateHeading() {
-        const priorities = [
+    constructor() {
+        super(...arguments);
+        this.priorities = [
             () => this.mouseAvoidVector(),
             () => this.collisionVector(),
+            () => this.hunterEvasionVector(),
             () => this.repulsionVector(),
             () => this.alignmentVector(),
             () => this.attractionVector(),
         ];
-        for (const priority of priorities) {
-            const priorityVector = priority();
-            if (priorityVector.length() > 0) {
-                return this.updateHeadingTowards(priorityVector);
-            }
+    }
+    otherCreaturesOfSameType() {
+        return this.otherCreaturesOfType(Boid);
+    }
+    hunterEvasionVector() {
+        const hunters = this.otherCreaturesOfType(hunter_1.Hunter);
+        const huntersNearBy = hunters.filter((hunter) => this.distanceToCreature(hunter) < config_1.config.hunterFearRadius);
+        if (huntersNearBy.length === 0) {
+            return new vector2_1.Vector2(0, 0);
         }
-        const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
-        this.velocity = this.velocity.rotate(randomTurn);
+        const fearVectors = huntersNearBy.map((hunter) => {
+            return this.position.vectorTo(hunter.position);
+        });
+        return vector2_1.Vector2.average(fearVectors).unitVector().scaleByScalar(-1);
     }
 }
 exports.Boid = Boid;
 
-},{"../config":3,"./creature":6}],6:[function(require,module,exports){
+},{"../config":3,"../vector2":10,"./creature":6,"./hunter":7}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
@@ -185,6 +197,17 @@ class Creature {
         this.position = this.position.add(this.velocity);
         this.position = this.position.clip(0, config_1.config.maxX, 0, config_1.config.maxY);
         this.updateHeading();
+    }
+    updateHeading() {
+        for (const priority of this.priorities) {
+            const priorityVector = priority();
+            if (priorityVector.length() > 0) {
+                this.updateHeadingTowards(priorityVector);
+                return;
+            }
+        }
+        const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
+        this.velocity = this.velocity.rotate(randomTurn);
     }
     updateHeadingTowards(vector) {
         const idealTurn = this.velocity.angleTo(vector);
@@ -240,12 +263,15 @@ class Creature {
         })).unitVector();
     }
     neighbours(radius) {
-        return this.otherCreatures().filter((creature) => {
+        return this.otherCreaturesOfSameType().filter((creature) => {
             return this.distanceToCreature(creature) < radius;
         });
     }
     otherCreatures() {
         return [...this.creatures.values()].filter((creature) => creature.id !== this.id);
+    }
+    otherCreaturesOfType(creatureType) {
+        return this.otherCreatures().filter((creature) => creature instanceof creatureType);
     }
     die() {
         this.creatures.delete(this.id);
@@ -258,59 +284,56 @@ exports.Creature = Creature;
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
+const boid_1 = require("./boid");
 const creature_1 = require("./creature");
 class Hunter extends creature_1.Creature {
     constructor(id, creatures) {
         super(id, creatures);
+        this.priorities = [
+            () => this.collisionVector(),
+            () => this.repulsionVector(),
+            () => this.huntingVector(),
+        ];
         this.colour = "black";
         const speed = config_1.config.minSpeed;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
+    otherCreaturesOfSameType() {
+        return this.otherCreaturesOfType(Hunter);
+    }
     update() {
         this.eat();
         this.move();
     }
-    updateHeading() {
+    huntingVector() {
         let prey = null;
         let distanceToPrey = Infinity;
-        for (const creature of this.otherCreatures()) {
-            if (creature instanceof Hunter) {
-                continue;
-            }
-            else {
-                const vectorToCreature = this.position.vectorTo(creature.position);
-                if (vectorToCreature.length() < distanceToPrey) {
-                    prey = creature;
-                    distanceToPrey = vectorToCreature.length();
-                }
+        for (const creature of this.otherCreaturesOfType(boid_1.Boid)) {
+            const vectorToCreature = this.position.vectorTo(creature.position);
+            if (vectorToCreature.length() < distanceToPrey) {
+                prey = creature;
+                distanceToPrey = vectorToCreature.length();
             }
         }
         if (prey !== null) {
-            this.updateHeadingTowards(this.position.vectorTo(prey.position));
+            return this.position.vectorTo(prey.position);
         }
         else {
-            const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
-            this.velocity = this.velocity.rotate(randomTurn);
+            return new vector2_1.Vector2(0, 0);
         }
     }
     eat() {
-        // DUPLICATED code TODO add a utility for filtering creature by type
-        for (const creature of this.otherCreatures()) {
-            if (creature instanceof Hunter) {
-                continue;
-            }
-            else {
-                if (this.position.distance(creature.position) < config_1.config.eatRadius) {
-                    creature.die();
-                }
+        for (const creature of this.otherCreaturesOfType(boid_1.Boid)) {
+            if (this.position.distance(creature.position) < config_1.config.eatRadius) {
+                creature.die();
             }
         }
     }
 }
 exports.Hunter = Hunter;
 
-},{"../config":3,"../vector2":10,"./creature":6}],8:[function(require,module,exports){
+},{"../config":3,"../vector2":10,"./boid":5,"./creature":6}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
@@ -354,7 +377,9 @@ class SimulationManager {
         for (let i = 0; i < config_1.config.boidQuantity; i++) {
             this.creatures.set(this.creatures.size, new boid_1.Boid(this.creatures.size, this.creatures));
         }
-        this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures));
+        for (let i = 0; i < config_1.config.hunterQuantity; i++) {
+            this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures));
+        }
         this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
         ko.applyBindings(new configViewModel_1.ConfigViewModel());
     }

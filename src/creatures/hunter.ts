@@ -1,8 +1,14 @@
 import { config } from "../config";
 import { Vector2 } from "../vector2";
+import { Boid } from "./boid";
 import { Creature } from "./creature";
 
 export class Hunter extends Creature {
+    public priorities = [
+        () => this.collisionVector(),
+        () => this.repulsionVector(),
+        () => this.huntingVector(),
+    ];
     constructor(id: number, creatures: Map<number, Creature>) {
         super(id, creatures);
         this.colour = "black";
@@ -14,42 +20,36 @@ export class Hunter extends Creature {
         );
     }
 
+    public otherCreaturesOfSameType(): Creature[] {
+        return this.otherCreaturesOfType(Hunter);
+    }
+
     public update() {
         this.eat();
         this.move();
     }
 
-    public updateHeading() {
+    public huntingVector(): Vector2 {
         let prey = null;
         let distanceToPrey = Infinity;
-        for (const creature of this.otherCreatures()) {
-            if (creature instanceof Hunter) {
-                continue;
-            } else {
-                const vectorToCreature = this.position.vectorTo(creature.position);
-                if (vectorToCreature.length() < distanceToPrey) {
-                    prey = creature;
-                    distanceToPrey = vectorToCreature.length();
-                }
+        for (const creature of this.otherCreaturesOfType(Boid)) {
+            const vectorToCreature = this.position.vectorTo(creature.position);
+            if (vectorToCreature.length() < distanceToPrey) {
+                prey = creature;
+                distanceToPrey = vectorToCreature.length();
             }
         }
         if (prey !== null) {
-            this.updateHeadingTowards(this.position.vectorTo(prey.position));
+            return this.position.vectorTo(prey.position);
         } else {
-            const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
-            this.velocity = this.velocity.rotate(randomTurn);
+            return new Vector2(0, 0);
         }
     }
 
     private eat() {
-        // DUPLICATED code TODO add a utility for filtering creature by type
-        for (const creature of this.otherCreatures()) {
-            if (creature instanceof Hunter) {
-                continue;
-            } else {
-                if (this.position.distance(creature.position) < config.eatRadius) {
-                    creature.die();
-                }
+        for (const creature of this.otherCreaturesOfType(Boid)) {
+            if (this.position.distance(creature.position) < config.eatRadius) {
+                creature.die();
             }
         }
     }

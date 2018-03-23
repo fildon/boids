@@ -23,7 +23,9 @@ export class SimulationManager {
         for (let i = 0; i < config.boidQuantity; i++) {
             this.creatures.set(this.creatures.size, new Boid(this.creatures.size, this.creatures));
         }
-        this.creatures.set(this.creatures.size, new Hunter(this.creatures.size, this.creatures));
+        for (let i = 0; i < config.hunterQuantity; i++) {
+            this.creatures.set(this.creatures.size, new Hunter(this.creatures.size, this.creatures));
+        }
 
         this.mouseHandler = new MouseHandler(canvasElement);
         ko.applyBindings(new ConfigViewModel());
