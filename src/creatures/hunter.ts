@@ -7,7 +7,7 @@ export class Hunter extends Creature {
     public eatCallback: () => void;
     public priorities = [
         () => this.collisionVector(),
-        () => this.repulsionVector(),
+        () => this.hunterRepulsionVector(),
         () => this.huntingVector(),
     ];
     constructor(id: number, creatures: Map<number, Creature>, eatCallback: () => void) {
@@ -20,6 +20,22 @@ export class Hunter extends Creature {
             speed * Math.cos(heading),
             speed * Math.sin(heading),
         );
+    }
+
+    public hunterNeighbours(): Creature[] {
+        return this.otherCreaturesOfSameType().filter((creature) => {
+            return this.position
+                .add(this.velocity.scaleToLength(config.hunterRepulsionOffset))
+                .distance(creature.position) < config.repulsionRadius;
+        });
+    }
+
+    public hunterRepulsionVector(): Vector2 {
+        return Vector2.average(
+            this.hunterNeighbours().map((creature) => {
+                return creature.position.vectorTo(this.position);
+            }),
+        ).unitVector();
     }
 
     public otherCreaturesOfSameType(): Creature[] {

@@ -105,9 +105,9 @@ export abstract class Creature {
     public repulsionVector(): Vector2 {
         return Vector2.average(
             this.neighbours(config.repulsionRadius).map((creature) => {
-                return this.position.vectorTo(creature.position);
+                return creature.position.vectorTo(this.position);
             }),
-        ).unitVector().scaleByScalar(-1);
+        ).unitVector();
     }
 
     public attractionVector(): Vector2 {

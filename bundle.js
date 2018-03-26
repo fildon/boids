@@ -85,11 +85,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
     alignmentRadius: 40,
     attractionRadius: 100,
-    boidQuantity: 100,
+    boidQuantity: 20,
     collisionRadius: 25,
     eatRadius: 10,
-    hunterFearRadius: 30,
+    hunterFearRadius: 40,
     hunterQuantity: 7,
+    hunterRepulsionOffset: 25,
     maxHistory: 5,
     maxSpeed: 6,
     // maxX and maxY are overwritten at run time
@@ -250,8 +251,8 @@ class Creature {
     }
     repulsionVector() {
         return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((creature) => {
-            return this.position.vectorTo(creature.position);
-        })).unitVector().scaleByScalar(-1);
+            return creature.position.vectorTo(this.position);
+        })).unitVector();
     }
     attractionVector() {
         if (this.otherCreatures().length === 0) {
@@ -295,7 +296,7 @@ class Hunter extends creature_1.Creature {
         super(id, creatures);
         this.priorities = [
             () => this.collisionVector(),
-            () => this.repulsionVector(),
+            () => this.hunterRepulsionVector(),
             () => this.huntingVector(),
         ];
         this.eatCallback = eatCallback;
@@ -303,6 +304,18 @@ class Hunter extends creature_1.Creature {
         const speed = config_1.config.minSpeed;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
+    }
+    hunterNeighbours() {
+        return this.otherCreaturesOfSameType().filter((creature) => {
+            return this.position
+                .add(this.velocity.scaleToLength(config_1.config.hunterRepulsionOffset))
+                .distance(creature.position) < config_1.config.repulsionRadius;
+        });
+    }
+    hunterRepulsionVector() {
+        return vector2_1.Vector2.average(this.hunterNeighbours().map((creature) => {
+            return creature.position.vectorTo(this.position);
+        })).unitVector();
     }
     otherCreaturesOfSameType() {
         return this.otherCreaturesOfType(Hunter);

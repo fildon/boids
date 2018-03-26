@@ -1,11 +1,12 @@
 export const config = {
     alignmentRadius: 40,
     attractionRadius: 100,
-    boidQuantity: 100,
+    boidQuantity: 20,
     collisionRadius: 25,
     eatRadius: 10,
-    hunterFearRadius: 30,
+    hunterFearRadius: 40,
     hunterQuantity: 7,
+    hunterRepulsionOffset: 25,
     maxHistory: 5,
     maxSpeed: 6,
     // maxX and maxY are overwritten at run time
