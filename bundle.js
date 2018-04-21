@@ -155,9 +155,9 @@ class Boid extends creature_1.Creature {
             return new vector2_1.Vector2(0, 0);
         }
         const fearVectors = huntersNearBy.map((hunter) => {
-            return this.position.vectorTo(hunter.position);
+            return hunter.position.vectorTo(this.position);
         });
-        return vector2_1.Vector2.average(fearVectors).unitVector().scaleByScalar(-1);
+        return vector2_1.Vector2.average(fearVectors).unitVector();
     }
 }
 exports.Boid = Boid;
@@ -435,8 +435,7 @@ class Vector2 {
         const totalVector = vectors.reduce((partialSum, current) => {
             return partialSum.add(current);
         });
-        const averageVector = totalVector.scaleByScalar(1 / vectors.length);
-        return averageVector;
+        return totalVector.scaleByScalar(1 / vectors.length);
     }
     constructor(x, y) {
         this.x = x;
@@ -447,7 +446,7 @@ class Vector2 {
         return this.scaleByScalar(1 / length);
     }
     distance(v) {
-        return Math.sqrt(Math.pow(v.x - this.x, 2) + Math.pow(v.y - this.y, 2));
+        return this.vectorTo(v).length();
     }
     vectorTo(vector) {
         return new Vector2(vector.x - this.x, vector.y - this.y);

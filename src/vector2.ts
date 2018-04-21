@@ -7,9 +7,7 @@ export class Vector2 {
             return partialSum.add(current);
         });
 
-        const averageVector = totalVector.scaleByScalar(1 / vectors.length);
-
-        return averageVector;
+        return totalVector.scaleByScalar(1 / vectors.length);
     }
 
     public x: number;
@@ -25,7 +23,7 @@ export class Vector2 {
     }
 
     public distance(v: Vector2): number {
-        return Math.sqrt(Math.pow(v.x - this.x, 2) + Math.pow(v.y - this.y, 2));
+        return this.vectorTo(v).length();
     }
 
     public vectorTo(vector: Vector2): Vector2 {

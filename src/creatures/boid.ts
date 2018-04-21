@@ -25,10 +25,10 @@ export class Boid extends Creature {
             return new Vector2(0, 0);
         }
         const fearVectors = huntersNearBy.map((hunter) => {
-            return this.position.vectorTo(hunter.position);
+            return hunter.position.vectorTo(this.position);
         });
         return Vector2.average(
             fearVectors,
-        ).unitVector().scaleByScalar(-1);
+        ).unitVector();
     }
 }
