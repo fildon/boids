@@ -85,11 +85,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
     alignmentRadius: 40,
     attractionRadius: 100,
-    boidQuantity: 20,
+    boidQuantity: 150,
     collisionRadius: 25,
     eatRadius: 10,
     hunterFearRadius: 40,
-    hunterQuantity: 7,
+    hunterQuantity: 0,
     hunterRepulsionOffset: 25,
     maxHistory: 5,
     maxSpeed: 6,
