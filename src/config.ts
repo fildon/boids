@@ -5,7 +5,7 @@ export const config = {
     collisionRadius: 25,
     eatRadius: 10,
     hunterFearRadius: 40,
-    hunterQuantity: 0,
+    hunterQuantity: 1,
     hunterRepulsionOffset: 25,
     maxHistory: 5,
     maxSpeed: 6,
