@@ -89,7 +89,7 @@ exports.config = {
     eatRadius: 10,
     hunterFearRadius: 40,
     hunterQuantity: 1,
-    hunterSpeed: 3,
+    hunterSpeed: 4,
     hunterVisionRadius: 80,
     maxHistory: 5,
     // maxX and maxY are overwritten at run time
@@ -178,7 +178,7 @@ class Boid extends creature_1.Creature {
     alignmentVector() {
         return vector2_1.Vector2.average(this.neighbours(config_1.config.alignmentRadius).map((creature) => {
             return creature.velocity;
-        }));
+        })).scaleByScalar(0.95);
     }
     attractionVector() {
         if (this.otherCreatures().length === 0) {
@@ -245,7 +245,8 @@ class Creature {
         const idealTurn = this.velocity.angleTo(vector);
         const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.turningMax), -config_1.config.turningMax);
         // TODO set max acceleration as a delta speed
-        const limitedSpeed = Math.max(Math.min(vector.length, this.speed), this.speed / 2);
+        let limitedSpeed = Math.max(Math.min(vector.length, this.speed), this.speed / 2);
+        limitedSpeed = Math.max(Math.min(limitedSpeed, this.velocity.length + 1), this.velocity.length - 1);
         this.velocity = this.velocity.rotate(limitedTurn).scaleToLength(limitedSpeed);
         return;
     }

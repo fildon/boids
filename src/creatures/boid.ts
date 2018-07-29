@@ -57,7 +57,7 @@ export class Boid extends Creature {
             this.neighbours(config.alignmentRadius).map((creature) => {
                 return creature.velocity;
             }),
-        );
+        ).scaleByScalar(0.95);
     }
 
     public attractionVector(): Vector2 {

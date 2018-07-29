@@ -6,7 +6,7 @@ export const config = {
     eatRadius: 10,
     hunterFearRadius: 40,
     hunterQuantity: 1,
-    hunterSpeed: 3,
+    hunterSpeed: 4,
     hunterVisionRadius: 80,
     maxHistory: 5,
     // maxX and maxY are overwritten at run time
