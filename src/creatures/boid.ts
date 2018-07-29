@@ -2,15 +2,16 @@ import { config } from "../config";
 import { Vector2 } from "../vector2";
 import { Creature } from "./creature";
 import { Hunter } from "./hunter";
+import { Priority } from "./priority";
 
 export class Boid extends Creature {
     public priorities = [
-        () => this.mouseAvoidVector(),
-        () => this.collisionVector(),
-        () => this.hunterEvasionVector(),
-        () => this.repulsionVector(),
-        () => this.alignmentVector(),
-        () => this.attractionVector(),
+        new Priority(() => this.mouseAvoidVector(), "red"),
+        new Priority(() => this.collisionVector(), "red"),
+        new Priority(() => this.hunterEvasionVector(), "red"),
+        new Priority(() => this.repulsionVector(), "orange"),
+        new Priority(() => this.alignmentVector(), "blue"),
+        new Priority(() => this.attractionVector(), "green"),
     ];
 
     public otherCreaturesOfSameType(): Creature[] {

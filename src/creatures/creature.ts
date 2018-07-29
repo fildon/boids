@@ -1,5 +1,6 @@
 import { config } from "../config";
 import { Vector2 } from "../vector2";
+import { Priority } from "./priority";
 
 export abstract class Creature {
     // Where speed is 0 to 1, min to max
@@ -14,7 +15,7 @@ export abstract class Creature {
     public creatures: Map<number, Creature>;
     public mousePosition: Vector2 = new Vector2(-1, -1);
     public colour: string;
-    public abstract priorities: Array<(() => Vector2)>;
+    public abstract priorities: Priority[];
 
     constructor(id: number, creatures: Map<number, Creature>) {
         this.id = id;
@@ -54,12 +55,15 @@ export abstract class Creature {
 
     public updateHeading(): void {
         for (const priority of this.priorities) {
-            const priorityVector = priority();
+            const priorityVector = priority.idealHeading();
             if (priorityVector.length() > 0) {
                 this.updateHeadingTowards(priorityVector);
+                this.colour = priority.color;
                 return;
             }
         }
+
+        // TODO this should probably update the colour... default colour?
         const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }

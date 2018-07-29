@@ -2,13 +2,14 @@ import { config } from "../config";
 import { Vector2 } from "../vector2";
 import { Boid } from "./boid";
 import { Creature } from "./creature";
+import { Priority } from "./priority";
 
 export class Hunter extends Creature {
     public eatCallback: () => void;
     public priorities = [
-        () => this.collisionVector(),
-        () => this.hunterRepulsionVector(),
-        () => this.huntingVector(),
+        new Priority(() => this.collisionVector(), "black"),
+        new Priority(() => this.hunterRepulsionVector(), "black"),
+        new Priority(() => this.huntingVector(), "black"),
     ];
     constructor(id: number, creatures: Map<number, Creature>, eatCallback: () => void) {
         super(id, creatures);

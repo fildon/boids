@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new simulationManager_1.SimulationManager().runSimulation();
 }, false);
 
-},{"./simulationManager":9}],2:[function(require,module,exports){
+},{"./simulationManager":10}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
@@ -89,7 +89,7 @@ exports.config = {
     collisionRadius: 25,
     eatRadius: 10,
     hunterFearRadius: 40,
-    hunterQuantity: 3,
+    hunterQuantity: 1,
     hunterRepulsionOffset: 25,
     maxHistory: 5,
     maxSpeed: 6,
@@ -126,23 +126,24 @@ class ConfigViewModel {
 }
 exports.ConfigViewModel = ConfigViewModel;
 
-},{"./config":3,"knockout":11}],5:[function(require,module,exports){
+},{"./config":3,"knockout":12}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
 const creature_1 = require("./creature");
 const hunter_1 = require("./hunter");
+const priority_1 = require("./priority");
 class Boid extends creature_1.Creature {
     constructor() {
         super(...arguments);
         this.priorities = [
-            () => this.mouseAvoidVector(),
-            () => this.collisionVector(),
-            () => this.hunterEvasionVector(),
-            () => this.repulsionVector(),
-            () => this.alignmentVector(),
-            () => this.attractionVector(),
+            new priority_1.Priority(() => this.mouseAvoidVector(), "red"),
+            new priority_1.Priority(() => this.collisionVector(), "red"),
+            new priority_1.Priority(() => this.hunterEvasionVector(), "red"),
+            new priority_1.Priority(() => this.repulsionVector(), "orange"),
+            new priority_1.Priority(() => this.alignmentVector(), "blue"),
+            new priority_1.Priority(() => this.attractionVector(), "green"),
         ];
     }
     otherCreaturesOfSameType() {
@@ -162,7 +163,7 @@ class Boid extends creature_1.Creature {
 }
 exports.Boid = Boid;
 
-},{"../config":3,"../vector2":10,"./creature":6,"./hunter":7}],6:[function(require,module,exports){
+},{"../config":3,"../vector2":11,"./creature":6,"./hunter":7,"./priority":8}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
@@ -205,12 +206,14 @@ class Creature {
     }
     updateHeading() {
         for (const priority of this.priorities) {
-            const priorityVector = priority();
+            const priorityVector = priority.idealHeading();
             if (priorityVector.length() > 0) {
                 this.updateHeadingTowards(priorityVector);
+                this.colour = priority.color;
                 return;
             }
         }
+        // TODO this should probably update the colour... default colour?
         const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
@@ -284,20 +287,21 @@ class Creature {
 }
 exports.Creature = Creature;
 
-},{"../config":3,"../vector2":10}],7:[function(require,module,exports){
+},{"../config":3,"../vector2":11}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
 const boid_1 = require("./boid");
 const creature_1 = require("./creature");
+const priority_1 = require("./priority");
 class Hunter extends creature_1.Creature {
     constructor(id, creatures, eatCallback) {
         super(id, creatures);
         this.priorities = [
-            () => this.collisionVector(),
-            () => this.hunterRepulsionVector(),
-            () => this.huntingVector(),
+            new priority_1.Priority(() => this.collisionVector(), "black"),
+            new priority_1.Priority(() => this.hunterRepulsionVector(), "black"),
+            new priority_1.Priority(() => this.huntingVector(), "black"),
         ];
         this.eatCallback = eatCallback;
         this.colour = "black";
@@ -352,7 +356,18 @@ class Hunter extends creature_1.Creature {
 }
 exports.Hunter = Hunter;
 
-},{"../config":3,"../vector2":10,"./boid":5,"./creature":6}],8:[function(require,module,exports){
+},{"../config":3,"../vector2":11,"./boid":5,"./creature":6,"./priority":8}],8:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Priority {
+    constructor(idealHeading, color) {
+        this.idealHeading = idealHeading;
+        this.color = color;
+    }
+}
+exports.Priority = Priority;
+
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
@@ -375,7 +390,7 @@ class MouseHandler {
 }
 exports.MouseHandler = MouseHandler;
 
-},{"./vector2":10}],9:[function(require,module,exports){
+},{"./vector2":11}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
@@ -424,7 +439,7 @@ class SimulationManager {
 }
 exports.SimulationManager = SimulationManager;
 
-},{"./canvas":2,"./config":3,"./configViewModel":4,"./creatures/boid":5,"./creatures/hunter":7,"./mouseHandler":8,"knockout":11}],10:[function(require,module,exports){
+},{"./canvas":2,"./config":3,"./configViewModel":4,"./creatures/boid":5,"./creatures/hunter":7,"./mouseHandler":9,"knockout":12}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {
@@ -479,7 +494,7 @@ class Vector2 {
 }
 exports.Vector2 = Vector2;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.5.0-beta
  * (c) The Knockout.js team - http://knockoutjs.com/
