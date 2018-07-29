@@ -3,11 +3,6 @@ import { Vector2 } from "../vector2";
 import { Priority } from "./priority";
 
 export abstract class Creature {
-    // Where speed is 0 to 1, min to max
-    public static colorFromSpeed(speed: number) {
-        return "hsl(" + (speed * 360) + ", 50%, 50%)";
-    }
-
     public id: number;
     public position: Vector2;
     public velocity: Vector2;
@@ -32,7 +27,7 @@ export abstract class Creature {
             speed * Math.sin(heading),
         );
         const speedProportion = (this.velocity.length() - config.minSpeed) / (config.maxSpeed - config.minSpeed);
-        this.colour = Creature.colorFromSpeed(speedProportion);
+        this.colour = "black";
     }
 
     public distanceToCreature(creature: Creature): number {

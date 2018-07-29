@@ -183,11 +183,7 @@ class Creature {
         const speed = config_1.config.minSpeed + (Math.random() * speedRange);
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
         const speedProportion = (this.velocity.length() - config_1.config.minSpeed) / (config_1.config.maxSpeed - config_1.config.minSpeed);
-        this.colour = Creature.colorFromSpeed(speedProportion);
-    }
-    // Where speed is 0 to 1, min to max
-    static colorFromSpeed(speed) {
-        return "hsl(" + (speed * 360) + ", 50%, 50%)";
+        this.colour = "black";
     }
     distanceToCreature(creature) {
         return this.position.distance(creature.position);
