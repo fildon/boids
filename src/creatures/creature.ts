@@ -67,7 +67,6 @@ export abstract class Creature {
     public updateHeadingTowards(vector: Vector2) {
         const idealTurn = this.velocity.angleTo(vector);
         const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
-        // TODO set max acceleration as a delta speed
         let limitedSpeed = Math.max(Math.min(vector.length, this.speed), this.speed / 2);
         limitedSpeed = Math.max(Math.min(limitedSpeed, this.velocity.length + 1), this.velocity.length - 1);
         this.velocity = this.velocity.rotate(limitedTurn).scaleToLength(limitedSpeed);
