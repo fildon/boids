@@ -12,18 +12,19 @@ export class Vector2 {
 
     public x: number;
     public y: number;
+    public length: number;
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
+        this.length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
     public unitVector(): Vector2 {
-        const length = this.length();
-        return this.scaleByScalar(1 / length);
+        return this.scaleByScalar(1 / this.length);
     }
 
     public distance(v: Vector2): number {
-        return this.vectorTo(v).length();
+        return this.vectorTo(v).length;
     }
 
     public vectorTo(vector: Vector2): Vector2 {
@@ -60,15 +61,13 @@ export class Vector2 {
         return this.x === v.x && this.y === v.y;
     }
 
-    public length(): number {
-        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
-    }
-
     public scaleByScalar(scale: number): Vector2 {
         return new Vector2(this.x * scale, this.y * scale);
     }
 
     public scaleToLength(length: number): Vector2 {
-        return this.scaleByScalar(length / this.length());
+        return this.length ?
+            this.scaleByScalar(length / this.length) :
+            this;
     }
 }

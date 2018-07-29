@@ -42,7 +42,7 @@ describe("Boid", () => {
             creatures.set(1, boidA);
 
             const actual = boid.repulsionVector();
-            const expected = new Vector2(-1, -1).unitVector();
+            const expected = new Vector2(-1, -1).scaleToLength(boid.velocity.length);
 
             expect(actual.distance(expected)).to.be.lte(0.0000001);
         });
@@ -62,7 +62,7 @@ describe("Boid", () => {
             creatures.set(2, boidB);
 
             const actual = boid.repulsionVector();
-            const expected = new Vector2(-1, -1).unitVector();
+            const expected = new Vector2(-1, -1).scaleToLength(boid.velocity.length);
 
             expect(actual.distance(expected)).to.be.lte(0.0000001);
         });
@@ -94,7 +94,7 @@ describe("Boid", () => {
             creatures.set(1, nearBoid);
 
             const actual = boid.attractionVector();
-            const expected = new Vector2(1, 1).unitVector();
+            const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
             expect(actual.distance(expected)).to.be.lte(0.0000001);
         });
@@ -114,7 +114,7 @@ describe("Boid", () => {
             creatures.set(2, boidB);
 
             const actual = boid.attractionVector();
-            const expected = new Vector2(0, 1);
+            const expected = new Vector2(0, 1).scaleToLength(boid.velocity.length);
 
             expect(actual.distance(expected)).to.be.lte(0.0000001);
         });
@@ -178,53 +178,53 @@ describe("Boid", () => {
         });
     });
 
-    describe("collisionVector", () => {
+    describe("wallAvoidVector", () => {
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(0, 0);
-            const expected = new Vector2(1, 1);
-            expect(boid.collisionVector().equals(expected)).to.equal(true);
+            const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
+            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(config.maxX, config.maxY);
-            const expected = new Vector2(-1, -1);
-            expect(boid.collisionVector().equals(expected)).to.equal(true);
+            const expected = new Vector2(-1, -1).scaleToLength(boid.velocity.length);
+            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(0, config.maxY);
-            const expected = new Vector2(1, -1);
-            expect(boid.collisionVector().equals(expected)).to.equal(true);
+            const expected = new Vector2(1, -1).scaleToLength(boid.velocity.length);
+            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(config.maxX, 0);
-            const expected = new Vector2(-1, 1);
-            expect(boid.collisionVector().equals(expected)).to.equal(true);
+            const expected = new Vector2(-1, 1).scaleToLength(boid.velocity.length);
+            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
         });
 
-        it("does not repeal exactly at collision radius", () => {
+        it("does not repel exactly at wall avoid radius", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(
-                config.collisionRadius,
-                config.collisionRadius,
+                config.wallAvoidRadius,
+                config.wallAvoidRadius,
             );
             const expected = new Vector2(0, 0);
-            expect(boid.collisionVector().equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
         });
 
-        it("does not repeal exactly at collision radius", () => {
+        it("does not repel exactly at wall avoid radius", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(
-                config.maxX - config.collisionRadius,
-                config.maxY - config.collisionRadius,
+                config.maxX - config.wallAvoidRadius,
+                config.maxY - config.wallAvoidRadius,
             );
             const expected = new Vector2(0, 0);
-            expect(boid.collisionVector().equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
         });
     });
 
@@ -234,7 +234,7 @@ describe("Boid", () => {
             boid.position = new Vector2(0, 0);
             boid.mousePosition = new Vector2(1, 1);
             const actual = boid.mouseAvoidVector();
-            const expected = new Vector2(-1, -1).unitVector();
+            const expected = new Vector2(-1, -1).scaleToLength(config.boidSpeed);
             expect(actual.distance(expected)).to.be.lessThan(0.0000001);
         });
 
@@ -263,9 +263,9 @@ describe("Boid", () => {
             boid.position = new Vector2(0, 0);
             boid.velocity = new Vector2(1, 1).scaleToLength(config.boidSpeed);
             const expected = boid.velocity.rotate(config.turningMax);
-            boid.updateHeadingTowards(new Vector2(-1, -0.9));
+            boid.updateHeadingTowards(new Vector2(-100, -99));
             const actual = boid.velocity;
-            expect(actual.equals(expected)).to.equal(true);
+            expect(actual.distance(expected)).to.be.lte(0.0001);
         });
 
         it("limits the turn by the turningMax", () => {
@@ -273,9 +273,9 @@ describe("Boid", () => {
             boid.position = new Vector2(0, 0);
             boid.velocity = new Vector2(1, 1).scaleToLength(config.boidSpeed);
             const expected = boid.velocity.rotate(-config.turningMax);
-            boid.updateHeadingTowards(new Vector2(-0.9, -1));
+            boid.updateHeadingTowards(new Vector2(-99, -100));
             const actual = boid.velocity;
-            expect(actual.equals(expected)).to.equal(true);
+            expect(actual.distance(expected)).to.be.lte(0.0001);
         });
     });
 

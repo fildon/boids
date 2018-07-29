@@ -11,6 +11,7 @@ export abstract class Creature {
     public mousePosition: Vector2 = new Vector2(-1, -1);
     public colour: string;
     public abstract priorities: Priority[];
+    public abstract speed: number;
 
     constructor(id: number, creatures: Map<number, Creature>) {
         this.id = id;
@@ -20,6 +21,7 @@ export abstract class Creature {
             this.history.push(new Vector2(0, 0));
         }
         const heading = Math.random() * 2 * Math.PI;
+        // TODO shouldn't assume boid on the following line
         const speed = config.boidSpeed;
         this.velocity = new Vector2(
             speed * Math.cos(heading),
@@ -49,7 +51,7 @@ export abstract class Creature {
     public updateHeading(): void {
         for (const priority of this.priorities) {
             const priorityVector = priority.idealHeading();
-            if (priorityVector.length() > 0) {
+            if (priorityVector.length > 0) {
                 this.updateHeadingTowards(priorityVector);
                 this.colour = priority.color;
                 return;
@@ -57,6 +59,7 @@ export abstract class Creature {
         }
 
         // TODO this should probably update the colour... default colour?
+        this.velocity = this.velocity.scaleToLength(this.speed / 2);
         const randomTurn = 2 * config.turningMax * Math.random() - config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
@@ -64,66 +67,31 @@ export abstract class Creature {
     public updateHeadingTowards(vector: Vector2) {
         const idealTurn = this.velocity.angleTo(vector);
         const limitedTurn = Math.max(Math.min(idealTurn, config.turningMax), -config.turningMax);
-        this.velocity = this.velocity.rotate(limitedTurn);
+        // TODO set max acceleration as a delta speed
+        const limitedSpeed = Math.max(Math.min(vector.length, this.speed), this.speed / 2);
+        this.velocity = this.velocity.rotate(limitedTurn).scaleToLength(limitedSpeed);
         return;
     }
 
-    public mouseAvoidVector(): Vector2 {
-        if (this.mousePosition.x !== -1) {
-            const vectorFromMouse = this.mousePosition.vectorTo(this.position);
-            if (vectorFromMouse.length() < config.mouseRadius) {
-                return vectorFromMouse.unitVector();
-            }
-        }
-        return new Vector2(0, 0);
-    }
-
-    public collisionVector(): Vector2 {
+    public wallAvoidVector(): Vector2 {
         const xMin = this.position.x;
         const xMax = config.maxX - this.position.x;
         const yMin = this.position.y;
         const yMax = config.maxY - this.position.y;
         let result = new Vector2(0, 0);
-        if (xMin < config.collisionRadius) {
+        if (xMin < config.wallAvoidRadius) {
             result = result.add(new Vector2(1, 0));
         }
-        if (xMax < config.collisionRadius) {
+        if (xMax < config.wallAvoidRadius) {
             result = result.add(new Vector2(-1, 0));
         }
-        if (yMin < config.collisionRadius) {
+        if (yMin < config.wallAvoidRadius) {
             result = result.add(new Vector2(0, 1));
         }
-        if (yMax < config.collisionRadius) {
+        if (yMax < config.wallAvoidRadius) {
             result = result.add(new Vector2(0, -1));
         }
-        return result;
-    }
-
-    public repulsionVector(): Vector2 {
-        return Vector2.average(
-            this.neighbours(config.repulsionRadius).map((creature) => {
-                return creature.position.vectorTo(this.position);
-            }),
-        ).unitVector();
-    }
-
-    public attractionVector(): Vector2 {
-        if (this.otherCreatures().length === 0) {
-            return new Vector2(0, 0);
-        }
-        return Vector2.average(
-            this.neighbours(config.attractionRadius).map((creature) => {
-                return this.position.vectorTo(creature.position);
-            }),
-        ).unitVector();
-    }
-
-    public alignmentVector(): Vector2 {
-        return Vector2.average(
-            this.neighbours(config.alignmentRadius).map((creature) => {
-                return creature.velocity;
-            }),
-        ).unitVector();
+        return result.scaleToLength(this.velocity.length);
     }
 
     public neighbours(radius: number): Creature[] {

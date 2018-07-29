@@ -75,7 +75,7 @@ export class Canvas {
     }
 
     public drawCreatureBeak(creature: Creature): void {
-        let heading = creature.velocity.unitVector();
+        const heading = creature.velocity.unitVector();
         this.ctx.beginPath();
         this.ctx.arc(
             creature.position.x + 5 * heading.x,

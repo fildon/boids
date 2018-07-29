@@ -69,7 +69,7 @@ class Canvas {
         this.ctx.fill();
     }
     drawCreatureBeak(creature) {
-        let heading = creature.velocity.unitVector();
+        const heading = creature.velocity.unitVector();
         this.ctx.beginPath();
         this.ctx.arc(creature.position.x + 5 * heading.x, creature.position.y + 5 * heading.y, 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
@@ -86,12 +86,11 @@ exports.config = {
     attractionRadius: 100,
     boidQuantity: 150,
     boidSpeed: 6,
-    collisionRadius: 25,
     eatRadius: 10,
     hunterFearRadius: 40,
     hunterQuantity: 1,
-    hunterRepulsionOffset: 25,
     hunterSpeed: 3,
+    hunterVisionRadius: 80,
     maxHistory: 5,
     // maxX and maxY are overwritten at run time
     // according to actual screen size
@@ -100,6 +99,7 @@ exports.config = {
     mouseRadius: 50,
     repulsionRadius: 30,
     turningMax: 0.2,
+    wallAvoidRadius: 25,
 };
 
 },{}],4:[function(require,module,exports){
@@ -137,9 +137,10 @@ const priority_1 = require("./priority");
 class Boid extends creature_1.Creature {
     constructor() {
         super(...arguments);
+        this.speed = config_1.config.boidSpeed;
         this.priorities = [
             new priority_1.Priority(() => this.mouseAvoidVector(), "red"),
-            new priority_1.Priority(() => this.collisionVector(), "red"),
+            new priority_1.Priority(() => this.wallAvoidVector(), "red"),
             new priority_1.Priority(() => this.hunterEvasionVector(), "red"),
             new priority_1.Priority(() => this.repulsionVector(), "orange"),
             new priority_1.Priority(() => this.alignmentVector(), "blue"),
@@ -148,6 +149,20 @@ class Boid extends creature_1.Creature {
     }
     otherCreaturesOfSameType() {
         return this.otherCreaturesOfType(Boid);
+    }
+    mouseAvoidVector() {
+        if (this.mousePosition.x !== -1) {
+            const vectorFromMouse = this.mousePosition.vectorTo(this.position);
+            if (vectorFromMouse.length < config_1.config.mouseRadius) {
+                return vectorFromMouse.scaleToLength(this.speed);
+            }
+        }
+        return new vector2_1.Vector2(0, 0);
+    }
+    repulsionVector() {
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((creature) => {
+            return creature.position.vectorTo(this.position);
+        })).scaleToLength(this.velocity.length);
     }
     hunterEvasionVector() {
         const hunters = this.otherCreaturesOfType(hunter_1.Hunter);
@@ -158,7 +173,20 @@ class Boid extends creature_1.Creature {
         const fearVectors = huntersNearBy.map((hunter) => {
             return hunter.position.vectorTo(this.position);
         });
-        return vector2_1.Vector2.average(fearVectors).unitVector();
+        return vector2_1.Vector2.average(fearVectors).scaleToLength(this.speed);
+    }
+    alignmentVector() {
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.alignmentRadius).map((creature) => {
+            return creature.velocity;
+        }));
+    }
+    attractionVector() {
+        if (this.otherCreatures().length === 0) {
+            return new vector2_1.Vector2(0, 0);
+        }
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.attractionRadius).map((creature) => {
+            return this.position.vectorTo(creature.position);
+        })).scaleToLength(this.velocity.length);
     }
 }
 exports.Boid = Boid;
@@ -179,6 +207,7 @@ class Creature {
             this.history.push(new vector2_1.Vector2(0, 0));
         }
         const heading = Math.random() * 2 * Math.PI;
+        // TODO shouldn't assume boid on the following line
         const speed = config_1.config.boidSpeed;
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
         this.colour = "black";
@@ -201,68 +230,44 @@ class Creature {
     updateHeading() {
         for (const priority of this.priorities) {
             const priorityVector = priority.idealHeading();
-            if (priorityVector.length() > 0) {
+            if (priorityVector.length > 0) {
                 this.updateHeadingTowards(priorityVector);
                 this.colour = priority.color;
                 return;
             }
         }
         // TODO this should probably update the colour... default colour?
+        this.velocity = this.velocity.scaleToLength(this.speed / 2);
         const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
     updateHeadingTowards(vector) {
         const idealTurn = this.velocity.angleTo(vector);
         const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.turningMax), -config_1.config.turningMax);
-        this.velocity = this.velocity.rotate(limitedTurn);
+        // TODO set max acceleration as a delta speed
+        const limitedSpeed = Math.max(Math.min(vector.length, this.speed), this.speed / 2);
+        this.velocity = this.velocity.rotate(limitedTurn).scaleToLength(limitedSpeed);
         return;
     }
-    mouseAvoidVector() {
-        if (this.mousePosition.x !== -1) {
-            const vectorFromMouse = this.mousePosition.vectorTo(this.position);
-            if (vectorFromMouse.length() < config_1.config.mouseRadius) {
-                return vectorFromMouse.unitVector();
-            }
-        }
-        return new vector2_1.Vector2(0, 0);
-    }
-    collisionVector() {
+    wallAvoidVector() {
         const xMin = this.position.x;
         const xMax = config_1.config.maxX - this.position.x;
         const yMin = this.position.y;
         const yMax = config_1.config.maxY - this.position.y;
         let result = new vector2_1.Vector2(0, 0);
-        if (xMin < config_1.config.collisionRadius) {
+        if (xMin < config_1.config.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(1, 0));
         }
-        if (xMax < config_1.config.collisionRadius) {
+        if (xMax < config_1.config.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(-1, 0));
         }
-        if (yMin < config_1.config.collisionRadius) {
+        if (yMin < config_1.config.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(0, 1));
         }
-        if (yMax < config_1.config.collisionRadius) {
+        if (yMax < config_1.config.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(0, -1));
         }
-        return result;
-    }
-    repulsionVector() {
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((creature) => {
-            return creature.position.vectorTo(this.position);
-        })).unitVector();
-    }
-    attractionVector() {
-        if (this.otherCreatures().length === 0) {
-            return new vector2_1.Vector2(0, 0);
-        }
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.attractionRadius).map((creature) => {
-            return this.position.vectorTo(creature.position);
-        })).unitVector();
-    }
-    alignmentVector() {
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.alignmentRadius).map((creature) => {
-            return creature.velocity;
-        })).unitVector();
+        return result.scaleToLength(this.velocity.length);
     }
     neighbours(radius) {
         return this.otherCreaturesOfSameType().filter((creature) => {
@@ -292,28 +297,15 @@ const priority_1 = require("./priority");
 class Hunter extends creature_1.Creature {
     constructor(id, creatures, eatCallback) {
         super(id, creatures);
+        this.speed = config_1.config.hunterSpeed;
         this.priorities = [
-            new priority_1.Priority(() => this.collisionVector(), "black"),
-            new priority_1.Priority(() => this.hunterRepulsionVector(), "black"),
+            new priority_1.Priority(() => this.wallAvoidVector(), "black"),
             new priority_1.Priority(() => this.huntingVector(), "black"),
         ];
         this.eatCallback = eatCallback;
         this.colour = "black";
-        const speed = config_1.config.hunterSpeed;
         const heading = Math.random() * 2 * Math.PI;
-        this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
-    }
-    hunterNeighbours() {
-        return this.otherCreaturesOfSameType().filter((creature) => {
-            return this.position
-                .add(this.velocity.scaleToLength(config_1.config.hunterRepulsionOffset))
-                .distance(creature.position) < config_1.config.repulsionRadius;
-        });
-    }
-    hunterRepulsionVector() {
-        return vector2_1.Vector2.average(this.hunterNeighbours().map((creature) => {
-            return creature.position.vectorTo(this.position);
-        })).unitVector();
+        this.velocity = new vector2_1.Vector2(this.speed * Math.cos(heading), this.speed * Math.sin(heading));
     }
     otherCreaturesOfSameType() {
         return this.otherCreaturesOfType(Hunter);
@@ -323,21 +315,26 @@ class Hunter extends creature_1.Creature {
         this.move();
     }
     huntingVector() {
-        let prey = null;
-        let distanceToPrey = Infinity;
-        for (const creature of this.otherCreaturesOfType(boid_1.Boid)) {
-            const vectorToCreature = this.position.vectorTo(creature.position);
-            if (vectorToCreature.length() < distanceToPrey) {
-                prey = creature;
-                distanceToPrey = vectorToCreature.length();
-            }
-        }
-        if (prey !== null) {
-            return this.position.vectorTo(prey.position);
+        const nearestPrey = this.findNearestPrey();
+        if (nearestPrey !== null) {
+            return this.position.vectorTo(nearestPrey.position.add(nearestPrey.velocity));
         }
         else {
             return new vector2_1.Vector2(0, 0);
         }
+    }
+    findNearestPrey() {
+        let prey = null;
+        let distanceToPrey = Infinity;
+        const preyInSight = this.otherCreaturesOfType(boid_1.Boid).filter((boid) => this.distanceToCreature(boid) < config_1.config.hunterVisionRadius);
+        for (const creature of preyInSight) {
+            const vectorToCreature = this.position.vectorTo(creature.position);
+            if (vectorToCreature.length < distanceToPrey) {
+                prey = creature;
+                distanceToPrey = vectorToCreature.length;
+            }
+        }
+        return prey;
     }
     eat() {
         for (const creature of this.otherCreaturesOfType(boid_1.Boid)) {
@@ -449,13 +446,13 @@ class Vector2 {
     constructor(x, y) {
         this.x = x;
         this.y = y;
+        this.length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
     unitVector() {
-        const length = this.length();
-        return this.scaleByScalar(1 / length);
+        return this.scaleByScalar(1 / this.length);
     }
     distance(v) {
-        return this.vectorTo(v).length();
+        return this.vectorTo(v).length;
     }
     vectorTo(vector) {
         return new Vector2(vector.x - this.x, vector.y - this.y);
@@ -476,14 +473,13 @@ class Vector2 {
     equals(v) {
         return this.x === v.x && this.y === v.y;
     }
-    length() {
-        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
-    }
     scaleByScalar(scale) {
         return new Vector2(this.x * scale, this.y * scale);
     }
     scaleToLength(length) {
-        return this.scaleByScalar(length / this.length());
+        return this.length ?
+            this.scaleByScalar(length / this.length) :
+            this;
     }
 }
 exports.Vector2 = Vector2;
