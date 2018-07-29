@@ -119,6 +119,7 @@ class ConfigViewModel {
             config_1.config.turningMax = newValue;
         });
         this.numberOfBoids = ko.observable(config_1.config.boidQuantity);
+        this.numberOfHunters = ko.observable(config_1.config.hunterQuantity);
     }
     updateBoidCount(boidsRemaining) {
         this.numberOfBoids(boidsRemaining);

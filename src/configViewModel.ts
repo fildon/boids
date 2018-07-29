@@ -5,6 +5,7 @@ export class ConfigViewModel {
     public mouseRadius: KnockoutObservable<number>;
     public turningMax: KnockoutObservable<number>;
     public numberOfBoids: KnockoutObservable<number>;
+    public numberOfHunters: KnockoutObservable<number>;
     constructor() {
         this.mouseRadius = ko.observable(config.mouseRadius);
         this.mouseRadius.subscribe((newValue) => {
@@ -15,6 +16,7 @@ export class ConfigViewModel {
             config.turningMax = newValue;
         });
         this.numberOfBoids = ko.observable(config.boidQuantity);
+        this.numberOfHunters = ko.observable(config.hunterQuantity);
     }
 
     public updateBoidCount(boidsRemaining: number): void {
