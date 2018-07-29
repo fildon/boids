@@ -69,8 +69,9 @@ class Canvas {
         this.ctx.fill();
     }
     drawCreatureBeak(creature) {
+        let heading = creature.velocity.unitVector();
         this.ctx.beginPath();
-        this.ctx.arc(creature.position.x + 0.9 * creature.velocity.x, creature.position.y + 0.9 * creature.velocity.y, 2, 0, 2 * Math.PI);
+        this.ctx.arc(creature.position.x + 5 * heading.x, creature.position.y + 5 * heading.y, 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
     }
