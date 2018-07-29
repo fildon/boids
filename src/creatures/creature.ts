@@ -20,13 +20,11 @@ export abstract class Creature {
             this.history.push(new Vector2(0, 0));
         }
         const heading = Math.random() * 2 * Math.PI;
-        const speedRange = config.maxSpeed - config.minSpeed;
-        const speed = config.minSpeed + (Math.random() * speedRange);
+        const speed = config.boidSpeed;
         this.velocity = new Vector2(
             speed * Math.cos(heading),
             speed * Math.sin(heading),
         );
-        const speedProportion = (this.velocity.length() - config.minSpeed) / (config.maxSpeed - config.minSpeed);
         this.colour = "black";
     }
 

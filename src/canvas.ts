@@ -5,7 +5,6 @@ import { Vector2 } from "./vector2";
 export class Canvas {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private speedRange: number;
 
     constructor(canvasElement: HTMLCanvasElement) {
         this.canvas = canvasElement;
@@ -19,8 +18,6 @@ export class Canvas {
         this.canvas.width = config.maxX;
 
         this.setScreenSize();
-
-        this.speedRange = config.maxSpeed - config.minSpeed;
     }
 
     public setScreenSize(): void {
@@ -78,11 +75,10 @@ export class Canvas {
     }
 
     public drawCreatureBeak(creature: Creature): void {
-        const speedProportion = 0.25 + (creature.velocity.length() - config.minSpeed) / (2 * this.speedRange);
         this.ctx.beginPath();
         this.ctx.arc(
-            creature.position.x + speedProportion * creature.velocity.x,
-            creature.position.y + speedProportion * creature.velocity.y,
+            creature.position.x + 0.9 * creature.velocity.x,
+            creature.position.y + 0.9 * creature.velocity.y,
             2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();

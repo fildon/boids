@@ -16,12 +16,6 @@ describe("Boid", () => {
             expect(boid.position.y).to.be.gte(0);
             expect(boid.position.y).to.be.lte(config.maxY);
         });
-
-        it("sets an intitial speed within the config", () => {
-            const boid = new Boid(0, new Map());
-            expect(boid.velocity.length()).to.be.lte(config.maxSpeed);
-            expect(boid.velocity.length()).to.be.gte(config.minSpeed);
-        });
     });
 
     describe("movement", () => {
@@ -267,7 +261,7 @@ describe("Boid", () => {
         it("limits the turn by the turningMax", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(0, 0);
-            boid.velocity = new Vector2(1, 1).scaleToLength(config.maxSpeed);
+            boid.velocity = new Vector2(1, 1).scaleToLength(config.boidSpeed);
             const expected = boid.velocity.rotate(config.turningMax);
             boid.updateHeadingTowards(new Vector2(-1, -0.9));
             const actual = boid.velocity;
@@ -277,7 +271,7 @@ describe("Boid", () => {
         it("limits the turn by the turningMax", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(0, 0);
-            boid.velocity = new Vector2(1, 1).scaleToLength(config.maxSpeed);
+            boid.velocity = new Vector2(1, 1).scaleToLength(config.boidSpeed);
             const expected = boid.velocity.rotate(-config.turningMax);
             boid.updateHeadingTowards(new Vector2(-0.9, -1));
             const actual = boid.velocity;

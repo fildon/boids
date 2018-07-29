@@ -15,7 +15,7 @@ export class Hunter extends Creature {
         super(id, creatures);
         this.eatCallback = eatCallback;
         this.colour = "black";
-        const speed = config.minSpeed;
+        const speed = config.hunterSpeed;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new Vector2(
             speed * Math.cos(heading),

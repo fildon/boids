@@ -23,7 +23,6 @@ class Canvas {
         this.canvas.height = config_1.config.maxY;
         this.canvas.width = config_1.config.maxX;
         this.setScreenSize();
-        this.speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
     }
     setScreenSize() {
         if (window) {
@@ -70,9 +69,8 @@ class Canvas {
         this.ctx.fill();
     }
     drawCreatureBeak(creature) {
-        const speedProportion = 0.25 + (creature.velocity.length() - config_1.config.minSpeed) / (2 * this.speedRange);
         this.ctx.beginPath();
-        this.ctx.arc(creature.position.x + speedProportion * creature.velocity.x, creature.position.y + speedProportion * creature.velocity.y, 2, 0, 2 * Math.PI);
+        this.ctx.arc(creature.position.x + 0.9 * creature.velocity.x, creature.position.y + 0.9 * creature.velocity.y, 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
     }
@@ -86,18 +84,18 @@ exports.config = {
     alignmentRadius: 40,
     attractionRadius: 100,
     boidQuantity: 150,
+    boidSpeed: 6,
     collisionRadius: 25,
     eatRadius: 10,
     hunterFearRadius: 40,
     hunterQuantity: 1,
     hunterRepulsionOffset: 25,
+    hunterSpeed: 3,
     maxHistory: 5,
-    maxSpeed: 6,
     // maxX and maxY are overwritten at run time
     // according to actual screen size
     maxX: 1000,
     maxY: 1000,
-    minSpeed: 3,
     mouseRadius: 50,
     repulsionRadius: 30,
     turningMax: 0.2,
@@ -180,10 +178,8 @@ class Creature {
             this.history.push(new vector2_1.Vector2(0, 0));
         }
         const heading = Math.random() * 2 * Math.PI;
-        const speedRange = config_1.config.maxSpeed - config_1.config.minSpeed;
-        const speed = config_1.config.minSpeed + (Math.random() * speedRange);
+        const speed = config_1.config.boidSpeed;
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
-        const speedProportion = (this.velocity.length() - config_1.config.minSpeed) / (config_1.config.maxSpeed - config_1.config.minSpeed);
         this.colour = "black";
     }
     distanceToCreature(creature) {
@@ -302,7 +298,7 @@ class Hunter extends creature_1.Creature {
         ];
         this.eatCallback = eatCallback;
         this.colour = "black";
-        const speed = config_1.config.minSpeed;
+        const speed = config_1.config.hunterSpeed;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
