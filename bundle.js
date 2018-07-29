@@ -209,7 +209,7 @@ class Creature {
         const heading = Math.random() * 2 * Math.PI;
         // TODO shouldn't assume boid on the following line
         const speed = config_1.config.boidSpeed;
-        this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
+        this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading)).scaleByScalar(0.5);
         this.colour = "black";
     }
     distanceToCreature(creature) {

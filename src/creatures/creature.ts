@@ -26,7 +26,7 @@ export abstract class Creature {
         this.velocity = new Vector2(
             speed * Math.cos(heading),
             speed * Math.sin(heading),
-        );
+        ).scaleByScalar(0.5);
         this.colour = "black";
     }
 
