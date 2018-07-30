@@ -83,27 +83,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
     boid: {
         alignmentRadius: 40,
-        attractionRadius: 100,
+        attractionRadius: 200,
         defaultColour: "LightSteelBlue",
         maxSpeed: 12,
         minSpeed: 4,
-        mouseAvoidRadius: 50,
+        mouseAvoidRadius: 100,
         quantity: 150,
         repulsionRadius: 30,
         size: 4,
         visionRadius: 80,
     },
     creature: {
-        acceleration: 1,
+        acceleration: 0.1,
         maxHistory: 5,
         turningMax: 0.2,
         wallAvoidRadius: 25,
     },
     hunter: {
         defaultColour: "black",
-        eatRadius: 10,
+        eatRadius: 15,
         maxSpeed: 8,
-        minSpeed: 4,
+        minSpeed: 5,
         quantity: 1,
         size: 8,
         visionRadius: 80,
@@ -198,12 +198,22 @@ class Boid extends creature_1.Creature {
         })).scaleByScalar(0.95);
     }
     attractionVector() {
-        if (this.otherCreatures().length === 0) {
+        const neighbours = this.neighbours(config_1.config.boid.attractionRadius);
+        if (neighbours.length === 0) {
             return new vector2_1.Vector2(0, 0);
         }
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.boid.attractionRadius).map((creature) => {
-            return this.position.vectorTo(creature.position);
-        })).scaleToLength(this.velocity.length);
+        const averageNeighbour = neighbours.reduce((previous, current, index) => {
+            return {
+                pathTo: previous.pathTo.add(this.position.vectorTo(current.position)),
+                speed: previous.speed + current.velocity.length,
+            };
+        }, {
+            pathTo: new vector2_1.Vector2(0, 0),
+            speed: 0,
+        });
+        averageNeighbour.pathTo.scaleByScalar(1 / neighbours.length);
+        averageNeighbour.speed = averageNeighbour.speed / neighbours.length;
+        return averageNeighbour.pathTo.scaleToLength(averageNeighbour.speed * 1.1);
     }
 }
 exports.Boid = Boid;
@@ -500,6 +510,9 @@ class Vector2 {
         return this.length ?
             this.scaleByScalar(length / this.length) :
             this;
+    }
+    isParallelTo(v) {
+        return this.x * v.y === this.y * v.x;
     }
 }
 exports.Vector2 = Vector2;

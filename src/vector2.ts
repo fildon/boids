@@ -70,4 +70,8 @@ export class Vector2 {
             this.scaleByScalar(length / this.length) :
             this;
     }
+
+    public isParallelTo(v: Vector2): boolean {
+        return this.x * v.y === this.y * v.x;
+    }
 }

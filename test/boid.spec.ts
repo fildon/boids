@@ -96,7 +96,7 @@ describe("Boid", () => {
             const actual = boid.attractionVector();
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
-            expect(actual.distance(expected)).to.be.lte(0.0000001);
+            expect(actual.isParallelTo(expected)).to.equal(true);
         });
 
         it("attracts to average of multiple near boids", () => {
@@ -116,7 +116,7 @@ describe("Boid", () => {
             const actual = boid.attractionVector();
             const expected = new Vector2(0, 1).scaleToLength(boid.velocity.length);
 
-            expect(actual.distance(expected)).to.be.lte(0.0000001);
+            expect(actual.isParallelTo(expected)).to.equal(true);
         });
     });
 

@@ -64,13 +64,25 @@ export class Boid extends Creature {
     }
 
     public attractionVector(): Vector2 {
-        if (this.otherCreatures().length === 0) {
+        const neighbours = this.neighbours(config.boid.attractionRadius);
+        if (neighbours.length === 0) {
             return new Vector2(0, 0);
         }
-        return Vector2.average(
-            this.neighbours(config.boid.attractionRadius).map((creature) => {
-                return this.position.vectorTo(creature.position);
-            }),
-        ).scaleToLength(this.velocity.length);
+
+        const averageNeighbour = neighbours.reduce((previous, current, index) => {
+            return {
+                pathTo: previous.pathTo.add(
+                    this.position.vectorTo(current.position),
+                ),
+                speed: previous.speed + current.velocity.length,
+            };
+        }, {
+            pathTo: new Vector2(0, 0),
+            speed: 0,
+        });
+        averageNeighbour.pathTo.scaleByScalar(1 / neighbours.length);
+        averageNeighbour.speed = averageNeighbour.speed / neighbours.length;
+
+        return averageNeighbour.pathTo.scaleToLength(averageNeighbour.speed * 1.1);
     }
 }
