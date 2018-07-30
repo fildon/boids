@@ -3,7 +3,7 @@ export const config = {
         alignmentRadius: 40,
         attractionRadius: 200,
         defaultColour: "LightSteelBlue",
-        maxSpeed: 12,
+        maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 100,
         quantity: 150,

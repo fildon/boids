@@ -56,11 +56,13 @@ export class Boid extends Creature {
     }
 
     public alignmentVector(): Vector2 {
+        const alignmentFuzz = 0.05;
         return Vector2.average(
             this.neighbours(config.boid.alignmentRadius).map((creature) => {
                 return creature.velocity;
             }),
-        ).scaleByScalar(0.95);
+        ).scaleByScalar(0.95)
+        .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
     }
 
     public attractionVector(): Vector2 {

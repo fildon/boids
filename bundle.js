@@ -85,7 +85,7 @@ exports.config = {
         alignmentRadius: 40,
         attractionRadius: 200,
         defaultColour: "LightSteelBlue",
-        maxSpeed: 12,
+        maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 100,
         quantity: 150,
@@ -193,9 +193,11 @@ class Boid extends creature_1.Creature {
         return vector2_1.Vector2.average(fearVectors).scaleToLength(this.maxSpeed);
     }
     alignmentVector() {
+        const alignmentFuzz = 0.05;
         return vector2_1.Vector2.average(this.neighbours(config_1.config.boid.alignmentRadius).map((creature) => {
             return creature.velocity;
-        })).scaleByScalar(0.95);
+        })).scaleByScalar(0.95)
+            .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
     }
     attractionVector() {
         const neighbours = this.neighbours(config_1.config.boid.attractionRadius);
