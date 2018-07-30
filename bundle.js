@@ -20,17 +20,17 @@ class Canvas {
         else {
             this.ctx = context;
         }
-        this.canvas.height = config_1.config.maxY;
-        this.canvas.width = config_1.config.maxX;
+        this.canvas.height = config_1.config.screen.maxY;
+        this.canvas.width = config_1.config.screen.maxX;
         this.setScreenSize();
     }
     setScreenSize() {
         if (window) {
-            config_1.config.maxX = window.innerWidth * 0.9;
-            config_1.config.maxY = window.innerHeight * 0.9;
+            config_1.config.screen.maxX = window.innerWidth * 0.9;
+            config_1.config.screen.maxY = window.innerHeight * 0.9;
         }
-        this.ctx.canvas.width = config_1.config.maxX;
-        this.ctx.canvas.height = config_1.config.maxY;
+        this.ctx.canvas.width = config_1.config.screen.maxX;
+        this.ctx.canvas.height = config_1.config.screen.maxY;
     }
     draw(creatures) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -41,11 +41,10 @@ class Canvas {
         });
     }
     drawGhosts(creatures) {
-        if (!config_1.config.maxHistory) {
+        if (!config_1.config.creature.maxHistory) {
             return;
         }
-        for (let i = 0; i < config_1.config.maxHistory; i++) {
-            this.ctx.globalAlpha = (i + 1) / config_1.config.maxHistory;
+        for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
             creatures.forEach((creature) => {
                 this.drawGhost(creature, i);
             });
@@ -61,7 +60,7 @@ class Canvas {
     drawCreatureBody(creature, historyIndex) {
         const position = historyIndex ? creature.history[historyIndex] : creature.position;
         const radius = historyIndex ?
-            4 * (historyIndex / config_1.config.maxHistory) :
+            4 * (historyIndex / config_1.config.creature.maxHistory) :
             4;
         this.ctx.beginPath();
         this.ctx.arc(position.x, position.y, radius, 0, 2 * Math.PI);
@@ -82,24 +81,35 @@ exports.Canvas = Canvas;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
-    alignmentRadius: 40,
-    attractionRadius: 100,
-    boidQuantity: 150,
-    boidSpeed: 6,
-    eatRadius: 10,
-    hunterFearRadius: 40,
-    hunterQuantity: 1,
-    hunterSpeed: 4,
-    hunterVisionRadius: 80,
-    maxHistory: 5,
-    // maxX and maxY are overwritten at run time
-    // according to actual screen size
-    maxX: 1000,
-    maxY: 1000,
-    mouseRadius: 50,
-    repulsionRadius: 30,
-    turningMax: 0.2,
-    wallAvoidRadius: 25,
+    boid: {
+        alignmentRadius: 40,
+        attractionRadius: 100,
+        maxSpeed: 6,
+        minSpeed: 2,
+        mouseAvoidRadius: 50,
+        quantity: 150,
+        repulsionRadius: 30,
+        visionRadius: 40,
+    },
+    creature: {
+        acceleration: 1,
+        maxHistory: 5,
+        turningMax: 0.2,
+        wallAvoidRadius: 25,
+    },
+    hunter: {
+        eatRadius: 10,
+        maxSpeed: 4,
+        minSpeed: 2,
+        quantity: 1,
+        visionRadius: 80,
+    },
+    screen: {
+        // maxX and maxY are overwritten at run time
+        // according to actual screen size
+        maxX: 1000,
+        maxY: 1000,
+    },
 };
 
 },{}],4:[function(require,module,exports){
@@ -109,16 +119,16 @@ const ko = require("knockout");
 const config_1 = require("./config");
 class ConfigViewModel {
     constructor() {
-        this.mouseRadius = ko.observable(config_1.config.mouseRadius);
+        this.mouseRadius = ko.observable(config_1.config.boid.mouseAvoidRadius);
         this.mouseRadius.subscribe((newValue) => {
-            config_1.config.mouseRadius = newValue;
+            config_1.config.boid.mouseAvoidRadius = newValue;
         });
-        this.turningMax = ko.observable(config_1.config.turningMax);
+        this.turningMax = ko.observable(config_1.config.creature.turningMax);
         this.turningMax.subscribe((newValue) => {
-            config_1.config.turningMax = newValue;
+            config_1.config.creature.turningMax = newValue;
         });
-        this.numberOfBoids = ko.observable(config_1.config.boidQuantity);
-        this.numberOfHunters = ko.observable(config_1.config.hunterQuantity);
+        this.numberOfBoids = ko.observable(config_1.config.boid.quantity);
+        this.numberOfHunters = ko.observable(config_1.config.hunter.quantity);
     }
     updateBoidCount(boidsRemaining) {
         this.numberOfBoids(boidsRemaining);
@@ -137,7 +147,8 @@ const priority_1 = require("./priority");
 class Boid extends creature_1.Creature {
     constructor() {
         super(...arguments);
-        this.speed = config_1.config.boidSpeed;
+        this.maxSpeed = config_1.config.boid.maxSpeed;
+        this.minSpeed = config_1.config.boid.minSpeed;
         this.priorities = [
             new priority_1.Priority(() => this.mouseAvoidVector(), "red"),
             new priority_1.Priority(() => this.wallAvoidVector(), "red"),
@@ -153,30 +164,30 @@ class Boid extends creature_1.Creature {
     mouseAvoidVector() {
         if (this.mousePosition.x !== -1) {
             const vectorFromMouse = this.mousePosition.vectorTo(this.position);
-            if (vectorFromMouse.length < config_1.config.mouseRadius) {
-                return vectorFromMouse.scaleToLength(this.speed);
+            if (vectorFromMouse.length < config_1.config.boid.mouseAvoidRadius) {
+                return vectorFromMouse.scaleToLength(this.maxSpeed);
             }
         }
         return new vector2_1.Vector2(0, 0);
     }
     repulsionVector() {
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.repulsionRadius).map((creature) => {
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.boid.repulsionRadius).map((creature) => {
             return creature.position.vectorTo(this.position);
         })).scaleToLength(this.velocity.length);
     }
     hunterEvasionVector() {
         const hunters = this.otherCreaturesOfType(hunter_1.Hunter);
-        const huntersNearBy = hunters.filter((hunter) => this.distanceToCreature(hunter) < config_1.config.hunterFearRadius);
+        const huntersNearBy = hunters.filter((hunter) => this.distanceToCreature(hunter) < config_1.config.boid.visionRadius);
         if (huntersNearBy.length === 0) {
             return new vector2_1.Vector2(0, 0);
         }
         const fearVectors = huntersNearBy.map((hunter) => {
             return hunter.position.vectorTo(this.position);
         });
-        return vector2_1.Vector2.average(fearVectors).scaleToLength(this.speed);
+        return vector2_1.Vector2.average(fearVectors).scaleToLength(this.maxSpeed);
     }
     alignmentVector() {
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.alignmentRadius).map((creature) => {
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.boid.alignmentRadius).map((creature) => {
             return creature.velocity;
         })).scaleByScalar(0.95);
     }
@@ -184,7 +195,7 @@ class Boid extends creature_1.Creature {
         if (this.otherCreatures().length === 0) {
             return new vector2_1.Vector2(0, 0);
         }
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.attractionRadius).map((creature) => {
+        return vector2_1.Vector2.average(this.neighbours(config_1.config.boid.attractionRadius).map((creature) => {
             return this.position.vectorTo(creature.position);
         })).scaleToLength(this.velocity.length);
     }
@@ -202,13 +213,13 @@ class Creature {
         this.mousePosition = new vector2_1.Vector2(-1, -1);
         this.id = id;
         this.creatures = creatures;
-        this.position = new vector2_1.Vector2(Math.random() * config_1.config.maxX, Math.random() * config_1.config.maxY);
-        for (let i = 0; i < config_1.config.maxHistory; i++) {
+        this.position = new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
+        for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
             this.history.push(new vector2_1.Vector2(0, 0));
         }
         const heading = Math.random() * 2 * Math.PI;
         // TODO shouldn't assume boid on the following line
-        const speed = config_1.config.boidSpeed;
+        const speed = config_1.config.boid.minSpeed;
         this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading)).scaleByScalar(0.5);
         this.colour = "black";
     }
@@ -220,11 +231,11 @@ class Creature {
     }
     move() {
         this.history.push(this.position);
-        while (this.history.length > config_1.config.maxHistory) {
+        while (this.history.length > config_1.config.creature.maxHistory) {
             this.history = this.history.slice(1);
         }
         this.position = this.position.add(this.velocity);
-        this.position = this.position.clip(0, config_1.config.maxX, 0, config_1.config.maxY);
+        this.position = this.position.clip(0, config_1.config.screen.maxX, 0, config_1.config.screen.maxY);
         this.updateHeading();
     }
     updateHeading() {
@@ -237,34 +248,34 @@ class Creature {
             }
         }
         // TODO this should probably update the colour... default colour?
-        this.velocity = this.velocity.scaleToLength(this.speed / 2);
-        const randomTurn = 2 * config_1.config.turningMax * Math.random() - config_1.config.turningMax;
+        this.velocity = this.velocity.scaleToLength(Math.max(this.velocity.length - config_1.config.creature.acceleration, this.minSpeed));
+        const randomTurn = 2 * config_1.config.creature.turningMax * Math.random() - config_1.config.creature.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
     updateHeadingTowards(vector) {
         const idealTurn = this.velocity.angleTo(vector);
-        const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.turningMax), -config_1.config.turningMax);
-        let limitedSpeed = Math.max(Math.min(vector.length, this.speed), this.speed / 2);
-        limitedSpeed = Math.max(Math.min(limitedSpeed, this.velocity.length + 1), this.velocity.length - 1);
+        const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.creature.turningMax), -config_1.config.creature.turningMax);
+        let limitedSpeed = Math.max(Math.min(vector.length, this.maxSpeed), this.minSpeed);
+        limitedSpeed = Math.max(Math.min(limitedSpeed, this.velocity.length + config_1.config.creature.acceleration), this.velocity.length - config_1.config.creature.acceleration);
         this.velocity = this.velocity.rotate(limitedTurn).scaleToLength(limitedSpeed);
         return;
     }
     wallAvoidVector() {
         const xMin = this.position.x;
-        const xMax = config_1.config.maxX - this.position.x;
+        const xMax = config_1.config.screen.maxX - this.position.x;
         const yMin = this.position.y;
-        const yMax = config_1.config.maxY - this.position.y;
+        const yMax = config_1.config.screen.maxY - this.position.y;
         let result = new vector2_1.Vector2(0, 0);
-        if (xMin < config_1.config.wallAvoidRadius) {
+        if (xMin < config_1.config.creature.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(1, 0));
         }
-        if (xMax < config_1.config.wallAvoidRadius) {
+        if (xMax < config_1.config.creature.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(-1, 0));
         }
-        if (yMin < config_1.config.wallAvoidRadius) {
+        if (yMin < config_1.config.creature.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(0, 1));
         }
-        if (yMax < config_1.config.wallAvoidRadius) {
+        if (yMax < config_1.config.creature.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(0, -1));
         }
         return result.scaleToLength(this.velocity.length);
@@ -297,7 +308,8 @@ const priority_1 = require("./priority");
 class Hunter extends creature_1.Creature {
     constructor(id, creatures, eatCallback) {
         super(id, creatures);
-        this.speed = config_1.config.hunterSpeed;
+        this.maxSpeed = config_1.config.hunter.maxSpeed;
+        this.minSpeed = config_1.config.hunter.minSpeed;
         this.priorities = [
             new priority_1.Priority(() => this.wallAvoidVector(), "black"),
             new priority_1.Priority(() => this.huntingVector(), "black"),
@@ -305,7 +317,7 @@ class Hunter extends creature_1.Creature {
         this.eatCallback = eatCallback;
         this.colour = "black";
         const heading = Math.random() * 2 * Math.PI;
-        this.velocity = new vector2_1.Vector2(this.speed * Math.cos(heading), this.speed * Math.sin(heading));
+        this.velocity = new vector2_1.Vector2(this.minSpeed * Math.cos(heading), this.minSpeed * Math.sin(heading));
     }
     otherCreaturesOfSameType() {
         return this.otherCreaturesOfType(Hunter);
@@ -326,7 +338,7 @@ class Hunter extends creature_1.Creature {
     findNearestPrey() {
         let prey = null;
         let distanceToPrey = Infinity;
-        const preyInSight = this.otherCreaturesOfType(boid_1.Boid).filter((boid) => this.distanceToCreature(boid) < config_1.config.hunterVisionRadius);
+        const preyInSight = this.otherCreaturesOfType(boid_1.Boid).filter((boid) => this.distanceToCreature(boid) < config_1.config.hunter.visionRadius);
         for (const creature of preyInSight) {
             const vectorToCreature = this.position.vectorTo(creature.position);
             if (vectorToCreature.length < distanceToPrey) {
@@ -338,7 +350,7 @@ class Hunter extends creature_1.Creature {
     }
     eat() {
         for (const creature of this.otherCreaturesOfType(boid_1.Boid)) {
-            if (this.position.distance(creature.position) < config_1.config.eatRadius) {
+            if (this.position.distance(creature.position) < config_1.config.hunter.eatRadius) {
                 creature.die();
                 this.eatCallback();
             }
@@ -399,10 +411,10 @@ class SimulationManager {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
-        for (let i = 0; i < config_1.config.boidQuantity; i++) {
+        for (let i = 0; i < config_1.config.boid.quantity; i++) {
             this.creatures.set(this.creatures.size, new boid_1.Boid(this.creatures.size, this.creatures));
         }
-        for (let i = 0; i < config_1.config.hunterQuantity; i++) {
+        for (let i = 0; i < config_1.config.hunter.quantity; i++) {
             this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures, () => this.updateBoidCount()));
         }
         this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
@@ -410,7 +422,7 @@ class SimulationManager {
         ko.applyBindings(this.configViewModel);
     }
     updateBoidCount() {
-        this.configViewModel.updateBoidCount(this.creatures.size - config_1.config.hunterQuantity);
+        this.configViewModel.updateBoidCount(this.creatures.size - config_1.config.hunter.quantity);
     }
     runSimulation() {
         this.tick();

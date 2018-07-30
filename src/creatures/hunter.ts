@@ -5,7 +5,8 @@ import { Creature } from "./creature";
 import { Priority } from "./priority";
 
 export class Hunter extends Creature {
-    public speed = config.hunterSpeed;
+    public maxSpeed = config.hunter.maxSpeed;
+    public minSpeed = config.hunter.minSpeed;
     public eatCallback: () => void;
     public priorities = [
         new Priority(() => this.wallAvoidVector(), "black"),
@@ -17,8 +18,8 @@ export class Hunter extends Creature {
         this.colour = "black";
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new Vector2(
-            this.speed * Math.cos(heading),
-            this.speed * Math.sin(heading),
+            this.minSpeed * Math.cos(heading),
+            this.minSpeed * Math.sin(heading),
         );
     }
 
@@ -44,7 +45,7 @@ export class Hunter extends Creature {
         let prey = null;
         let distanceToPrey = Infinity;
         const preyInSight = this.otherCreaturesOfType(Boid).filter((boid) =>
-            this.distanceToCreature(boid) < config.hunterVisionRadius);
+            this.distanceToCreature(boid) < config.hunter.visionRadius);
         for (const creature of preyInSight) {
             const vectorToCreature = this.position.vectorTo(creature.position);
             if (vectorToCreature.length < distanceToPrey) {
@@ -57,7 +58,7 @@ export class Hunter extends Creature {
 
     private eat() {
         for (const creature of this.otherCreaturesOfType(Boid)) {
-            if (this.position.distance(creature.position) < config.eatRadius) {
+            if (this.position.distance(creature.position) < config.hunter.eatRadius) {
                 creature.die();
                 this.eatCallback();
             }

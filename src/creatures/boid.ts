@@ -5,7 +5,8 @@ import { Hunter } from "./hunter";
 import { Priority } from "./priority";
 
 export class Boid extends Creature {
-    public speed = config.boidSpeed;
+    public maxSpeed = config.boid.maxSpeed;
+    public minSpeed = config.boid.minSpeed;
     public priorities = [
         new Priority(() => this.mouseAvoidVector(), "red"),
         new Priority(() => this.wallAvoidVector(), "red"),
@@ -22,8 +23,8 @@ export class Boid extends Creature {
     public mouseAvoidVector(): Vector2 {
         if (this.mousePosition.x !== -1) {
             const vectorFromMouse = this.mousePosition.vectorTo(this.position);
-            if (vectorFromMouse.length < config.mouseRadius) {
-                return vectorFromMouse.scaleToLength(this.speed);
+            if (vectorFromMouse.length < config.boid.mouseAvoidRadius) {
+                return vectorFromMouse.scaleToLength(this.maxSpeed);
             }
         }
         return new Vector2(0, 0);
@@ -31,7 +32,7 @@ export class Boid extends Creature {
 
     public repulsionVector(): Vector2 {
         return Vector2.average(
-            this.neighbours(config.repulsionRadius).map((creature) => {
+            this.neighbours(config.boid.repulsionRadius).map((creature) => {
                 return creature.position.vectorTo(this.position);
             }),
         ).scaleToLength(this.velocity.length);
@@ -40,7 +41,7 @@ export class Boid extends Creature {
     public hunterEvasionVector(): Vector2 {
         const hunters = this.otherCreaturesOfType(Hunter);
         const huntersNearBy = hunters.filter((hunter) =>
-            this.distanceToCreature(hunter) < config.hunterFearRadius);
+            this.distanceToCreature(hunter) < config.boid.visionRadius);
         if (huntersNearBy.length === 0) {
             return new Vector2(0, 0);
         }
@@ -49,12 +50,12 @@ export class Boid extends Creature {
         });
         return Vector2.average(
             fearVectors,
-        ).scaleToLength(this.speed);
+        ).scaleToLength(this.maxSpeed);
     }
 
     public alignmentVector(): Vector2 {
         return Vector2.average(
-            this.neighbours(config.alignmentRadius).map((creature) => {
+            this.neighbours(config.boid.alignmentRadius).map((creature) => {
                 return creature.velocity;
             }),
         ).scaleByScalar(0.95);
@@ -65,7 +66,7 @@ export class Boid extends Creature {
             return new Vector2(0, 0);
         }
         return Vector2.average(
-            this.neighbours(config.attractionRadius).map((creature) => {
+            this.neighbours(config.boid.attractionRadius).map((creature) => {
                 return this.position.vectorTo(creature.position);
             }),
         ).scaleToLength(this.velocity.length);

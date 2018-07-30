@@ -14,19 +14,19 @@ export class Canvas {
         } else {
             this.ctx = context;
         }
-        this.canvas.height = config.maxY;
-        this.canvas.width = config.maxX;
+        this.canvas.height = config.screen.maxY;
+        this.canvas.width = config.screen.maxX;
 
         this.setScreenSize();
     }
 
     public setScreenSize(): void {
         if (window) {
-            config.maxX = window.innerWidth * 0.9;
-            config.maxY = window.innerHeight * 0.9;
+            config.screen.maxX = window.innerWidth * 0.9;
+            config.screen.maxY = window.innerHeight * 0.9;
         }
-        this.ctx.canvas.width = config.maxX;
-        this.ctx.canvas.height = config.maxY;
+        this.ctx.canvas.width = config.screen.maxX;
+        this.ctx.canvas.height = config.screen.maxY;
     }
 
     public draw(creatures: Creature[]): void {
@@ -39,11 +39,10 @@ export class Canvas {
     }
 
     public drawGhosts(creatures: Creature[]) {
-        if (!config.maxHistory) {
+        if (!config.creature.maxHistory) {
             return;
         }
-        for (let i = 0; i < config.maxHistory; i++) {
-            this.ctx.globalAlpha = (i + 1) / config.maxHistory;
+        for (let i = 0; i < config.creature.maxHistory; i++) {
             creatures.forEach((creature) => {
                 this.drawGhost(creature, i);
             });
@@ -62,7 +61,7 @@ export class Canvas {
     public drawCreatureBody(creature: Creature, historyIndex?: number): void {
         const position = historyIndex ? creature.history[historyIndex] : creature.position;
         const radius = historyIndex ?
-            4 * (historyIndex / config.maxHistory) :
+            4 * (historyIndex / config.creature.maxHistory) :
             4;
         this.ctx.beginPath();
         this.ctx.arc(

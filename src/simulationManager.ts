@@ -21,13 +21,13 @@ export class SimulationManager {
         }
         this.canvas = new Canvas(canvasElement);
 
-        for (let i = 0; i < config.boidQuantity; i++) {
+        for (let i = 0; i < config.boid.quantity; i++) {
             this.creatures.set(this.creatures.size, new Boid(
                 this.creatures.size,
                 this.creatures,
             ));
         }
-        for (let i = 0; i < config.hunterQuantity; i++) {
+        for (let i = 0; i < config.hunter.quantity; i++) {
             this.creatures.set(this.creatures.size, new Hunter(
                 this.creatures.size,
                 this.creatures,
@@ -43,7 +43,7 @@ export class SimulationManager {
 
     public updateBoidCount(): void {
         this.configViewModel.updateBoidCount(
-            this.creatures.size - config.hunterQuantity,
+            this.creatures.size - config.hunter.quantity,
         );
     }
 

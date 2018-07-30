@@ -7,16 +7,16 @@ export class ConfigViewModel {
     public numberOfBoids: KnockoutObservable<number>;
     public numberOfHunters: KnockoutObservable<number>;
     constructor() {
-        this.mouseRadius = ko.observable(config.mouseRadius);
+        this.mouseRadius = ko.observable(config.boid.mouseAvoidRadius);
         this.mouseRadius.subscribe((newValue) => {
-            config.mouseRadius = newValue;
+            config.boid.mouseAvoidRadius = newValue;
         });
-        this.turningMax = ko.observable(config.turningMax);
+        this.turningMax = ko.observable(config.creature.turningMax);
         this.turningMax.subscribe((newValue) => {
-            config.turningMax = newValue;
+            config.creature.turningMax = newValue;
         });
-        this.numberOfBoids = ko.observable(config.boidQuantity);
-        this.numberOfHunters = ko.observable(config.hunterQuantity);
+        this.numberOfBoids = ko.observable(config.boid.quantity);
+        this.numberOfHunters = ko.observable(config.hunter.quantity);
     }
 
     public updateBoidCount(boidsRemaining: number): void {
