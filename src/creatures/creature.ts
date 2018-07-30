@@ -1,5 +1,6 @@
 import { config } from "../config";
 import { Vector2 } from "../vector2";
+import { Behaviour } from "./behaviour";
 import { Priority } from "./priority";
 
 export abstract class Creature {
@@ -11,7 +12,7 @@ export abstract class Creature {
     public mousePosition: Vector2 = new Vector2(-1, -1);
     public abstract defaultColour: string;
     public colour: string;
-    public abstract priorities: Priority[];
+    public abstract priorities: Behaviour[];
     public abstract maxSpeed: number;
     public abstract minSpeed: number;
     public abstract size: number;
@@ -52,15 +53,27 @@ export abstract class Creature {
     }
 
     public updateHeading(): void {
-        for (const priority of this.priorities) {
-            const priorityVector = priority.idealHeading();
-            if (priorityVector.length > 0) {
-                this.updateHeadingTowards(priorityVector);
-                this.colour = priority.color;
-                return;
-            }
+        const priority = this.getCurrentPriorityOrNull();
+        if (priority) {
+            this.updateHeadingTowards(priority.idealHeading);
+            this.colour = priority.color;
+            return;
         }
 
+        this.defaultBehaviour();
+    }
+
+    public getCurrentPriorityOrNull(): Priority | null {
+        for (const priority of this.priorities) {
+            const priorityNow = priority.getCurrentPriority();
+            if (priorityNow) {
+                return priorityNow;
+            }
+        }
+        return null;
+    }
+
+    public defaultBehaviour(): void {
         this.colour = this.defaultColour;
         this.velocity = this.velocity.scaleToLength(
             Math.max(this.velocity.length - config.creature.acceleration, this.minSpeed));
@@ -68,7 +81,10 @@ export abstract class Creature {
         this.velocity = this.velocity.rotate(randomTurn);
     }
 
-    public updateHeadingTowards(vector: Vector2) {
+    public updateHeadingTowards(vector: Vector2 | null) {
+        if (!vector) {
+            return;
+        }
         const idealTurn = this.velocity.angleTo(vector);
         const limitedTurn = Math.max(Math.min(idealTurn, config.creature.turningMax), -config.creature.turningMax);
         let limitedSpeed = Math.max(Math.min(vector.length, this.maxSpeed), this.minSpeed);
@@ -81,7 +97,7 @@ export abstract class Creature {
         return;
     }
 
-    public wallAvoidVector(): Vector2 {
+    public wallAvoidVector(): Vector2 | null {
         const xMin = this.position.x;
         const xMax = config.screen.maxX - this.position.x;
         const yMin = this.position.y;
@@ -98,6 +114,9 @@ export abstract class Creature {
         }
         if (yMax < config.creature.wallAvoidRadius) {
             result = result.add(new Vector2(0, -1));
+        }
+        if (result.length === 0) {
+            return null;
         }
         return result.scaleToLength(this.velocity.length);
     }

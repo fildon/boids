@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new simulationManager_1.SimulationManager().runSimulation();
 }, false);
 
-},{"./simulationManager":10}],2:[function(require,module,exports){
+},{"./simulationManager":12}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
@@ -100,7 +100,7 @@ exports.config = {
         wallAvoidRadius: 25,
     },
     hunter: {
-        defaultColour: "black",
+        defaultColour: "yellow",
         eatRadius: 15,
         maxSpeed: 8,
         minSpeed: 5,
@@ -140,14 +140,34 @@ class ConfigViewModel {
 }
 exports.ConfigViewModel = ConfigViewModel;
 
-},{"./config":3,"knockout":12}],5:[function(require,module,exports){
+},{"./config":3,"knockout":14}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const priority_1 = require("./priority");
+class Behaviour {
+    constructor(getIdealHeading, color) {
+        this.getIdealHeading = getIdealHeading;
+        this.color = color;
+    }
+    getCurrentPriority() {
+        const currentPriority = this.getIdealHeading();
+        if (currentPriority) {
+            return new priority_1.Priority(currentPriority, this.color);
+        }
+        return null;
+    }
+}
+exports.Behaviour = Behaviour;
+
+},{"./priority":9}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
+const behaviour_1 = require("./behaviour");
 const creature_1 = require("./creature");
 const hunter_1 = require("./hunter");
-const priority_1 = require("./priority");
+const staticTools_1 = require("./staticTools");
 class Boid extends creature_1.Creature {
     constructor() {
         super(...arguments);
@@ -155,12 +175,12 @@ class Boid extends creature_1.Creature {
         this.maxSpeed = config_1.config.boid.maxSpeed;
         this.minSpeed = config_1.config.boid.minSpeed;
         this.priorities = [
-            new priority_1.Priority(() => this.mouseAvoidVector(), "red"),
-            new priority_1.Priority(() => this.wallAvoidVector(), "red"),
-            new priority_1.Priority(() => this.hunterEvasionVector(), "red"),
-            new priority_1.Priority(() => this.repulsionVector(), "orange"),
-            new priority_1.Priority(() => this.alignmentVector(), "blue"),
-            new priority_1.Priority(() => this.attractionVector(), "green"),
+            new behaviour_1.Behaviour(() => this.mouseAvoidVector(), "red"),
+            new behaviour_1.Behaviour(() => this.wallAvoidVector(), "red"),
+            new behaviour_1.Behaviour(() => this.hunterEvasionVector(), "red"),
+            new behaviour_1.Behaviour(() => this.repulsionVector(), "orange"),
+            new behaviour_1.Behaviour(() => this.alignmentVector(), "blue"),
+            new behaviour_1.Behaviour(() => this.attractionVector(), "green"),
         ];
         this.size = config_1.config.boid.size;
     }
@@ -174,27 +194,36 @@ class Boid extends creature_1.Creature {
                 return vectorFromMouse.scaleToLength(this.maxSpeed);
             }
         }
-        return new vector2_1.Vector2(0, 0);
+        return null;
     }
     repulsionVector() {
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.boid.repulsionRadius).map((creature) => {
+        const neighbours = this.neighbours(config_1.config.boid.repulsionRadius);
+        if (neighbours.length === 0) {
+            return null;
+        }
+        return vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.position.vectorTo(this.position);
-        })).scaleToLength(this.velocity.length);
+        })).scaleToLength(this.velocity.length * 0.9);
     }
     hunterEvasionVector() {
-        const hunters = this.otherCreaturesOfType(hunter_1.Hunter);
-        const huntersNearBy = hunters.filter((hunter) => this.distanceToCreature(hunter) < config_1.config.boid.visionRadius);
+        const allHunters = this.otherCreaturesOfType(hunter_1.Hunter);
+        const huntersNearBy = allHunters.filter((hunter) => this.distanceToCreature(hunter) < config_1.config.boid.visionRadius);
         if (huntersNearBy.length === 0) {
-            return new vector2_1.Vector2(0, 0);
+            return null;
         }
-        const fearVectors = huntersNearBy.map((hunter) => {
-            return hunter.position.vectorTo(this.position);
-        });
-        return vector2_1.Vector2.average(fearVectors).scaleToLength(this.maxSpeed);
+        const nearestHunter = staticTools_1.StaticTools
+            .nearestCreatureToPosition(huntersNearBy, this.position);
+        return nearestHunter.position
+            .vectorTo(this.position)
+            .scaleToLength(this.maxSpeed);
     }
     alignmentVector() {
         const alignmentFuzz = 0.05;
-        return vector2_1.Vector2.average(this.neighbours(config_1.config.boid.alignmentRadius).map((creature) => {
+        const neighbours = this.neighbours(config_1.config.boid.alignmentRadius);
+        if (neighbours.length === 0) {
+            return null;
+        }
+        return vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.velocity;
         })).scaleByScalar(0.95)
             .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
@@ -202,25 +231,18 @@ class Boid extends creature_1.Creature {
     attractionVector() {
         const neighbours = this.neighbours(config_1.config.boid.attractionRadius);
         if (neighbours.length === 0) {
-            return new vector2_1.Vector2(0, 0);
+            return null;
         }
-        const averageNeighbour = neighbours.reduce((previous, current, index) => {
-            return {
-                pathTo: previous.pathTo.add(this.position.vectorTo(current.position)),
-                speed: previous.speed + current.velocity.length,
-            };
-        }, {
-            pathTo: new vector2_1.Vector2(0, 0),
-            speed: 0,
-        });
-        averageNeighbour.pathTo.scaleByScalar(1 / neighbours.length);
-        averageNeighbour.speed = averageNeighbour.speed / neighbours.length;
-        return averageNeighbour.pathTo.scaleToLength(averageNeighbour.speed * 1.1);
+        const nearestNeighbour = staticTools_1.StaticTools
+            .nearestCreatureToPosition(neighbours, this.position);
+        return this.position
+            .vectorTo(nearestNeighbour.position)
+            .scaleToLength(nearestNeighbour.velocity.length * 1.1);
     }
 }
 exports.Boid = Boid;
 
-},{"../config":3,"../vector2":11,"./creature":6,"./hunter":7,"./priority":8}],6:[function(require,module,exports){
+},{"../config":3,"../vector2":13,"./behaviour":5,"./creature":7,"./hunter":8,"./staticTools":10}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
@@ -257,20 +279,33 @@ class Creature {
         this.updateHeading();
     }
     updateHeading() {
+        const priority = this.getCurrentPriorityOrNull();
+        if (priority) {
+            this.updateHeadingTowards(priority.idealHeading);
+            this.colour = priority.color;
+            return;
+        }
+        this.defaultBehaviour();
+    }
+    getCurrentPriorityOrNull() {
         for (const priority of this.priorities) {
-            const priorityVector = priority.idealHeading();
-            if (priorityVector.length > 0) {
-                this.updateHeadingTowards(priorityVector);
-                this.colour = priority.color;
-                return;
+            const priorityNow = priority.getCurrentPriority();
+            if (priorityNow) {
+                return priorityNow;
             }
         }
+        return null;
+    }
+    defaultBehaviour() {
         this.colour = this.defaultColour;
         this.velocity = this.velocity.scaleToLength(Math.max(this.velocity.length - config_1.config.creature.acceleration, this.minSpeed));
         const randomTurn = 2 * config_1.config.creature.turningMax * Math.random() - config_1.config.creature.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
     }
     updateHeadingTowards(vector) {
+        if (!vector) {
+            return;
+        }
         const idealTurn = this.velocity.angleTo(vector);
         const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.creature.turningMax), -config_1.config.creature.turningMax);
         let limitedSpeed = Math.max(Math.min(vector.length, this.maxSpeed), this.minSpeed);
@@ -296,6 +331,9 @@ class Creature {
         if (yMax < config_1.config.creature.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(0, -1));
         }
+        if (result.length === 0) {
+            return null;
+        }
         return result.scaleToLength(this.velocity.length);
     }
     neighbours(radius) {
@@ -315,26 +353,26 @@ class Creature {
 }
 exports.Creature = Creature;
 
-},{"../config":3,"../vector2":11}],7:[function(require,module,exports){
+},{"../config":3,"../vector2":13}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
+const behaviour_1 = require("./behaviour");
 const boid_1 = require("./boid");
 const creature_1 = require("./creature");
-const priority_1 = require("./priority");
+const staticTools_1 = require("./staticTools");
 class Hunter extends creature_1.Creature {
     constructor(id, creatures, eatCallback) {
         super(id, creatures);
         this.maxSpeed = config_1.config.hunter.maxSpeed;
         this.minSpeed = config_1.config.hunter.minSpeed;
         this.priorities = [
-            new priority_1.Priority(() => this.wallAvoidVector(), "red"),
-            new priority_1.Priority(() => this.huntingVector(), "DeepPink"),
+            new behaviour_1.Behaviour(() => this.wallAvoidVector(), "red"),
+            new behaviour_1.Behaviour(() => this.huntingVector(), "DeepPink"),
         ];
         this.size = config_1.config.hunter.size;
         this.eatCallback = eatCallback;
-        this.colour = "black";
         this.defaultColour = config_1.config.hunter.defaultColour;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(this.minSpeed * Math.cos(heading), this.minSpeed * Math.sin(heading));
@@ -347,26 +385,17 @@ class Hunter extends creature_1.Creature {
         this.move();
     }
     huntingVector() {
-        const nearestPrey = this.findNearestPrey();
-        if (nearestPrey !== null) {
-            return this.position.vectorTo(nearestPrey.position.add(nearestPrey.velocity));
+        const preyInSight = this.otherCreaturesOfType(boid_1.Boid).filter((boid) => {
+            return this.distanceToCreature(boid) < config_1.config.hunter.visionRadius;
+        });
+        if (preyInSight.length === 0) {
+            return null;
         }
-        else {
-            return new vector2_1.Vector2(0, 0);
-        }
-    }
-    findNearestPrey() {
-        let prey = null;
-        let distanceToPrey = Infinity;
-        const preyInSight = this.otherCreaturesOfType(boid_1.Boid).filter((boid) => this.distanceToCreature(boid) < config_1.config.hunter.visionRadius);
-        for (const creature of preyInSight) {
-            const vectorToCreature = this.position.vectorTo(creature.position);
-            if (vectorToCreature.length < distanceToPrey) {
-                prey = creature;
-                distanceToPrey = vectorToCreature.length;
-            }
-        }
-        return prey;
+        const nearestPrey = staticTools_1.StaticTools
+            .nearestCreatureToPosition(preyInSight, this.position);
+        return this.position
+            .vectorTo(nearestPrey.position.add(nearestPrey.velocity))
+            .scaleToLength(config_1.config.hunter.maxSpeed);
     }
     eat() {
         for (const creature of this.otherCreaturesOfType(boid_1.Boid)) {
@@ -379,7 +408,7 @@ class Hunter extends creature_1.Creature {
 }
 exports.Hunter = Hunter;
 
-},{"../config":3,"../vector2":11,"./boid":5,"./creature":6,"./priority":8}],8:[function(require,module,exports){
+},{"../config":3,"../vector2":13,"./behaviour":5,"./boid":6,"./creature":7,"./staticTools":10}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Priority {
@@ -390,7 +419,32 @@ class Priority {
 }
 exports.Priority = Priority;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class StaticTools {
+    static nearestCreatureToPosition(creatures, position) {
+        if (creatures.length === 0) {
+            throw new Error("Nearest creature is undefined for zero creatures");
+        }
+        return creatures.reduce((previous, current) => {
+            const currentDistance = position.vectorTo(current.position).length;
+            if (previous.distance > currentDistance) {
+                return {
+                    distance: currentDistance,
+                    nearest: current,
+                };
+            }
+            return previous;
+        }, {
+            distance: position.vectorTo(creatures[0].position).length,
+            nearest: creatures[0],
+        }).nearest;
+    }
+}
+exports.StaticTools = StaticTools;
+
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
@@ -413,7 +467,7 @@ class MouseHandler {
 }
 exports.MouseHandler = MouseHandler;
 
-},{"./vector2":11}],10:[function(require,module,exports){
+},{"./vector2":13}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
@@ -462,7 +516,7 @@ class SimulationManager {
 }
 exports.SimulationManager = SimulationManager;
 
-},{"./canvas":2,"./config":3,"./configViewModel":4,"./creatures/boid":5,"./creatures/hunter":7,"./mouseHandler":9,"knockout":12}],11:[function(require,module,exports){
+},{"./canvas":2,"./config":3,"./configViewModel":4,"./creatures/boid":6,"./creatures/hunter":8,"./mouseHandler":11,"knockout":14}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {
@@ -519,7 +573,7 @@ class Vector2 {
 }
 exports.Vector2 = Vector2;
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.5.0-beta
  * (c) The Knockout.js team - http://knockoutjs.com/

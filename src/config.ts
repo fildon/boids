@@ -18,7 +18,7 @@ export const config = {
         wallAvoidRadius: 25,
     },
     hunter: {
-        defaultColour: "black",
+        defaultColour: "yellow",
         eatRadius: 15,
         maxSpeed: 8,
         minSpeed: 5,

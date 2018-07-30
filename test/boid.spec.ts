@@ -41,10 +41,10 @@ describe("Boid", () => {
             creatures.set(0, boid);
             creatures.set(1, boidA);
 
-            const actual = boid.repulsionVector();
-            const expected = new Vector2(-1, -1).scaleToLength(boid.velocity.length);
+            const actual = boid.repulsionVector()!;
+            const expected = new Vector2(-1, -1);
 
-            expect(actual.distance(expected)).to.be.lte(0.0000001);
+            expect(actual.isParallelTo(expected)).to.equal(true);
         });
 
         it("gets a repulsion vector with multiple boids too near", () => {
@@ -61,15 +61,15 @@ describe("Boid", () => {
             creatures.set(1, boidA);
             creatures.set(2, boidB);
 
-            const actual = boid.repulsionVector();
-            const expected = new Vector2(-1, -1).scaleToLength(boid.velocity.length);
+            const actual = boid.repulsionVector()!;
+            const expected = new Vector2(-1, -1);
 
-            expect(actual.distance(expected)).to.be.lte(0.0000001);
+            expect(actual.isParallelTo(expected)).to.equal(true);
         });
     });
 
     describe("attraction", () => {
-        it("returns the zero vector if no other boids in range", () => {
+        it("returns null if no other boids in range", () => {
             const creatures = new Map<number, Creature>();
 
             const boid = new Boid(0, creatures);
@@ -79,7 +79,7 @@ describe("Boid", () => {
             const actual = boid.attractionVector();
             const expected = new Vector2(0, 0);
 
-            expect(actual.distance(expected)).to.be.lte(0.0000001);
+            expect(actual).to.equal(null);
         });
 
         it("attracts to sole boid in range", () => {
@@ -93,28 +93,28 @@ describe("Boid", () => {
             creatures.set(0, boid);
             creatures.set(1, nearBoid);
 
-            const actual = boid.attractionVector();
+            const actual = boid.attractionVector()!;
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
             expect(actual.isParallelTo(expected)).to.equal(true);
         });
 
-        it("attracts to average of multiple near boids", () => {
+        it("attracts only to nearest of multiple near boids", () => {
             const creatures = new Map<number, Creature>();
 
             const boid = new Boid(0, creatures);
             boid.position = new Vector2(0, 0);
-            const boidA = new Boid(1, creatures);
-            boidA.position = new Vector2(1, 1);
-            const boidB = new Boid(2, creatures);
-            boidB.position = new Vector2(-1, 1);
+            const boidNearer = new Boid(1, creatures);
+            boidNearer.position = new Vector2(1, 1);
+            const boidFurther = new Boid(2, creatures);
+            boidFurther.position = new Vector2(-1.1, 1.1);
 
             creatures.set(0, boid);
-            creatures.set(1, boidA);
-            creatures.set(2, boidB);
+            creatures.set(1, boidNearer);
+            creatures.set(2, boidFurther);
 
-            const actual = boid.attractionVector();
-            const expected = new Vector2(0, 1).scaleToLength(boid.velocity.length);
+            const actual = boid.attractionVector()!;
+            const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
             expect(actual.isParallelTo(expected)).to.equal(true);
         });
@@ -183,28 +183,28 @@ describe("Boid", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(0, 0);
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(config.screen.maxX, config.screen.maxY);
             const expected = new Vector2(-1, -1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(0, config.screen.maxY);
             const expected = new Vector2(1, -1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(config.screen.maxX, 0);
             const expected = new Vector2(-1, 1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
         });
 
         it("does not repel exactly at wall avoid radius", () => {
@@ -213,8 +213,7 @@ describe("Boid", () => {
                 config.creature.wallAvoidRadius,
                 config.creature.wallAvoidRadius,
             );
-            const expected = new Vector2(0, 0);
-            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()).to.equal(null);
         });
 
         it("does not repel exactly at wall avoid radius", () => {
@@ -223,8 +222,7 @@ describe("Boid", () => {
                 config.screen.maxX - config.creature.wallAvoidRadius,
                 config.screen.maxY - config.creature.wallAvoidRadius,
             );
-            const expected = new Vector2(0, 0);
-            expect(boid.wallAvoidVector().equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()).to.equal(null);
         });
     });
 
@@ -233,7 +231,7 @@ describe("Boid", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(0, 0);
             boid.mousePosition = new Vector2(1, 1);
-            const actual = boid.mouseAvoidVector();
+            const actual = boid.mouseAvoidVector()!;
             const expected = new Vector2(-1, -1).scaleToLength(config.boid.maxSpeed);
             expect(actual.distance(expected)).to.be.lessThan(0.0000001);
         });
@@ -243,8 +241,7 @@ describe("Boid", () => {
             boid.position = new Vector2(0, 0);
             boid.mousePosition = new Vector2(config.boid.mouseAvoidRadius, 0);
             const actual = boid.mouseAvoidVector();
-            const expected = new Vector2(0, 0);
-            expect(actual.equals(expected)).to.equal(true);
+            expect(actual).to.equal(null);
         });
 
         it("returns zero-vector if mouse is out of area", () => {
@@ -252,8 +249,7 @@ describe("Boid", () => {
             boid.position = new Vector2(0, 0);
             boid.mousePosition = new Vector2(-1, -1);
             const actual = boid.mouseAvoidVector();
-            const expected = new Vector2(0, 0);
-            expect(actual.equals(expected)).to.equal(true);
+            expect(actual).to.equal(null);
         });
     });
 
