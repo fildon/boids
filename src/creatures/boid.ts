@@ -5,6 +5,7 @@ import { Hunter } from "./hunter";
 import { Priority } from "./priority";
 
 export class Boid extends Creature {
+    public defaultColour = config.boid.defaultColour;
     public maxSpeed = config.boid.maxSpeed;
     public minSpeed = config.boid.minSpeed;
     public priorities = [
@@ -15,6 +16,7 @@ export class Boid extends Creature {
         new Priority(() => this.alignmentVector(), "blue"),
         new Priority(() => this.attractionVector(), "green"),
     ];
+    public size = config.boid.size;
 
     public otherCreaturesOfSameType(): Creature[] {
         return this.otherCreaturesOfType(Boid);

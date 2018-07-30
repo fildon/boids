@@ -60,8 +60,8 @@ class Canvas {
     drawCreatureBody(creature, historyIndex) {
         const position = historyIndex ? creature.history[historyIndex] : creature.position;
         const radius = historyIndex ?
-            4 * (historyIndex / config_1.config.creature.maxHistory) :
-            4;
+            creature.size * ((historyIndex + 1) / (config_1.config.creature.maxHistory + 1)) :
+            creature.size;
         this.ctx.beginPath();
         this.ctx.arc(position.x, position.y, radius, 0, 2 * Math.PI);
         this.ctx.fillStyle = creature.colour;
@@ -70,7 +70,7 @@ class Canvas {
     drawCreatureBeak(creature) {
         const heading = creature.velocity.unitVector();
         this.ctx.beginPath();
-        this.ctx.arc(creature.position.x + 5 * heading.x, creature.position.y + 5 * heading.y, 2, 0, 2 * Math.PI);
+        this.ctx.arc(creature.position.x + (creature.size + 1) * heading.x, creature.position.y + (creature.size + 1) * heading.y, creature.size / 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
     }
@@ -84,12 +84,14 @@ exports.config = {
     boid: {
         alignmentRadius: 40,
         attractionRadius: 100,
-        maxSpeed: 6,
-        minSpeed: 2,
+        defaultColour: "LightSteelBlue",
+        maxSpeed: 12,
+        minSpeed: 4,
         mouseAvoidRadius: 50,
         quantity: 150,
         repulsionRadius: 30,
-        visionRadius: 40,
+        size: 4,
+        visionRadius: 80,
     },
     creature: {
         acceleration: 1,
@@ -98,10 +100,12 @@ exports.config = {
         wallAvoidRadius: 25,
     },
     hunter: {
+        defaultColour: "black",
         eatRadius: 10,
-        maxSpeed: 4,
-        minSpeed: 2,
+        maxSpeed: 8,
+        minSpeed: 4,
         quantity: 1,
+        size: 8,
         visionRadius: 80,
     },
     screen: {
@@ -147,6 +151,7 @@ const priority_1 = require("./priority");
 class Boid extends creature_1.Creature {
     constructor() {
         super(...arguments);
+        this.defaultColour = config_1.config.boid.defaultColour;
         this.maxSpeed = config_1.config.boid.maxSpeed;
         this.minSpeed = config_1.config.boid.minSpeed;
         this.priorities = [
@@ -157,6 +162,7 @@ class Boid extends creature_1.Creature {
             new priority_1.Priority(() => this.alignmentVector(), "blue"),
             new priority_1.Priority(() => this.attractionVector(), "green"),
         ];
+        this.size = config_1.config.boid.size;
     }
     otherCreaturesOfSameType() {
         return this.otherCreaturesOfType(Boid);
@@ -247,7 +253,7 @@ class Creature {
                 return;
             }
         }
-        // TODO this should probably update the colour... default colour?
+        this.colour = this.defaultColour;
         this.velocity = this.velocity.scaleToLength(Math.max(this.velocity.length - config_1.config.creature.acceleration, this.minSpeed));
         const randomTurn = 2 * config_1.config.creature.turningMax * Math.random() - config_1.config.creature.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
@@ -311,11 +317,13 @@ class Hunter extends creature_1.Creature {
         this.maxSpeed = config_1.config.hunter.maxSpeed;
         this.minSpeed = config_1.config.hunter.minSpeed;
         this.priorities = [
-            new priority_1.Priority(() => this.wallAvoidVector(), "black"),
-            new priority_1.Priority(() => this.huntingVector(), "black"),
+            new priority_1.Priority(() => this.wallAvoidVector(), "red"),
+            new priority_1.Priority(() => this.huntingVector(), "DeepPink"),
         ];
+        this.size = config_1.config.hunter.size;
         this.eatCallback = eatCallback;
         this.colour = "black";
+        this.defaultColour = config_1.config.hunter.defaultColour;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(this.minSpeed * Math.cos(heading), this.minSpeed * Math.sin(heading));
     }

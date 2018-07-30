@@ -61,8 +61,8 @@ export class Canvas {
     public drawCreatureBody(creature: Creature, historyIndex?: number): void {
         const position = historyIndex ? creature.history[historyIndex] : creature.position;
         const radius = historyIndex ?
-            4 * (historyIndex / config.creature.maxHistory) :
-            4;
+            creature.size * ((historyIndex + 1) / (config.creature.maxHistory + 1)) :
+            creature.size;
         this.ctx.beginPath();
         this.ctx.arc(
             position.x,
@@ -77,9 +77,9 @@ export class Canvas {
         const heading = creature.velocity.unitVector();
         this.ctx.beginPath();
         this.ctx.arc(
-            creature.position.x + 5 * heading.x,
-            creature.position.y + 5 * heading.y,
-            2, 0, 2 * Math.PI);
+            creature.position.x + (creature.size + 1) * heading.x,
+            creature.position.y + (creature.size + 1) * heading.y,
+            creature.size / 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
     }

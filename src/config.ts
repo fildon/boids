@@ -2,12 +2,14 @@ export const config = {
     boid: {
         alignmentRadius: 40,
         attractionRadius: 100,
-        maxSpeed: 6,
-        minSpeed: 2,
+        defaultColour: "LightSteelBlue",
+        maxSpeed: 12,
+        minSpeed: 4,
         mouseAvoidRadius: 50,
         quantity: 150,
         repulsionRadius: 30,
-        visionRadius: 40,
+        size: 4,
+        visionRadius: 80,
     },
     creature: {
         acceleration: 1,
@@ -16,10 +18,12 @@ export const config = {
         wallAvoidRadius: 25,
     },
     hunter: {
+        defaultColour: "black",
         eatRadius: 10,
-        maxSpeed: 4,
-        minSpeed: 2,
+        maxSpeed: 8,
+        minSpeed: 4,
         quantity: 1,
+        size: 8,
         visionRadius: 80,
     },
     screen: {

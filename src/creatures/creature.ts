@@ -9,10 +9,12 @@ export abstract class Creature {
     public history: Vector2[] = [];
     public creatures: Map<number, Creature>;
     public mousePosition: Vector2 = new Vector2(-1, -1);
+    public abstract defaultColour: string;
     public colour: string;
     public abstract priorities: Priority[];
     public abstract maxSpeed: number;
     public abstract minSpeed: number;
+    public abstract size: number;
 
     constructor(id: number, creatures: Map<number, Creature>) {
         this.id = id;
@@ -59,7 +61,7 @@ export abstract class Creature {
             }
         }
 
-        // TODO this should probably update the colour... default colour?
+        this.colour = this.defaultColour;
         this.velocity = this.velocity.scaleToLength(
             Math.max(this.velocity.length - config.creature.acceleration, this.minSpeed));
         const randomTurn = 2 * config.creature.turningMax * Math.random() - config.creature.turningMax;

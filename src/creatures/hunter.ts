@@ -5,17 +5,20 @@ import { Creature } from "./creature";
 import { Priority } from "./priority";
 
 export class Hunter extends Creature {
+    public defaultColour: string;
     public maxSpeed = config.hunter.maxSpeed;
     public minSpeed = config.hunter.minSpeed;
     public eatCallback: () => void;
     public priorities = [
-        new Priority(() => this.wallAvoidVector(), "black"),
-        new Priority(() => this.huntingVector(), "black"),
+        new Priority(() => this.wallAvoidVector(), "red"),
+        new Priority(() => this.huntingVector(), "DeepPink"),
     ];
+    public size = config.hunter.size;
     constructor(id: number, creatures: Map<number, Creature>, eatCallback: () => void) {
         super(id, creatures);
         this.eatCallback = eatCallback;
         this.colour = "black";
+        this.defaultColour = config.hunter.defaultColour;
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new Vector2(
             this.minSpeed * Math.cos(heading),
