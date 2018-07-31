@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { config } from "./config";
 
-export class ConfigViewModel {
+export class SimulationViewModel {
     public mouseRadius: KnockoutObservable<number>;
     public turningMax: KnockoutObservable<number>;
     public numberOfBoids: KnockoutObservable<number>;

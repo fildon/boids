@@ -2,17 +2,17 @@ import * as ko from "knockout";
 
 import { Canvas } from "./canvas";
 import { config } from "./config";
-import { ConfigViewModel } from "./configViewModel";
 import { Boid } from "./creatures/boid";
 import { Creature } from "./creatures/creature";
 import { Hunter } from "./creatures/hunter";
 import { MouseHandler } from "./mouseHandler";
+import { SimulationViewModel } from "./simulationViewModel";
 
 export class SimulationManager {
     public creatures: Map<number, Creature>;
     private canvas: Canvas;
     private mouseHandler: MouseHandler;
-    private configViewModel: ConfigViewModel;
+    private simulationViewModel: SimulationViewModel;
     constructor() {
         this.creatures = new Map();
         const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
@@ -30,8 +30,8 @@ export class SimulationManager {
 
         this.mouseHandler = new MouseHandler(canvasElement);
 
-        this.configViewModel = new ConfigViewModel();
-        ko.applyBindings(this.configViewModel);
+        this.simulationViewModel = new SimulationViewModel();
+        ko.applyBindings(this.simulationViewModel);
     }
 
     public createBoid(): void {
@@ -50,7 +50,7 @@ export class SimulationManager {
     }
 
     public updateBoidCount(): void {
-        this.configViewModel.updateBoidCount(
+        this.simulationViewModel.updateBoidCount(
             this.creatures.size - config.hunter.quantity,
         );
     }

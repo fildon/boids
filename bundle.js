@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new simulationManager_1.SimulationManager().runSimulation();
 }, false);
 
-},{"./simulationManager":12}],2:[function(require,module,exports){
+},{"./simulationManager":11}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
@@ -119,30 +119,6 @@ exports.config = {
 },{}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ko = require("knockout");
-const config_1 = require("./config");
-class ConfigViewModel {
-    constructor() {
-        this.mouseRadius = ko.observable(config_1.config.boid.mouseAvoidRadius);
-        this.mouseRadius.subscribe((newValue) => {
-            config_1.config.boid.mouseAvoidRadius = newValue;
-        });
-        this.turningMax = ko.observable(config_1.config.creature.turningMax);
-        this.turningMax.subscribe((newValue) => {
-            config_1.config.creature.turningMax = newValue;
-        });
-        this.numberOfBoids = ko.observable(config_1.config.boid.quantity);
-        this.numberOfHunters = ko.observable(config_1.config.hunter.quantity);
-    }
-    updateBoidCount(boidsRemaining) {
-        this.numberOfBoids(boidsRemaining);
-    }
-}
-exports.ConfigViewModel = ConfigViewModel;
-
-},{"./config":3,"knockout":14}],5:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const priority_1 = require("./priority");
 class Behaviour {
     constructor(getIdealHeading, color) {
@@ -159,7 +135,7 @@ class Behaviour {
 }
 exports.Behaviour = Behaviour;
 
-},{"./priority":9}],6:[function(require,module,exports){
+},{"./priority":8}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
@@ -242,7 +218,7 @@ class Boid extends creature_1.Creature {
 }
 exports.Boid = Boid;
 
-},{"../config":3,"../vector2":13,"./behaviour":5,"./creature":7,"./hunter":8,"./staticTools":10}],7:[function(require,module,exports){
+},{"../config":3,"../vector2":13,"./behaviour":4,"./creature":6,"./hunter":7,"./staticTools":9}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
@@ -353,7 +329,7 @@ class Creature {
 }
 exports.Creature = Creature;
 
-},{"../config":3,"../vector2":13}],8:[function(require,module,exports){
+},{"../config":3,"../vector2":13}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
@@ -408,7 +384,7 @@ class Hunter extends creature_1.Creature {
 }
 exports.Hunter = Hunter;
 
-},{"../config":3,"../vector2":13,"./behaviour":5,"./boid":6,"./creature":7,"./staticTools":10}],9:[function(require,module,exports){
+},{"../config":3,"../vector2":13,"./behaviour":4,"./boid":5,"./creature":6,"./staticTools":9}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Priority {
@@ -419,7 +395,7 @@ class Priority {
 }
 exports.Priority = Priority;
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class StaticTools {
@@ -444,7 +420,7 @@ class StaticTools {
 }
 exports.StaticTools = StaticTools;
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
@@ -467,16 +443,16 @@ class MouseHandler {
 }
 exports.MouseHandler = MouseHandler;
 
-},{"./vector2":13}],12:[function(require,module,exports){
+},{"./vector2":13}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
 const canvas_1 = require("./canvas");
 const config_1 = require("./config");
-const configViewModel_1 = require("./configViewModel");
 const boid_1 = require("./creatures/boid");
 const hunter_1 = require("./creatures/hunter");
 const mouseHandler_1 = require("./mouseHandler");
+const simulationViewModel_1 = require("./simulationViewModel");
 class SimulationManager {
     constructor() {
         this.creatures = new Map();
@@ -492,8 +468,8 @@ class SimulationManager {
             this.createHunter();
         }
         this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
-        this.configViewModel = new configViewModel_1.ConfigViewModel();
-        ko.applyBindings(this.configViewModel);
+        this.simulationViewModel = new simulationViewModel_1.SimulationViewModel();
+        ko.applyBindings(this.simulationViewModel);
     }
     createBoid() {
         this.creatures.set(this.creatures.size, new boid_1.Boid(this.creatures.size, this.creatures));
@@ -502,7 +478,7 @@ class SimulationManager {
         this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures, () => this.updateBoidCount()));
     }
     updateBoidCount() {
-        this.configViewModel.updateBoidCount(this.creatures.size - config_1.config.hunter.quantity);
+        this.simulationViewModel.updateBoidCount(this.creatures.size - config_1.config.hunter.quantity);
     }
     runSimulation() {
         this.tick();
@@ -522,7 +498,31 @@ class SimulationManager {
 }
 exports.SimulationManager = SimulationManager;
 
-},{"./canvas":2,"./config":3,"./configViewModel":4,"./creatures/boid":6,"./creatures/hunter":8,"./mouseHandler":11,"knockout":14}],13:[function(require,module,exports){
+},{"./canvas":2,"./config":3,"./creatures/boid":5,"./creatures/hunter":7,"./mouseHandler":10,"./simulationViewModel":12,"knockout":14}],12:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const ko = require("knockout");
+const config_1 = require("./config");
+class SimulationViewModel {
+    constructor() {
+        this.mouseRadius = ko.observable(config_1.config.boid.mouseAvoidRadius);
+        this.mouseRadius.subscribe((newValue) => {
+            config_1.config.boid.mouseAvoidRadius = newValue;
+        });
+        this.turningMax = ko.observable(config_1.config.creature.turningMax);
+        this.turningMax.subscribe((newValue) => {
+            config_1.config.creature.turningMax = newValue;
+        });
+        this.numberOfBoids = ko.observable(config_1.config.boid.quantity);
+        this.numberOfHunters = ko.observable(config_1.config.hunter.quantity);
+    }
+    updateBoidCount(boidsRemaining) {
+        this.numberOfBoids(boidsRemaining);
+    }
+}
+exports.SimulationViewModel = SimulationViewModel;
+
+},{"./config":3,"knockout":14}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {
