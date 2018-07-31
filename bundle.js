@@ -486,14 +486,20 @@ class SimulationManager {
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
-            this.creatures.set(this.creatures.size, new boid_1.Boid(this.creatures.size, this.creatures));
+            this.createBoid();
         }
         for (let i = 0; i < config_1.config.hunter.quantity; i++) {
-            this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures, () => this.updateBoidCount()));
+            this.createHunter();
         }
         this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
         this.configViewModel = new configViewModel_1.ConfigViewModel();
         ko.applyBindings(this.configViewModel);
+    }
+    createBoid() {
+        this.creatures.set(this.creatures.size, new boid_1.Boid(this.creatures.size, this.creatures));
+    }
+    createHunter() {
+        this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures, () => this.updateBoidCount()));
     }
     updateBoidCount() {
         this.configViewModel.updateBoidCount(this.creatures.size - config_1.config.hunter.quantity);

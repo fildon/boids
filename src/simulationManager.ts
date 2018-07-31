@@ -22,23 +22,31 @@ export class SimulationManager {
         this.canvas = new Canvas(canvasElement);
 
         for (let i = 0; i < config.boid.quantity; i++) {
-            this.creatures.set(this.creatures.size, new Boid(
-                this.creatures.size,
-                this.creatures,
-            ));
+            this.createBoid();
         }
         for (let i = 0; i < config.hunter.quantity; i++) {
-            this.creatures.set(this.creatures.size, new Hunter(
-                this.creatures.size,
-                this.creatures,
-                () => this.updateBoidCount(),
-            ));
+            this.createHunter();
         }
 
         this.mouseHandler = new MouseHandler(canvasElement);
 
         this.configViewModel = new ConfigViewModel();
         ko.applyBindings(this.configViewModel);
+    }
+
+    public createBoid(): void {
+        this.creatures.set(this.creatures.size, new Boid(
+            this.creatures.size,
+            this.creatures,
+        ));
+    }
+
+    public createHunter(): void {
+        this.creatures.set(this.creatures.size, new Hunter(
+            this.creatures.size,
+            this.creatures,
+            () => this.updateBoidCount(),
+        ));
     }
 
     public updateBoidCount(): void {
