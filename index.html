@@ -14,8 +14,10 @@
             <input data-bind="value: turningMax" id="turningMax"></input>
             <span>Boids: </span>
             <span data-bind="text: numberOfBoids">&nbsp;</span>
+            <button data-bind="click: createBoid">Create Boid</button>
             <span>Hunters: </span>
             <span data-bind="text: numberOfHunters">&nbsp;</span>
+            <button data-bind="click: createHunter">Create Hunter</button>
         </div>
         <canvas id='canvas'></canvas>
     </body>

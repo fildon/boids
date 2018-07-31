@@ -2,48 +2,78 @@ import * as ko from "knockout";
 
 import { Canvas } from "./canvas";
 import { config } from "./config";
-import { ConfigViewModel } from "./configViewModel";
 import { Boid } from "./creatures/boid";
 import { Creature } from "./creatures/creature";
 import { Hunter } from "./creatures/hunter";
 import { MouseHandler } from "./mouseHandler";
+import { SimulationViewModel } from "./simulationViewModel";
 
 export class SimulationManager {
     public creatures: Map<number, Creature>;
+    public nextCreatureId: number;
     private canvas: Canvas;
     private mouseHandler: MouseHandler;
-    private configViewModel: ConfigViewModel;
+    private simulationViewModel: SimulationViewModel;
     constructor() {
         this.creatures = new Map();
+        this.nextCreatureId = 0;
         const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
         if (!canvasElement) {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new Canvas(canvasElement);
+        this.simulationViewModel = new SimulationViewModel(this);
+        this.mouseHandler = new MouseHandler(canvasElement);
+        ko.applyBindings(this.simulationViewModel);
 
         for (let i = 0; i < config.boid.quantity; i++) {
-            this.creatures.set(this.creatures.size, new Boid(
-                this.creatures.size,
-                this.creatures,
-            ));
+            this.createBoid();
         }
         for (let i = 0; i < config.hunter.quantity; i++) {
-            this.creatures.set(this.creatures.size, new Hunter(
-                this.creatures.size,
-                this.creatures,
-                () => this.updateBoidCount(),
-            ));
+            this.createHunter();
         }
+    }
 
-        this.mouseHandler = new MouseHandler(canvasElement);
+    public createBoid(): void {
+        this.creatures.set(this.nextCreatureId, new Boid(
+            this.nextCreatureId,
+            this.creatures,
+        ));
+        this.nextCreatureId++;
+        this.updateBoidCount();
+    }
 
-        this.configViewModel = new ConfigViewModel();
-        ko.applyBindings(this.configViewModel);
+    public createHunter(): void {
+        this.creatures.set(this.nextCreatureId, new Hunter(
+            this.nextCreatureId,
+            this.creatures,
+            () => this.updateBoidCount(),
+        ));
+        this.nextCreatureId++;
+        this.updateHunterCount();
     }
 
     public updateBoidCount(): void {
-        this.configViewModel.updateBoidCount(
-            this.creatures.size - config.hunter.quantity,
+        let boidCount = 0;
+        this.creatures.forEach((creature) => {
+            if (creature instanceof Boid) {
+                boidCount++;
+            }
+        });
+        this.simulationViewModel.updateBoidCount(
+            boidCount,
+        );
+    }
+
+    public updateHunterCount(): void {
+        let huntercount = 0;
+        this.creatures.forEach((creature) => {
+            if (creature instanceof Hunter) {
+                huntercount++;
+            }
+        });
+        this.simulationViewModel.updateHunterCount(
+            huntercount,
         );
     }
 
