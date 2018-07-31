@@ -19,8 +19,8 @@ export const config = {
     },
     hunter: {
         defaultColour: "yellow",
-        eatRadius: 15,
-        maxSpeed: 8,
+        eatRadius: 20,
+        maxSpeed: 7,
         minSpeed: 5,
         quantity: 1,
         size: 8,
