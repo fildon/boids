@@ -10,16 +10,21 @@ import { SimulationViewModel } from "./simulationViewModel";
 
 export class SimulationManager {
     public creatures: Map<number, Creature>;
+    public nextCreatureId: number;
     private canvas: Canvas;
     private mouseHandler: MouseHandler;
     private simulationViewModel: SimulationViewModel;
     constructor() {
         this.creatures = new Map();
+        this.nextCreatureId = 0;
         const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
         if (!canvasElement) {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new Canvas(canvasElement);
+        this.simulationViewModel = new SimulationViewModel(this);
+        this.mouseHandler = new MouseHandler(canvasElement);
+        ko.applyBindings(this.simulationViewModel);
 
         for (let i = 0; i < config.boid.quantity; i++) {
             this.createBoid();
@@ -27,31 +32,48 @@ export class SimulationManager {
         for (let i = 0; i < config.hunter.quantity; i++) {
             this.createHunter();
         }
-
-        this.mouseHandler = new MouseHandler(canvasElement);
-
-        this.simulationViewModel = new SimulationViewModel();
-        ko.applyBindings(this.simulationViewModel);
     }
 
     public createBoid(): void {
-        this.creatures.set(this.creatures.size, new Boid(
-            this.creatures.size,
+        this.creatures.set(this.nextCreatureId, new Boid(
+            this.nextCreatureId,
             this.creatures,
         ));
+        this.nextCreatureId++;
+        this.updateBoidCount();
     }
 
     public createHunter(): void {
-        this.creatures.set(this.creatures.size, new Hunter(
-            this.creatures.size,
+        this.creatures.set(this.nextCreatureId, new Hunter(
+            this.nextCreatureId,
             this.creatures,
             () => this.updateBoidCount(),
         ));
+        this.nextCreatureId++;
+        this.updateHunterCount();
     }
 
     public updateBoidCount(): void {
+        let boidCount = 0;
+        this.creatures.forEach((creature) => {
+            if (creature instanceof Boid) {
+                boidCount++;
+            }
+        });
         this.simulationViewModel.updateBoidCount(
-            this.creatures.size - config.hunter.quantity,
+            boidCount,
+        );
+    }
+
+    public updateHunterCount(): void {
+        let huntercount = 0;
+        this.creatures.forEach((creature) => {
+            if (creature instanceof Hunter) {
+                huntercount++;
+            }
+        });
+        this.simulationViewModel.updateHunterCount(
+            huntercount,
         );
     }
 

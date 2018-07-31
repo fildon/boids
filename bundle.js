@@ -456,29 +456,49 @@ const simulationViewModel_1 = require("./simulationViewModel");
 class SimulationManager {
     constructor() {
         this.creatures = new Map();
+        this.nextCreatureId = 0;
         const canvasElement = document.getElementById("canvas");
         if (!canvasElement) {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
+        this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
+        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
+        ko.applyBindings(this.simulationViewModel);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
             this.createBoid();
         }
         for (let i = 0; i < config_1.config.hunter.quantity; i++) {
             this.createHunter();
         }
-        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
-        this.simulationViewModel = new simulationViewModel_1.SimulationViewModel();
-        ko.applyBindings(this.simulationViewModel);
     }
     createBoid() {
-        this.creatures.set(this.creatures.size, new boid_1.Boid(this.creatures.size, this.creatures));
+        this.creatures.set(this.nextCreatureId, new boid_1.Boid(this.nextCreatureId, this.creatures));
+        this.nextCreatureId++;
+        this.updateBoidCount();
     }
     createHunter() {
-        this.creatures.set(this.creatures.size, new hunter_1.Hunter(this.creatures.size, this.creatures, () => this.updateBoidCount()));
+        this.creatures.set(this.nextCreatureId, new hunter_1.Hunter(this.nextCreatureId, this.creatures, () => this.updateBoidCount()));
+        this.nextCreatureId++;
+        this.updateHunterCount();
     }
     updateBoidCount() {
-        this.simulationViewModel.updateBoidCount(this.creatures.size - config_1.config.hunter.quantity);
+        let boidCount = 0;
+        this.creatures.forEach((creature) => {
+            if (creature instanceof boid_1.Boid) {
+                boidCount++;
+            }
+        });
+        this.simulationViewModel.updateBoidCount(boidCount);
+    }
+    updateHunterCount() {
+        let huntercount = 0;
+        this.creatures.forEach((creature) => {
+            if (creature instanceof hunter_1.Hunter) {
+                huntercount++;
+            }
+        });
+        this.simulationViewModel.updateHunterCount(huntercount);
     }
     runSimulation() {
         this.tick();
@@ -504,7 +524,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
 const config_1 = require("./config");
 class SimulationViewModel {
-    constructor() {
+    constructor(simulationManager) {
+        this.simulationManager = simulationManager;
         this.mouseRadius = ko.observable(config_1.config.boid.mouseAvoidRadius);
         this.mouseRadius.subscribe((newValue) => {
             config_1.config.boid.mouseAvoidRadius = newValue;
@@ -515,9 +536,18 @@ class SimulationViewModel {
         });
         this.numberOfBoids = ko.observable(config_1.config.boid.quantity);
         this.numberOfHunters = ko.observable(config_1.config.hunter.quantity);
+        this.createBoid = () => {
+            simulationManager.createBoid();
+        };
+        this.createHunter = () => {
+            simulationManager.createHunter();
+        };
     }
     updateBoidCount(boidsRemaining) {
         this.numberOfBoids(boidsRemaining);
+    }
+    updateHunterCount(hunterCount) {
+        this.numberOfHunters(hunterCount);
     }
 }
 exports.SimulationViewModel = SimulationViewModel;
