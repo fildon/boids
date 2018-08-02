@@ -22,7 +22,7 @@ export abstract class Creature {
         this.creatures = creatures;
         this.position = new Vector2(Math.random() * config.screen.maxX, Math.random() * config.screen.maxY);
         for (let i = 0; i < config.creature.maxHistory; i++) {
-            this.history.push(new Vector2(0, 0));
+            this.history.push(new Vector2());
         }
         const heading = Math.random() * 2 * Math.PI;
         // TODO shouldn't assume boid on the following line
@@ -102,7 +102,7 @@ export abstract class Creature {
         const xMax = config.screen.maxX - this.position.x;
         const yMin = this.position.y;
         const yMax = config.screen.maxY - this.position.y;
-        let result = new Vector2(0, 0);
+        let result = new Vector2();
         if (xMin < config.creature.wallAvoidRadius) {
             result = result.add(new Vector2(1, 0));
         }

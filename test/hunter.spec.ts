@@ -11,7 +11,9 @@ describe("Hunter", () => {
     describe("hunting vector", () => {
         it("returns null if no prey in sight", () => {
             const hunter = new Hunter(0, new Map(), () => {/**/});
+
             const actual = hunter.huntingVector();
+
             expect(actual).to.equal(null);
         });
 
@@ -19,12 +21,17 @@ describe("Hunter", () => {
             const creatures = new Map<number, Creature>();
             const hunter = new Hunter(0, creatures, () => {/**/});
             const boid = new Boid(1, creatures);
+            boid.velocity = new Vector2();
             creatures.set(0, hunter);
             creatures.set(1, boid);
             hunter.position = new Vector2(1, 1);
             boid.position = new Vector2(2, 3);
 
             const actual = hunter.huntingVector();
+            const expected = new Vector2(1, 2);
+
+            expect(actual).to.not.equal(null);
+            expect(actual!.isParallelTo(expected)).to.equal(true);
         });
     });
 });

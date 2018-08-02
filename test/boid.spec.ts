@@ -34,7 +34,7 @@ describe("Boid", () => {
             const creatures = new Map<number, Creature>();
 
             const boid = new Boid(0, creatures);
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             const boidA = new Boid(1, creatures);
             boidA.position = new Vector2(1, 1).scaleToLength(config.boid.repulsionRadius / 2);
 
@@ -51,7 +51,7 @@ describe("Boid", () => {
             const creatures = new Map<number, Creature>();
 
             const boid = new Boid(0, creatures);
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             const boidA = new Boid(1, creatures);
             boidA.position = new Vector2(0, 1).scaleToLength(config.boid.repulsionRadius / 2);
             const boidB = new Boid(2, creatures);
@@ -77,7 +77,7 @@ describe("Boid", () => {
             creatures.set(0, boid);
 
             const actual = boid.attractionVector();
-            const expected = new Vector2(0, 0);
+            const expected = new Vector2();
 
             expect(actual).to.equal(null);
         });
@@ -86,7 +86,7 @@ describe("Boid", () => {
             const creatures = new Map<number, Creature>();
 
             const boid = new Boid(0, creatures);
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             const nearBoid = new Boid(1, creatures);
             nearBoid.position = new Vector2(1, 1);
 
@@ -103,7 +103,7 @@ describe("Boid", () => {
             const creatures = new Map<number, Creature>();
 
             const boid = new Boid(0, creatures);
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             const boidNearer = new Boid(1, creatures);
             boidNearer.position = new Vector2(1, 1);
             const boidFurther = new Boid(2, creatures);
@@ -131,7 +131,7 @@ describe("Boid", () => {
 
         it("returns none if there are no boids in range", () => {
             const boid = new Boid(0, new Map());
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             const farBoid = new Boid(0, new Map());
             farBoid.position = new Vector2(1, 1);
 
@@ -144,7 +144,7 @@ describe("Boid", () => {
             const creatures = new Map<number, Creature>();
 
             const boid = new Boid(0, creatures);
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             const nearBoid = new Boid(1, creatures);
             nearBoid.position = new Vector2(1, 1);
 
@@ -161,7 +161,7 @@ describe("Boid", () => {
             const creatures = new Map<number, Creature>();
 
             const boid = new Boid(0, creatures);
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             const nearBoid = new Boid(1, creatures);
             nearBoid.position = new Vector2(0, 1);
             const farBoid = new Boid(2, creatures);
@@ -181,7 +181,7 @@ describe("Boid", () => {
     describe("wallAvoidVector", () => {
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
             expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
         });
@@ -229,7 +229,7 @@ describe("Boid", () => {
     describe("mouse avoid vector", () => {
         it("points away from the mouse when within it's radius", () => {
             const boid = new Boid(0, new Map());
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             boid.mousePosition = new Vector2(1, 1);
             const actual = boid.mouseAvoidVector()!;
             const expected = new Vector2(-1, -1).scaleToLength(config.boid.maxSpeed);
@@ -238,7 +238,7 @@ describe("Boid", () => {
 
         it("uses strict equality distance checking", () => {
             const boid = new Boid(0, new Map());
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             boid.mousePosition = new Vector2(config.boid.mouseAvoidRadius, 0);
             const actual = boid.mouseAvoidVector();
             expect(actual).to.equal(null);
@@ -246,7 +246,7 @@ describe("Boid", () => {
 
         it("returns zero-vector if mouse is out of area", () => {
             const boid = new Boid(0, new Map());
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             boid.mousePosition = new Vector2(-1, -1);
             const actual = boid.mouseAvoidVector();
             expect(actual).to.equal(null);
@@ -256,7 +256,7 @@ describe("Boid", () => {
     describe("update heading towards", () => {
         it("limits the turn by the turningMax", () => {
             const boid = new Boid(0, new Map());
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             boid.velocity = new Vector2(1, 1).scaleToLength(config.boid.maxSpeed);
             const expected = boid.velocity.rotate(config.creature.turningMax);
             boid.updateHeadingTowards(new Vector2(-100, -99));
@@ -266,7 +266,7 @@ describe("Boid", () => {
 
         it("limits the turn by the turningMax", () => {
             const boid = new Boid(0, new Map());
-            boid.position = new Vector2(0, 0);
+            boid.position = new Vector2();
             boid.velocity = new Vector2(1, 1).scaleToLength(config.boid.maxSpeed);
             const expected = boid.velocity.rotate(-config.creature.turningMax);
             boid.updateHeadingTowards(new Vector2(-99, -100));

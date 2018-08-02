@@ -13,7 +13,7 @@ const fuzzyVectorEquality = (v1: Vector2, v2: Vector2) => {
 describe("Vector2", () => {
     describe("distance", () => {
         it("computes 3-4-5 triangle", () => {
-            const v0 = new Vector2(0, 0);
+            const v0 = new Vector2();
             const v1 = new Vector2(3, 4);
             const distance = v0.distance(v1);
             expect(distance).to.equal(5);
@@ -137,7 +137,7 @@ describe("Vector2", () => {
         });
 
         it("returns the average of two or more vectors", () => {
-            const v1 = new Vector2(0, 0);
+            const v1 = new Vector2();
             const v2 = new Vector2(2, 2);
             const v3 = new Vector2(0, 2);
             const v4 = new Vector2(2, 0);

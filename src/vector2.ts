@@ -1,7 +1,7 @@
 export class Vector2 {
     public static average(vectors: Vector2[]): Vector2 {
         if (vectors.length === 0) {
-            return new Vector2(0, 0);
+            return new Vector2();
         }
         const totalVector = vectors.reduce((partialSum, current) => {
             return partialSum.add(current);
@@ -13,7 +13,7 @@ export class Vector2 {
     public x: number;
     public y: number;
     public length: number;
-    constructor(x: number, y: number) {
+    constructor(x: number = 0, y: number = 0) {
         this.x = x;
         this.y = y;
         this.length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
