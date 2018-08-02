@@ -339,7 +339,7 @@ const boid_1 = require("./boid");
 const creature_1 = require("./creature");
 const staticTools_1 = require("./staticTools");
 class Hunter extends creature_1.Creature {
-    constructor(id, creatures, eatCallback) {
+    constructor(id = 0, creatures = new Map(), eatCallback = () => { }) {
         super(id, creatures);
         this.maxSpeed = config_1.config.hunter.maxSpeed;
         this.minSpeed = config_1.config.hunter.minSpeed;

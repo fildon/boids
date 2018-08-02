@@ -25,7 +25,7 @@ describe("Boid", () => {
             boid.velocity = new Vector2(30, 40);
             boid.move();
             const expected = new Vector2(40, 60);
-            expect(boid.position.equals(expected)).to.equal(true);
+            expect(boid.position).to.deep.equal(expected);
         });
     });
 
@@ -44,7 +44,7 @@ describe("Boid", () => {
             const actual = boid.repulsionVector()!;
             const expected = new Vector2(-1, -1);
 
-            expect(actual.isParallelTo(expected)).to.equal(true);
+            expect(actual.isParallelTo(expected)).to.be.true;
         });
 
         it("gets a repulsion vector with multiple boids too near", () => {
@@ -64,7 +64,7 @@ describe("Boid", () => {
             const actual = boid.repulsionVector()!;
             const expected = new Vector2(-1, -1);
 
-            expect(actual.isParallelTo(expected)).to.equal(true);
+            expect(actual.isParallelTo(expected)).to.be.true;
         });
     });
 
@@ -96,7 +96,7 @@ describe("Boid", () => {
             const actual = boid.attractionVector()!;
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
-            expect(actual.isParallelTo(expected)).to.equal(true);
+            expect(actual.isParallelTo(expected)).to.be.true;
         });
 
         it("attracts only to nearest of multiple near boids", () => {
@@ -116,7 +116,7 @@ describe("Boid", () => {
             const actual = boid.attractionVector()!;
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
-            expect(actual.isParallelTo(expected)).to.equal(true);
+            expect(actual.isParallelTo(expected)).to.be.true;
         });
     });
 
@@ -183,28 +183,28 @@ describe("Boid", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2();
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()!).to.deep.equal(expected);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(config.screen.maxX, config.screen.maxY);
             const expected = new Vector2(-1, -1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()!).to.deep.equal(expected);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(0, config.screen.maxY);
             const expected = new Vector2(1, -1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()!).to.deep.equal(expected);
         });
 
         it("points away from the edges", () => {
             const boid = new Boid(0, new Map());
             boid.position = new Vector2(config.screen.maxX, 0);
             const expected = new Vector2(-1, 1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector()!.equals(expected)).to.equal(true);
+            expect(boid.wallAvoidVector()!).to.deep.equal(expected);
         });
 
         it("does not repel exactly at wall avoid radius", () => {
@@ -282,8 +282,7 @@ describe("Boid", () => {
             boid.velocity = new Vector2(1, 1);
             const expectedMin = boid.velocity.rotate(-config.creature.turningMax);
             boid.updateHeading();
-            expect(expectedMin.angleTo(boid.velocity) < config.creature.turningMax * 2)
-                .to.equal(true);
+            expect(expectedMin.angleTo(boid.velocity)).to.be.lt(config.creature.turningMax * 2);
         });
     });
 });

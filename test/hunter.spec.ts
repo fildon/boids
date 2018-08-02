@@ -10,7 +10,7 @@ const expect = chai.expect;
 describe("Hunter", () => {
     describe("hunting vector", () => {
         it("returns null if no prey in sight", () => {
-            const hunter = new Hunter(0, new Map(), () => {/**/});
+            const hunter = new Hunter();
 
             const actual = hunter.huntingVector();
 
@@ -19,7 +19,7 @@ describe("Hunter", () => {
 
         it("points towards nearest prey in sight", () => {
             const creatures = new Map<number, Creature>();
-            const hunter = new Hunter(0, creatures, () => {/**/});
+            const hunter = new Hunter(0, creatures);
             const boid = new Boid(1, creatures);
             boid.velocity = new Vector2();
             creatures.set(0, hunter);
@@ -31,7 +31,19 @@ describe("Hunter", () => {
             const expected = new Vector2(1, 2);
 
             expect(actual).to.not.equal(null);
-            expect(actual!.isParallelTo(expected)).to.equal(true);
+            expect(actual!.isParallelTo(expected)).to.be.true;
+        });
+    });
+
+    describe("eating", () => {
+        it("eats a boid in range", () => {
+            const creatures = new Map<number, Creature>();
+            const hunter = new Hunter(0, creatures);
+            const boid = new Boid(1, creatures);
+
+            hunter.eat();
+
+            expect(creatures.has(1)).to.be.false;
         });
     });
 });

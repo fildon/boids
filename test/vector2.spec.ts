@@ -30,13 +30,7 @@ describe("Vector2", () => {
         it("compares x y values, not object equality", () => {
             const v0 = new Vector2(0, 1);
             const v1 = new Vector2(0, 1);
-            expect(v0.equals(v1)).to.equal(true);
-        });
-
-        it("rejects inequal vectors", () => {
-            const v0 = new Vector2(0, 1);
-            const v1 = new Vector2(0, 3);
-            expect(v0.equals(v1)).to.equal(false);
+            expect(v0.equals(v1)).to.be.true;
         });
     });
 
@@ -46,7 +40,7 @@ describe("Vector2", () => {
             const v1 = new Vector2(2, 3);
             const actual = v0.vectorTo(v1);
             const expected = new Vector2(1, 2);
-            expect(actual.equals(expected)).to.equal(true);
+            expect(actual).to.deep.equal(expected);
         });
     });
 
@@ -55,21 +49,21 @@ describe("Vector2", () => {
             const v0 = new Vector2(Math.sqrt(2), 0);
             const v1 = new Vector2(1, 1);
             const v2 = v0.rotate(Math.PI / 4);
-            expect(fuzzyVectorEquality(v2, v1)).to.equal(true);
+            expect(fuzzyVectorEquality(v2, v1)).to.be.true;
         });
 
         it("rotates a vector", () => {
             const v0 = new Vector2(1, 1);
             const v1 = new Vector2(-1, 1);
             const v2 = v0.rotate(Math.PI / 2);
-            expect(fuzzyVectorEquality(v2, v1)).to.equal(true);
+            expect(fuzzyVectorEquality(v2, v1)).to.be.true;
         });
 
         it("rotates a vector", () => {
             const v0 = new Vector2(1, 1);
             const v1 = new Vector2(0, Math.sqrt(2));
             const v2 = v0.rotate(Math.PI / 4);
-            expect(fuzzyVectorEquality(v2, v1)).to.equal(true);
+            expect(fuzzyVectorEquality(v2, v1)).to.be.true;
         });
     });
 
