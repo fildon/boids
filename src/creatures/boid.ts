@@ -2,13 +2,14 @@ import { config } from "../config";
 import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
 import { Creature } from "./creature";
-import { Hunter } from "./hunter";
 import { StaticTools } from "./staticTools";
 
 export class Boid extends Creature {
+    public mousePosition: Vector2 | null = null;
     public defaultColour = config.boid.defaultColour;
     public maxSpeed = config.boid.maxSpeed;
     public minSpeed = config.boid.minSpeed;
+    public size = config.boid.size;
     public priorities = [
         new Behaviour(() => this.mouseAvoidVector(), "red"),
         new Behaviour(() => this.wallAvoidVector(), "red"),
@@ -17,14 +18,17 @@ export class Boid extends Creature {
         new Behaviour(() => this.alignmentVector(), "blue"),
         new Behaviour(() => this.attractionVector(), "green"),
     ];
-    public size = config.boid.size;
 
-    public otherCreaturesOfSameType(): Creature[] {
-        return this.otherCreaturesOfType(Boid);
+    public initializeVelocity(): void {
+        const heading = Math.random() * 2 * Math.PI;
+        this.velocity = new Vector2(
+            config.boid.minSpeed * Math.cos(heading),
+            config.boid.minSpeed * Math.sin(heading),
+        );
     }
 
     public mouseAvoidVector(): Vector2 | null {
-        if (this.mousePosition.x !== -1) {
+        if (this.mousePosition) {
             const vectorFromMouse = this.mousePosition.vectorTo(this.position);
             if (vectorFromMouse.length < config.boid.mouseAvoidRadius) {
                 return vectorFromMouse.scaleToLength(this.maxSpeed);
@@ -34,7 +38,10 @@ export class Boid extends Creature {
     }
 
     public repulsionVector(): Vector2 | null {
-        const neighbours = this.neighbours(config.boid.repulsionRadius);
+        const neighbours = this.creatureStorage.getBoidsInArea(
+            this.position,
+            config.boid.repulsionRadius,
+        ).filter((boid) => boid.id !== this.id);
         if (neighbours.length === 0) {
             return null;
         }
@@ -46,15 +53,16 @@ export class Boid extends Creature {
     }
 
     public hunterEvasionVector(): Vector2 | null {
-        const allHunters = this.otherCreaturesOfType(Hunter);
-        const huntersNearBy = allHunters.filter((hunter) =>
-            this.distanceToCreature(hunter) < config.boid.visionRadius);
-        if (huntersNearBy.length === 0) {
+        const huntersInSight = this.creatureStorage.getHuntersInArea(
+            this.position,
+            config.boid.visionRadius,
+        );
+        if (huntersInSight.length === 0) {
             return null;
         }
 
         const nearestHunter = StaticTools
-            .nearestCreatureToPosition(huntersNearBy, this.position);
+            .nearestCreatureToPosition(huntersInSight, this.position);
 
         return nearestHunter.position
             .vectorTo(this.position)
@@ -63,7 +71,10 @@ export class Boid extends Creature {
 
     public alignmentVector(): Vector2 | null {
         const alignmentFuzz = 0.05;
-        const neighbours = this.neighbours(config.boid.alignmentRadius);
+        const neighbours = this.creatureStorage.getBoidsInArea(
+            this.position,
+            config.boid.alignmentRadius,
+        ).filter((boid) => boid.id !== this.id);
         if (neighbours.length === 0) {
             return null;
         }
@@ -71,12 +82,15 @@ export class Boid extends Creature {
             neighbours.map((creature) => {
                 return creature.velocity;
             }),
-        ).scaleByScalar(0.95)
+        )
         .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
     }
 
     public attractionVector(): Vector2 | null {
-        const neighbours = this.neighbours(config.boid.attractionRadius);
+        const neighbours = this.creatureStorage.getBoidsInArea(
+            this.position,
+            config.boid.attractionRadius,
+        ).filter((boid) => boid.id !== this.id);
         if (neighbours.length === 0) {
             return null;
         }
@@ -87,5 +101,9 @@ export class Boid extends Creature {
         return this.position
             .vectorTo(nearestNeighbour.position)
             .scaleToLength(nearestNeighbour.velocity.length * 1.1);
+    }
+
+    public die(): void {
+        this.creatureStorage.remove(this.id);
     }
 }

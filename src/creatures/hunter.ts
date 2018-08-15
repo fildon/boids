@@ -1,37 +1,25 @@
 import { config } from "../config";
 import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
-import { Boid } from "./boid";
 import { Creature } from "./creature";
 import { StaticTools } from "./staticTools";
 
 export class Hunter extends Creature {
-    public defaultColour: string;
+    public defaultColour = config.hunter.defaultColour;
     public maxSpeed = config.hunter.maxSpeed;
     public minSpeed = config.hunter.minSpeed;
-    public eatCallback: () => void;
+    public size = config.hunter.size;
     public priorities = [
         new Behaviour(() => this.wallAvoidVector(), "red"),
         new Behaviour(() => this.huntingVector(), "DeepPink"),
     ];
-    public size = config.hunter.size;
-    constructor(
-        id: number = 0,
-        creatures: Map<number,Creature> = new Map(),
-        eatCallback: () => void = () => {/**/}
-    ) {
-        super(id, creatures);
-        this.eatCallback = eatCallback;
-        this.defaultColour = config.hunter.defaultColour;
+
+    public initializeVelocity(): void {
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new Vector2(
-            this.minSpeed * Math.cos(heading),
-            this.minSpeed * Math.sin(heading),
+            config.hunter.minSpeed * Math.cos(heading),
+            config.hunter.minSpeed * Math.sin(heading),
         );
-    }
-
-    public otherCreaturesOfSameType(): Creature[] {
-        return this.otherCreaturesOfType(Hunter);
     }
 
     public update() {
@@ -40,9 +28,10 @@ export class Hunter extends Creature {
     }
 
     public huntingVector(): Vector2 | null {
-        const preyInSight = this.otherCreaturesOfType(Boid).filter((boid) => {
-            return this.distanceToCreature(boid) < config.hunter.visionRadius;
-        });
+        const preyInSight = this.creatureStorage.getBoidsInArea(
+            this.position,
+            config.hunter.visionRadius,
+        );
 
         if (preyInSight.length === 0) {
             return null;
@@ -56,11 +45,13 @@ export class Hunter extends Creature {
     }
 
     public eat() {
-        for (const creature of this.otherCreaturesOfType(Boid)) {
-            if (this.position.distance(creature.position) < config.hunter.eatRadius) {
-                creature.die();
-                this.eatCallback();
-            }
-        }
+        this.creatureStorage.getBoidsInArea(
+            this.position,
+            config.hunter.eatRadius,
+        ).forEach((prey) => prey.die());
+    }
+
+    public die(): void {
+        this.creatureStorage.remove(this.id);
     }
 }
