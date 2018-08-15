@@ -88,7 +88,7 @@ exports.config = {
         maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 100,
-        quantity: 1000,
+        quantity: 500,
         repulsionRadius: 20,
         size: 4,
         visionRadius: 100,
@@ -137,7 +137,7 @@ class CreatureStorage {
         this.bucketColumns = Math.ceil(config_1.config.screen.maxX / this.bucketSize);
         this.bucketRows = Math.ceil(config_1.config.screen.maxY / this.bucketSize);
         for (let i = 0; i < this.bucketColumns; i++) {
-            let bucketRow = [];
+            const bucketRow = [];
             for (let j = 0; j < this.bucketRows; j++) {
                 bucketRow.push([]);
             }
