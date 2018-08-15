@@ -25,6 +25,7 @@ describe("Hunter", () => {
             boid.velocity = new Vector2();
             hunter.position = new Vector2(1, 1);
             boid.position = new Vector2(2, 3);
+            creatureStorage.update();
 
             const actual = hunter.huntingVector();
             const expected = new Vector2(1, 2);
@@ -40,6 +41,7 @@ describe("Hunter", () => {
             hunter.position = new Vector2();
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2();
+            creatureStorage.update();
 
             hunter.eat();
 
@@ -51,6 +53,7 @@ describe("Hunter", () => {
             hunter.position = new Vector2(0, 0);
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2(100, 100);
+            creatureStorage.update();
 
             hunter.eat();
 

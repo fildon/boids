@@ -130,6 +130,7 @@ class CreatureStorage {
         this.bucketColumns = 1;
         this.bucketRows = 1;
         this.bucketSize = 100;
+        this.update();
     }
     update() {
         this.bucketMap = [];

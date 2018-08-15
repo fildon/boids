@@ -12,12 +12,16 @@ export class CreatureStorage {
     private bucketRows: number = 1;
     private readonly bucketSize = 100;
 
+    constructor() {
+        this.update();
+    }
+
     public update(): void {
         this.bucketMap = [];
         this.bucketColumns = Math.ceil(config.screen.maxX / this.bucketSize);
         this.bucketRows = Math.ceil(config.screen.maxY / this.bucketSize);
         for (let i = 0; i < this.bucketColumns; i++) {
-            let bucketRow: Creature[][] = [];
+            const bucketRow: Creature[][] = [];
             for (let j = 0; j < this.bucketRows; j++) {
                 bucketRow.push([]);
             }
@@ -76,7 +80,7 @@ export class CreatureStorage {
         return this.getCreaturesInArea(center, radius)
             .filter((creature) => {
                 return creature instanceof Hunter &&
-                creature.position.distance(center) < radius
+                creature.position.distance(center) < radius;
             }) as Hunter[];
     }
 
@@ -84,7 +88,7 @@ export class CreatureStorage {
         return this.getCreaturesInArea(center, radius)
             .filter((creature) => {
                 return creature instanceof Boid &&
-                creature.position.distance(center) < radius
+                creature.position.distance(center) < radius;
             }) as Boid[];
     }
 
@@ -99,7 +103,7 @@ export class CreatureStorage {
         let creatures: Creature[] = [];
         for (let i = minX; i <= maxX; i++) {
             for (let j = minY; j <= maxY; j++) {
-                creatures = creatures.concat(this.bucketMap[i][j])
+                creatures = creatures.concat(this.bucketMap[i][j]);
             }
         }
         return creatures;

@@ -39,6 +39,7 @@ describe("Boid", () => {
             boid.position = new Vector2();
             const boidA = creatureStorage.addBoid();
             boidA.position = new Vector2(1, 1).scaleToLength(config.boid.repulsionRadius / 2);
+            creatureStorage.update();
 
             const actual = boid.repulsionVector();
             const expected = new Vector2(-1, -1);
@@ -54,6 +55,7 @@ describe("Boid", () => {
             boidA.position = new Vector2(0, 1).scaleToLength(config.boid.repulsionRadius / 2);
             const boidB = creatureStorage.addBoid();
             boidB.position = new Vector2(1, 0).scaleToLength(config.boid.repulsionRadius / 2);
+            creatureStorage.update();
 
             const actual = boid.repulsionVector()!;
             const expected = new Vector2(-1, -1);
@@ -76,6 +78,7 @@ describe("Boid", () => {
             boid.position = new Vector2();
             const nearBoid = creatureStorage.addBoid();
             nearBoid.position = new Vector2(1, 1);
+            creatureStorage.update();
 
             const actual = boid.attractionVector()!;
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
@@ -89,7 +92,8 @@ describe("Boid", () => {
             const boidNearer = creatureStorage.addBoid();
             boidNearer.position = new Vector2(1, 1);
             const boidFurther = creatureStorage.addBoid();
-            boidFurther.position = new Vector2(-1.1, 1.1);
+            boidFurther.position = new Vector2(1.1, 1.1);
+            creatureStorage.update();
 
             const actual = boid.attractionVector()!;
             const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
