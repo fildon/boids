@@ -82,7 +82,7 @@ export class Boid extends Creature {
             neighbours.map((creature) => {
                 return creature.velocity;
             }),
-        ).scaleByScalar(0.95)
+        )
         .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
     }
 

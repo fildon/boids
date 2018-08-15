@@ -257,7 +257,7 @@ class Boid extends creature_1.Creature {
         }
         return vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.velocity;
-        })).scaleByScalar(0.95)
+        }))
             .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
     }
     attractionVector() {
