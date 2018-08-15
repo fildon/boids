@@ -52,6 +52,6 @@ export class Hunter extends Creature {
     }
 
     public die(): void {
-        this.creatureStorage.removeHunter(this.id);
+        this.creatureStorage.remove(this.id);
     }
 }

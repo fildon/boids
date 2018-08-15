@@ -88,7 +88,7 @@ exports.config = {
         maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 100,
-        quantity: 800,
+        quantity: 1000,
         repulsionRadius: 20,
         size: 4,
         visionRadius: 100,
@@ -121,58 +121,104 @@ exports.config = {
 Object.defineProperty(exports, "__esModule", { value: true });
 const hunter_1 = require("./creatures/hunter");
 const boid_1 = require("./creatures/boid");
+const config_1 = require("./config");
 class CreatureStorage {
     constructor() {
-        this.nextHunterId = 0;
-        this.hunters = new Map();
-        this.nextBoidId = 0;
-        this.boids = new Map();
+        this.nextId = 0;
+        this.creatures = new Map();
+        this.bucketMap = [];
+        this.bucketColumns = 1;
+        this.bucketRows = 1;
+        this.bucketSize = 100;
+    }
+    update() {
+        this.bucketMap = [];
+        this.bucketColumns = Math.ceil(config_1.config.screen.maxX / this.bucketSize);
+        this.bucketRows = Math.ceil(config_1.config.screen.maxY / this.bucketSize);
+        for (let i = 0; i < this.bucketColumns; i++) {
+            let bucketRow = [];
+            for (let j = 0; j < this.bucketRows; j++) {
+                bucketRow.push([]);
+            }
+            this.bucketMap.push(bucketRow);
+        }
+        this.creatures.forEach((creature) => {
+            const bucketX = Math.min(Math.floor(creature.position.x / this.bucketSize), this.bucketColumns - 1);
+            const bucketY = Math.min(Math.floor(creature.position.y / this.bucketSize), this.bucketRows - 1);
+            this.bucketMap[bucketX][bucketY].push(creature);
+        });
     }
     addHunter() {
-        const newHunter = new hunter_1.Hunter(this.nextHunterId, this);
-        this.hunters.set(this.nextHunterId, newHunter);
-        this.nextHunterId++;
+        const newHunter = new hunter_1.Hunter(this.nextId, this);
+        this.creatures.set(this.nextId, newHunter);
+        this.nextId++;
         return newHunter;
     }
     addBoid() {
-        const newBoid = new boid_1.Boid(this.nextBoidId, this);
-        this.boids.set(this.nextBoidId, newBoid);
-        this.nextBoidId++;
+        const newBoid = new boid_1.Boid(this.nextId, this);
+        this.creatures.set(this.nextId, newBoid);
+        this.nextId++;
         return newBoid;
     }
     getAllHunters() {
-        return this.hunters.values();
+        return [...this.creatures.values()].filter((creature) => {
+            return creature instanceof hunter_1.Hunter;
+        });
     }
     getAllBoids() {
-        return this.boids.values();
+        return [...this.creatures.values()].filter((creature) => {
+            return creature instanceof boid_1.Boid;
+        });
     }
     getAllCreatures() {
-        return [...this.getAllBoids(), ...this.getAllHunters()];
+        return [...this.creatures.values()];
     }
     getHuntersInArea(center, radius) {
-        return [...this.hunters.values()]
-            .filter((hunter) => hunter.position.distance(center) < radius);
+        return this.getCreaturesInArea(center, radius)
+            .filter((creature) => {
+            return creature instanceof hunter_1.Hunter &&
+                creature.position.distance(center) < radius;
+        });
     }
     getBoidsInArea(center, radius) {
-        return [...this.boids.values()]
-            .filter((boid) => boid.position.distance(center) < radius);
+        return this.getCreaturesInArea(center, radius)
+            .filter((creature) => {
+            return creature instanceof boid_1.Boid &&
+                creature.position.distance(center) < radius;
+        });
+    }
+    getCreaturesInArea(center, radius) {
+        const bucketX = Math.floor(center.x / this.bucketSize);
+        const bucketY = Math.floor(center.y / this.bucketSize);
+        const bucketRadius = Math.ceil(radius / this.bucketSize);
+        const minX = Math.max(0, bucketX - bucketRadius);
+        const maxX = Math.min(this.bucketColumns - 1, bucketX + bucketRadius);
+        const minY = Math.max(0, bucketY - bucketRadius);
+        const maxY = Math.min(this.bucketRows - 1, bucketY + bucketRadius);
+        let creatures = [];
+        for (let i = minX; i <= maxX; i++) {
+            for (let j = minY; j <= maxY; j++) {
+                creatures = creatures.concat(this.bucketMap[i][j]);
+            }
+        }
+        return creatures;
     }
     getHunterCount() {
-        return this.hunters.size;
+        return this.getAllHunters().length;
     }
     getBoidCount() {
-        return this.boids.size;
+        return this.getAllBoids().length;
     }
-    removeHunter(hunterId) {
-        this.hunters.delete(hunterId);
+    remove(creatureId) {
+        this.creatures.delete(creatureId);
     }
-    removeBoid(boidId) {
-        this.boids.delete(boidId);
+    removeBoid(creatureId) {
+        this.creatures.delete(creatureId);
     }
 }
 exports.CreatureStorage = CreatureStorage;
 
-},{"./creatures/boid":6,"./creatures/hunter":8}],5:[function(require,module,exports){
+},{"./config":3,"./creatures/boid":6,"./creatures/hunter":8}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const priority_1 = require("./priority");
@@ -272,7 +318,7 @@ class Boid extends creature_1.Creature {
             .scaleToLength(nearestNeighbour.velocity.length * 1.1);
     }
     die() {
-        this.creatureStorage.removeBoid(this.id);
+        this.creatureStorage.remove(this.id);
     }
 }
 exports.Boid = Boid;
@@ -415,7 +461,7 @@ class Hunter extends creature_1.Creature {
         this.creatureStorage.getBoidsInArea(this.position, config_1.config.hunter.eatRadius).forEach((prey) => prey.die());
     }
     die() {
-        this.creatureStorage.removeHunter(this.id);
+        this.creatureStorage.remove(this.id);
     }
 }
 exports.Hunter = Hunter;
@@ -516,6 +562,7 @@ class SimulationManager {
         this.tick();
     }
     tick() {
+        this.creatureStorage.update();
         for (const boid of this.creatureStorage.getAllBoids()) {
             boid.mousePosition = this.mouseHandler.mousePosition;
             boid.update();

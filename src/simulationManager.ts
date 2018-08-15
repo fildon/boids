@@ -42,6 +42,7 @@ export class SimulationManager {
     }
 
     public tick(): void {
+        this.creatureStorage.update();
         for (const boid of this.creatureStorage.getAllBoids()) {
             boid.mousePosition = this.mouseHandler.mousePosition;
             boid.update();

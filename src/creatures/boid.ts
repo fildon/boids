@@ -104,6 +104,6 @@ export class Boid extends Creature {
     }
 
     public die(): void {
-        this.creatureStorage.removeBoid(this.id);
+        this.creatureStorage.remove(this.id);
     }
 }
