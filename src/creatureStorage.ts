@@ -120,8 +120,4 @@ export class CreatureStorage {
     public remove(creatureId: number): void {
         this.creatures.delete(creatureId);
     }
-
-    public removeBoid(creatureId: number): void {
-        this.creatures.delete(creatureId);
-    }
 }

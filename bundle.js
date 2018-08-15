@@ -213,9 +213,6 @@ class CreatureStorage {
     remove(creatureId) {
         this.creatures.delete(creatureId);
     }
-    removeBoid(creatureId) {
-        this.creatures.delete(creatureId);
-    }
 }
 exports.CreatureStorage = CreatureStorage;
 
