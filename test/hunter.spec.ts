@@ -1,6 +1,5 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
-import { Hunter } from "../src/creatures/hunter";
 import { Vector2 } from "../src/vector2";
 import { CreatureStorage } from "../src/creatureStorage";
 
@@ -13,7 +12,7 @@ describe("Hunter", () => {
     });
     describe("hunting vector", () => {
         it("returns null if no prey in sight", () => {
-            const hunter = new Hunter();
+            const hunter = creatureStorage.addHunter();
 
             const actual = hunter.huntingVector();
 

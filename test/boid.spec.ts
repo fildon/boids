@@ -1,7 +1,6 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
 import { config } from "../src/config";
-import { Boid } from "../src/creatures/boid";
 import { Vector2 } from "../src/vector2";
 import { CreatureStorage } from "../src/creatureStorage";
 
@@ -15,7 +14,7 @@ describe("Boid", () => {
 
     describe("constructor", () => {
         it("clips position inside area", () => {
-            const boid = new Boid();
+            const boid = creatureStorage.addBoid();
             expect(boid.position.x).to.be.gte(0);
             expect(boid.position.x).to.be.lte(config.screen.maxX);
             expect(boid.position.y).to.be.gte(0);
@@ -25,7 +24,7 @@ describe("Boid", () => {
 
     describe("movement", () => {
         it("adds velocity to position", () => {
-            const boid = new Boid();
+            const boid = creatureStorage.addBoid();
             boid.position = new Vector2(10, 20);
             boid.velocity = new Vector2(30, 40);
             boid.move();
@@ -165,10 +164,10 @@ describe("Boid", () => {
             expect(actual).to.equal(null);
         });
 
-        it("returns zero-vector if mouse is out of area", () => {
+        it("returns null if mouse is out of area", () => {
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2();
-            boid.mousePosition = new Vector2(-1, -1);
+            boid.mousePosition = null;
             const actual = boid.mouseAvoidVector();
             expect(actual).to.equal(null);
         });
