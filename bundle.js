@@ -336,7 +336,7 @@ class Creature {
         this.colour = "black";
         this.position = new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
         for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
-            this.history.push(new vector2_1.Vector2());
+            this.history.push(this.position);
         }
         this.initializeVelocity();
     }

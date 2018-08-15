@@ -24,7 +24,7 @@ export abstract class Creature {
             Math.random() * config.screen.maxY,
         );
         for (let i = 0; i < config.creature.maxHistory; i++) {
-            this.history.push(new Vector2());
+            this.history.push(this.position);
         }
         this.initializeVelocity();
     }
