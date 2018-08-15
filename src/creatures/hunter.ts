@@ -15,7 +15,11 @@ export class Hunter extends Creature {
         new Behaviour(() => this.huntingVector(), "DeepPink"),
     ];
     public size = config.hunter.size;
-    constructor(id: number, creatures: Map<number, Creature>, eatCallback: () => void) {
+    constructor(
+        id: number = 0,
+        creatures: Map<number,Creature> = new Map(),
+        eatCallback: () => void = () => {/**/}
+    ) {
         super(id, creatures);
         this.eatCallback = eatCallback;
         this.defaultColour = config.hunter.defaultColour;
@@ -51,7 +55,7 @@ export class Hunter extends Creature {
             .scaleToLength(config.hunter.maxSpeed);
     }
 
-    private eat() {
+    public eat() {
         for (const creature of this.otherCreaturesOfType(Boid)) {
             if (this.position.distance(creature.position) < config.hunter.eatRadius) {
                 creature.die();

@@ -231,7 +231,7 @@ class Creature {
         this.creatures = creatures;
         this.position = new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
         for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
-            this.history.push(new vector2_1.Vector2(0, 0));
+            this.history.push(new vector2_1.Vector2());
         }
         const heading = Math.random() * 2 * Math.PI;
         // TODO shouldn't assume boid on the following line
@@ -294,7 +294,7 @@ class Creature {
         const xMax = config_1.config.screen.maxX - this.position.x;
         const yMin = this.position.y;
         const yMax = config_1.config.screen.maxY - this.position.y;
-        let result = new vector2_1.Vector2(0, 0);
+        let result = new vector2_1.Vector2();
         if (xMin < config_1.config.creature.wallAvoidRadius) {
             result = result.add(new vector2_1.Vector2(1, 0));
         }
@@ -339,7 +339,7 @@ const boid_1 = require("./boid");
 const creature_1 = require("./creature");
 const staticTools_1 = require("./staticTools");
 class Hunter extends creature_1.Creature {
-    constructor(id, creatures, eatCallback) {
+    constructor(id = 0, creatures = new Map(), eatCallback = () => { }) {
         super(id, creatures);
         this.maxSpeed = config_1.config.hunter.maxSpeed;
         this.minSpeed = config_1.config.hunter.minSpeed;
@@ -558,14 +558,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {
     static average(vectors) {
         if (vectors.length === 0) {
-            return new Vector2(0, 0);
+            return new Vector2();
         }
         const totalVector = vectors.reduce((partialSum, current) => {
             return partialSum.add(current);
         });
         return totalVector.scaleByScalar(1 / vectors.length);
     }
-    constructor(x, y) {
+    constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
         this.length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
