@@ -2,37 +2,34 @@ import { config } from "../config";
 import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
 import { Priority } from "./priority";
+import { CreatureStorage } from "../creatureStorage";
 
 export abstract class Creature {
-    public id: number;
     public position: Vector2;
-    public velocity: Vector2;
+    public velocity = new Vector2();
     public history: Vector2[] = [];
-    public creatures: Map<number, Creature>;
-    public mousePosition: Vector2 = new Vector2(-1, -1);
     public abstract defaultColour: string;
-    public colour: string;
+    public colour = "black";
     public abstract priorities: Behaviour[];
     public abstract maxSpeed: number;
     public abstract minSpeed: number;
     public abstract size: number;
 
-    constructor(id: number, creatures: Map<number, Creature>) {
-        this.id = id;
-        this.creatures = creatures;
-        this.position = new Vector2(Math.random() * config.screen.maxX, Math.random() * config.screen.maxY);
+    constructor(
+        public readonly id: number = 0,
+        public creatureStorage: CreatureStorage = new CreatureStorage(),
+    ) {
+        this.position = new Vector2(
+            Math.random() * config.screen.maxX,
+            Math.random() * config.screen.maxY,
+        );
         for (let i = 0; i < config.creature.maxHistory; i++) {
             this.history.push(new Vector2());
         }
-        const heading = Math.random() * 2 * Math.PI;
-        // TODO shouldn't assume boid on the following line
-        const speed = config.boid.minSpeed;
-        this.velocity = new Vector2(
-            speed * Math.cos(heading),
-            speed * Math.sin(heading),
-        ).scaleByScalar(0.5);
-        this.colour = "black";
+        this.initializeVelocity();
     }
+
+    public abstract initializeVelocity(): void;
 
     public distanceToCreature(creature: Creature): number {
         return this.position.distance(creature.position);
@@ -121,23 +118,5 @@ export abstract class Creature {
         return result.scaleToLength(this.velocity.length);
     }
 
-    public neighbours(radius: number): Creature[] {
-        return this.otherCreaturesOfSameType().filter((creature) => {
-            return this.distanceToCreature(creature) < radius;
-        });
-    }
-
-    public otherCreatures(): Creature[] {
-        return [...this.creatures.values()].filter((creature) => creature.id !== this.id);
-    }
-
-    public otherCreaturesOfType(creatureType: any): Creature[] {
-        return this.otherCreatures().filter((creature) => creature instanceof creatureType);
-    }
-
-    public abstract otherCreaturesOfSameType(): Creature[];
-
-    public die(): void {
-        this.creatures.delete(this.id);
-    }
+    public abstract die(): void;
 }

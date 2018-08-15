@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new simulationManager_1.SimulationManager().runSimulation();
 }, false);
 
-},{"./simulationManager":11}],2:[function(require,module,exports){
+},{"./simulationManager":12}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
@@ -88,13 +88,13 @@ exports.config = {
         maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 100,
-        quantity: 150,
-        repulsionRadius: 30,
+        quantity: 200,
+        repulsionRadius: 20,
         size: 4,
-        visionRadius: 80,
+        visionRadius: 100,
     },
     creature: {
-        acceleration: 0.1,
+        acceleration: 0.2,
         maxHistory: 5,
         turningMax: 0.2,
         wallAvoidRadius: 25,
@@ -102,11 +102,11 @@ exports.config = {
     hunter: {
         defaultColour: "yellow",
         eatRadius: 20,
-        maxSpeed: 7,
+        maxSpeed: 6,
         minSpeed: 5,
         quantity: 1,
         size: 8,
-        visionRadius: 80,
+        visionRadius: 90,
     },
     screen: {
         // maxX and maxY are overwritten at run time
@@ -117,6 +117,62 @@ exports.config = {
 };
 
 },{}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const hunter_1 = require("./creatures/hunter");
+const boid_1 = require("./creatures/boid");
+class CreatureStorage {
+    constructor() {
+        this.nextHunterId = 0;
+        this.hunters = new Map();
+        this.nextBoidId = 0;
+        this.boids = new Map();
+    }
+    addHunter() {
+        const newHunter = new hunter_1.Hunter(this.nextHunterId, this);
+        this.hunters.set(this.nextHunterId, newHunter);
+        this.nextHunterId++;
+        return newHunter;
+    }
+    addBoid() {
+        const newBoid = new boid_1.Boid(this.nextBoidId, this);
+        this.boids.set(this.nextBoidId, newBoid);
+        this.nextBoidId++;
+        return newBoid;
+    }
+    getAllHunters() {
+        return this.hunters.values();
+    }
+    getAllBoids() {
+        return this.boids.values();
+    }
+    getAllCreatures() {
+        return [...this.getAllBoids(), ...this.getAllHunters()];
+    }
+    getHuntersInArea(center, radius) {
+        return [...this.hunters.values()]
+            .filter((hunter) => hunter.position.distance(center) < radius);
+    }
+    getBoidsInArea(center, radius) {
+        return [...this.boids.values()]
+            .filter((boid) => boid.position.distance(center) < radius);
+    }
+    getHunterCount() {
+        return this.hunters.size;
+    }
+    getBoidCount() {
+        return this.boids.size;
+    }
+    removeHunter(hunterId) {
+        this.hunters.delete(hunterId);
+    }
+    removeBoid(boidId) {
+        this.boids.delete(boidId);
+    }
+}
+exports.CreatureStorage = CreatureStorage;
+
+},{"./creatures/boid":6,"./creatures/hunter":8}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const priority_1 = require("./priority");
@@ -135,21 +191,22 @@ class Behaviour {
 }
 exports.Behaviour = Behaviour;
 
-},{"./priority":8}],5:[function(require,module,exports){
+},{"./priority":9}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
 const behaviour_1 = require("./behaviour");
 const creature_1 = require("./creature");
-const hunter_1 = require("./hunter");
 const staticTools_1 = require("./staticTools");
 class Boid extends creature_1.Creature {
     constructor() {
         super(...arguments);
+        this.mousePosition = null;
         this.defaultColour = config_1.config.boid.defaultColour;
         this.maxSpeed = config_1.config.boid.maxSpeed;
         this.minSpeed = config_1.config.boid.minSpeed;
+        this.size = config_1.config.boid.size;
         this.priorities = [
             new behaviour_1.Behaviour(() => this.mouseAvoidVector(), "red"),
             new behaviour_1.Behaviour(() => this.wallAvoidVector(), "red"),
@@ -158,13 +215,13 @@ class Boid extends creature_1.Creature {
             new behaviour_1.Behaviour(() => this.alignmentVector(), "blue"),
             new behaviour_1.Behaviour(() => this.attractionVector(), "green"),
         ];
-        this.size = config_1.config.boid.size;
     }
-    otherCreaturesOfSameType() {
-        return this.otherCreaturesOfType(Boid);
+    initializeVelocity() {
+        const heading = Math.random() * 2 * Math.PI;
+        this.velocity = new vector2_1.Vector2(config_1.config.boid.minSpeed * Math.cos(heading), config_1.config.boid.minSpeed * Math.sin(heading));
     }
     mouseAvoidVector() {
-        if (this.mousePosition.x !== -1) {
+        if (this.mousePosition) {
             const vectorFromMouse = this.mousePosition.vectorTo(this.position);
             if (vectorFromMouse.length < config_1.config.boid.mouseAvoidRadius) {
                 return vectorFromMouse.scaleToLength(this.maxSpeed);
@@ -173,7 +230,7 @@ class Boid extends creature_1.Creature {
         return null;
     }
     repulsionVector() {
-        const neighbours = this.neighbours(config_1.config.boid.repulsionRadius);
+        const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.repulsionRadius).filter((boid) => boid.id !== this.id);
         if (neighbours.length === 0) {
             return null;
         }
@@ -182,20 +239,19 @@ class Boid extends creature_1.Creature {
         })).scaleToLength(this.velocity.length * 0.9);
     }
     hunterEvasionVector() {
-        const allHunters = this.otherCreaturesOfType(hunter_1.Hunter);
-        const huntersNearBy = allHunters.filter((hunter) => this.distanceToCreature(hunter) < config_1.config.boid.visionRadius);
-        if (huntersNearBy.length === 0) {
+        const huntersInSight = this.creatureStorage.getHuntersInArea(this.position, config_1.config.boid.visionRadius);
+        if (huntersInSight.length === 0) {
             return null;
         }
         const nearestHunter = staticTools_1.StaticTools
-            .nearestCreatureToPosition(huntersNearBy, this.position);
+            .nearestCreatureToPosition(huntersInSight, this.position);
         return nearestHunter.position
             .vectorTo(this.position)
             .scaleToLength(this.maxSpeed);
     }
     alignmentVector() {
         const alignmentFuzz = 0.05;
-        const neighbours = this.neighbours(config_1.config.boid.alignmentRadius);
+        const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.alignmentRadius).filter((boid) => boid.id !== this.id);
         if (neighbours.length === 0) {
             return null;
         }
@@ -205,7 +261,7 @@ class Boid extends creature_1.Creature {
             .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
     }
     attractionVector() {
-        const neighbours = this.neighbours(config_1.config.boid.attractionRadius);
+        const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.attractionRadius).filter((boid) => boid.id !== this.id);
         if (neighbours.length === 0) {
             return null;
         }
@@ -215,29 +271,30 @@ class Boid extends creature_1.Creature {
             .vectorTo(nearestNeighbour.position)
             .scaleToLength(nearestNeighbour.velocity.length * 1.1);
     }
+    die() {
+        this.creatureStorage.removeBoid(this.id);
+    }
 }
 exports.Boid = Boid;
 
-},{"../config":3,"../vector2":13,"./behaviour":4,"./creature":6,"./hunter":7,"./staticTools":9}],6:[function(require,module,exports){
+},{"../config":3,"../vector2":14,"./behaviour":5,"./creature":7,"./staticTools":10}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
+const creatureStorage_1 = require("../creatureStorage");
 class Creature {
-    constructor(id, creatures) {
-        this.history = [];
-        this.mousePosition = new vector2_1.Vector2(-1, -1);
+    constructor(id = 0, creatureStorage = new creatureStorage_1.CreatureStorage()) {
         this.id = id;
-        this.creatures = creatures;
+        this.creatureStorage = creatureStorage;
+        this.velocity = new vector2_1.Vector2();
+        this.history = [];
+        this.colour = "black";
         this.position = new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
         for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
             this.history.push(new vector2_1.Vector2());
         }
-        const heading = Math.random() * 2 * Math.PI;
-        // TODO shouldn't assume boid on the following line
-        const speed = config_1.config.boid.minSpeed;
-        this.velocity = new vector2_1.Vector2(speed * Math.cos(heading), speed * Math.sin(heading)).scaleByScalar(0.5);
-        this.colour = "black";
+        this.initializeVelocity();
     }
     distanceToCreature(creature) {
         return this.position.distance(creature.position);
@@ -312,58 +369,39 @@ class Creature {
         }
         return result.scaleToLength(this.velocity.length);
     }
-    neighbours(radius) {
-        return this.otherCreaturesOfSameType().filter((creature) => {
-            return this.distanceToCreature(creature) < radius;
-        });
-    }
-    otherCreatures() {
-        return [...this.creatures.values()].filter((creature) => creature.id !== this.id);
-    }
-    otherCreaturesOfType(creatureType) {
-        return this.otherCreatures().filter((creature) => creature instanceof creatureType);
-    }
-    die() {
-        this.creatures.delete(this.id);
-    }
 }
 exports.Creature = Creature;
 
-},{"../config":3,"../vector2":13}],7:[function(require,module,exports){
+},{"../config":3,"../creatureStorage":4,"../vector2":14}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
 const behaviour_1 = require("./behaviour");
-const boid_1 = require("./boid");
 const creature_1 = require("./creature");
 const staticTools_1 = require("./staticTools");
 class Hunter extends creature_1.Creature {
-    constructor(id = 0, creatures = new Map(), eatCallback = () => { }) {
-        super(id, creatures);
+    constructor() {
+        super(...arguments);
+        this.defaultColour = config_1.config.hunter.defaultColour;
         this.maxSpeed = config_1.config.hunter.maxSpeed;
         this.minSpeed = config_1.config.hunter.minSpeed;
+        this.size = config_1.config.hunter.size;
         this.priorities = [
             new behaviour_1.Behaviour(() => this.wallAvoidVector(), "red"),
             new behaviour_1.Behaviour(() => this.huntingVector(), "DeepPink"),
         ];
-        this.size = config_1.config.hunter.size;
-        this.eatCallback = eatCallback;
-        this.defaultColour = config_1.config.hunter.defaultColour;
-        const heading = Math.random() * 2 * Math.PI;
-        this.velocity = new vector2_1.Vector2(this.minSpeed * Math.cos(heading), this.minSpeed * Math.sin(heading));
     }
-    otherCreaturesOfSameType() {
-        return this.otherCreaturesOfType(Hunter);
+    initializeVelocity() {
+        const heading = Math.random() * 2 * Math.PI;
+        this.velocity = new vector2_1.Vector2(config_1.config.hunter.minSpeed * Math.cos(heading), config_1.config.hunter.minSpeed * Math.sin(heading));
     }
     update() {
         this.eat();
         this.move();
     }
     huntingVector() {
-        const preyInSight = this.otherCreaturesOfType(boid_1.Boid).filter((boid) => {
-            return this.distanceToCreature(boid) < config_1.config.hunter.visionRadius;
-        });
+        const preyInSight = this.creatureStorage.getBoidsInArea(this.position, config_1.config.hunter.visionRadius);
         if (preyInSight.length === 0) {
             return null;
         }
@@ -374,17 +412,15 @@ class Hunter extends creature_1.Creature {
             .scaleToLength(config_1.config.hunter.maxSpeed);
     }
     eat() {
-        for (const creature of this.otherCreaturesOfType(boid_1.Boid)) {
-            if (this.position.distance(creature.position) < config_1.config.hunter.eatRadius) {
-                creature.die();
-                this.eatCallback();
-            }
-        }
+        this.creatureStorage.getBoidsInArea(this.position, config_1.config.hunter.eatRadius).forEach((prey) => prey.die());
+    }
+    die() {
+        this.creatureStorage.removeHunter(this.id);
     }
 }
 exports.Hunter = Hunter;
 
-},{"../config":3,"../vector2":13,"./behaviour":4,"./boid":5,"./creature":6,"./staticTools":9}],8:[function(require,module,exports){
+},{"../config":3,"../vector2":14,"./behaviour":5,"./creature":7,"./staticTools":10}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Priority {
@@ -395,7 +431,7 @@ class Priority {
 }
 exports.Priority = Priority;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class StaticTools {
@@ -420,7 +456,7 @@ class StaticTools {
 }
 exports.StaticTools = StaticTools;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
@@ -438,25 +474,23 @@ class MouseHandler {
         this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
     }
     handleMouseOut() {
-        this.mousePosition = new vector2_1.Vector2(-1, -1);
+        this.mousePosition = null;
     }
 }
 exports.MouseHandler = MouseHandler;
 
-},{"./vector2":13}],11:[function(require,module,exports){
+},{"./vector2":14}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
 const canvas_1 = require("./canvas");
 const config_1 = require("./config");
-const boid_1 = require("./creatures/boid");
-const hunter_1 = require("./creatures/hunter");
 const mouseHandler_1 = require("./mouseHandler");
 const simulationViewModel_1 = require("./simulationViewModel");
+const creatureStorage_1 = require("./creatureStorage");
 class SimulationManager {
     constructor() {
-        this.creatures = new Map();
-        this.nextCreatureId = 0;
+        this.creatureStorage = new creatureStorage_1.CreatureStorage();
         const canvasElement = document.getElementById("canvas");
         if (!canvasElement) {
             throw new Error("couldn't find 'canvas' on document");
@@ -466,49 +500,32 @@ class SimulationManager {
         this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
         ko.applyBindings(this.simulationViewModel);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
-            this.createBoid();
+            this.creatureStorage.addBoid();
         }
         for (let i = 0; i < config_1.config.hunter.quantity; i++) {
-            this.createHunter();
+            this.creatureStorage.addHunter();
         }
     }
     createBoid() {
-        this.creatures.set(this.nextCreatureId, new boid_1.Boid(this.nextCreatureId, this.creatures));
-        this.nextCreatureId++;
-        this.updateBoidCount();
+        this.creatureStorage.addBoid();
     }
     createHunter() {
-        this.creatures.set(this.nextCreatureId, new hunter_1.Hunter(this.nextCreatureId, this.creatures, () => this.updateBoidCount()));
-        this.nextCreatureId++;
-        this.updateHunterCount();
-    }
-    updateBoidCount() {
-        let boidCount = 0;
-        this.creatures.forEach((creature) => {
-            if (creature instanceof boid_1.Boid) {
-                boidCount++;
-            }
-        });
-        this.simulationViewModel.updateBoidCount(boidCount);
-    }
-    updateHunterCount() {
-        let huntercount = 0;
-        this.creatures.forEach((creature) => {
-            if (creature instanceof hunter_1.Hunter) {
-                huntercount++;
-            }
-        });
-        this.simulationViewModel.updateHunterCount(huntercount);
+        this.creatureStorage.addHunter();
     }
     runSimulation() {
         this.tick();
     }
     tick() {
-        this.creatures.forEach((creature) => {
-            creature.mousePosition = this.mouseHandler.mousePosition;
-            creature.update();
-        });
-        this.canvas.draw([...this.creatures.values()]);
+        for (const boid of this.creatureStorage.getAllBoids()) {
+            boid.mousePosition = this.mouseHandler.mousePosition;
+            boid.update();
+        }
+        for (const hunter of this.creatureStorage.getAllHunters()) {
+            hunter.update();
+        }
+        this.canvas.draw(this.creatureStorage.getAllCreatures());
+        this.simulationViewModel.updateHunterCount(this.creatureStorage.getHunterCount());
+        this.simulationViewModel.updateBoidCount(this.creatureStorage.getBoidCount());
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
@@ -518,7 +535,7 @@ class SimulationManager {
 }
 exports.SimulationManager = SimulationManager;
 
-},{"./canvas":2,"./config":3,"./creatures/boid":5,"./creatures/hunter":7,"./mouseHandler":10,"./simulationViewModel":12,"knockout":14}],12:[function(require,module,exports){
+},{"./canvas":2,"./config":3,"./creatureStorage":4,"./mouseHandler":11,"./simulationViewModel":13,"knockout":15}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
@@ -552,7 +569,7 @@ class SimulationViewModel {
 }
 exports.SimulationViewModel = SimulationViewModel;
 
-},{"./config":3,"knockout":14}],13:[function(require,module,exports){
+},{"./config":3,"knockout":15}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Vector2 {
@@ -609,7 +626,7 @@ class Vector2 {
 }
 exports.Vector2 = Vector2;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.5.0-beta
  * (c) The Knockout.js team - http://knockoutjs.com/

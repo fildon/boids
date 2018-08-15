@@ -1,7 +1,7 @@
 import { Vector2 } from "./vector2";
 
 export class MouseHandler {
-    public mousePosition: Vector2;
+    public mousePosition: Vector2 | null;
     private mouseArea: HTMLElement;
 
     constructor(mouseArea: HTMLElement) {
@@ -22,6 +22,6 @@ export class MouseHandler {
     }
 
     public handleMouseOut() {
-        this.mousePosition = new Vector2(-1, -1);
+        this.mousePosition = null;
     }
 }

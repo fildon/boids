@@ -6,13 +6,13 @@ export const config = {
         maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 100,
-        quantity: 150,
-        repulsionRadius: 30,
+        quantity: 200,
+        repulsionRadius: 20,
         size: 4,
-        visionRadius: 80,
+        visionRadius: 100,
     },
     creature: {
-        acceleration: 0.1,
+        acceleration: 0.2,
         maxHistory: 5,
         turningMax: 0.2, // radians
         wallAvoidRadius: 25,
@@ -20,11 +20,11 @@ export const config = {
     hunter: {
         defaultColour: "yellow",
         eatRadius: 20,
-        maxSpeed: 7,
+        maxSpeed: 6,
         minSpeed: 5,
         quantity: 1,
         size: 8,
-        visionRadius: 80,
+        visionRadius: 90,
     },
     screen: {
         // maxX and maxY are overwritten at run time

@@ -1,13 +1,16 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
-import { Boid } from "../src/creatures/boid";
-import { Creature } from "../src/creatures/creature";
 import { Hunter } from "../src/creatures/hunter";
 import { Vector2 } from "../src/vector2";
+import { CreatureStorage } from "../src/creatureStorage";
 
 const expect = chai.expect;
 
 describe("Hunter", () => {
+    let creatureStorage: CreatureStorage;
+    beforeEach(() => {
+        creatureStorage = new CreatureStorage();
+    });
     describe("hunting vector", () => {
         it("returns null if no prey in sight", () => {
             const hunter = new Hunter();
@@ -18,12 +21,9 @@ describe("Hunter", () => {
         });
 
         it("points towards nearest prey in sight", () => {
-            const creatures = new Map<number, Creature>();
-            const hunter = new Hunter(0, creatures);
-            const boid = new Boid(1, creatures);
+            const hunter = creatureStorage.addHunter();
+            const boid = creatureStorage.addBoid();
             boid.velocity = new Vector2();
-            creatures.set(0, hunter);
-            creatures.set(1, boid);
             hunter.position = new Vector2(1, 1);
             boid.position = new Vector2(2, 3);
 
@@ -37,31 +37,25 @@ describe("Hunter", () => {
 
     describe("eating", () => {
         it("eats a boid in range", () => {
-            const creatures = new Map<number, Creature>();
-            const hunter = new Hunter(0, creatures);
+            const hunter = creatureStorage.addHunter();
             hunter.position = new Vector2();
-            const boid = new Boid(1, creatures);
+            const boid = creatureStorage.addBoid();
             boid.position = new Vector2();
-            creatures.set(0, hunter);
-            creatures.set(1, boid);
 
             hunter.eat();
 
-            expect(creatures.has(1)).to.be.false;
+            expect(creatureStorage.getBoidCount()).to.equal(0);
         });
 
         it("does not eat a boid out of range", () => {
-            const creatures = new Map<number, Creature>();
-            const hunter = new Hunter(0, creatures);
+            const hunter = creatureStorage.addHunter();
             hunter.position = new Vector2(0, 0);
-            const boid = new Boid(1, creatures);
+            const boid = creatureStorage.addBoid();
             boid.position = new Vector2(100, 100);
-            creatures.set(0, hunter);
-            creatures.set(1, boid);
 
             hunter.eat();
 
-            expect(creatures.has(1)).to.be.true;
+            expect(creatureStorage.getBoidCount()).to.equal(1);
         });
     });
 });
