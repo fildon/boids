@@ -524,7 +524,7 @@ class MouseHandler {
     }
     handleMouseClick(event) {
         if (this.mousePosition) {
-            if (event.ctrlKey) {
+            if (event.ctrlKey || event.metaKey) {
                 this.createHunter(this.mousePosition);
             }
             else {

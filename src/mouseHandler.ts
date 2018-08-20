@@ -34,7 +34,7 @@ export class MouseHandler {
 
     public handleMouseClick(event: MouseEvent) {
         if (this.mousePosition) {
-            if (event.ctrlKey) {
+            if (event.ctrlKey || event.metaKey) {
                 this.createHunter(this.mousePosition);
             } else {
                 this.createBoid(this.mousePosition);
