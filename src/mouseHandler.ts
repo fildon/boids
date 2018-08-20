@@ -16,7 +16,7 @@ export class MouseHandler {
         this.createBoid = createBoid;
         this.createHunter = createHunter;
         this.mouseArea.onmousemove = (event: MouseEvent) => {
-            this.handleMouseMove(event);
+            this.setMousePosition(event);
         };
         this.mouseArea.onmouseout = () => { this.handleMouseOut(); };
         this.mouseArea.onclick = (event: MouseEvent) => {
@@ -24,7 +24,7 @@ export class MouseHandler {
         };
     }
 
-    public handleMouseMove(event: MouseEvent) {
+    public setMousePosition(event: MouseEvent) {
         const rect = this.mouseArea.getBoundingClientRect();
         this.mousePosition = new Vector2(
             event.clientX - rect.left,
@@ -33,6 +33,7 @@ export class MouseHandler {
     }
 
     public handleMouseClick(event: MouseEvent) {
+        this.setMousePosition(event);
         if (this.mousePosition) {
             if (event.ctrlKey || event.metaKey) {
                 this.createHunter(this.mousePosition);

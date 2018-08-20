@@ -511,18 +511,19 @@ class MouseHandler {
         this.createBoid = createBoid;
         this.createHunter = createHunter;
         this.mouseArea.onmousemove = (event) => {
-            this.handleMouseMove(event);
+            this.setMousePosition(event);
         };
         this.mouseArea.onmouseout = () => { this.handleMouseOut(); };
         this.mouseArea.onclick = (event) => {
             this.handleMouseClick(event);
         };
     }
-    handleMouseMove(event) {
+    setMousePosition(event) {
         const rect = this.mouseArea.getBoundingClientRect();
         this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
     }
     handleMouseClick(event) {
+        this.setMousePosition(event);
         if (this.mousePosition) {
             if (event.ctrlKey || event.metaKey) {
                 this.createHunter(this.mousePosition);
