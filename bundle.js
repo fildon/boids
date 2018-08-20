@@ -516,6 +516,9 @@ class MouseHandler {
         this.mouseArea = mouseArea;
         this.createBoid = createBoid;
         this.createHunter = createHunter;
+        this.separationLabel = document.getElementById("separation-status");
+        this.alignmentLabel = document.getElementById("alignment-status");
+        this.cohesionLabel = document.getElementById("cohesion-status");
         this.mouseArea.onmousemove = (event) => {
             this.setMousePosition(event);
         };
@@ -567,11 +570,13 @@ class MouseHandler {
             // tslint:disable-next-line:no-console
             console.log("Separation turned off");
             config_1.config.boid.repulsionRadius = 0;
+            this.separationLabel.textContent = "OFF";
         }
         else {
             // tslint:disable-next-line:no-console
             console.log("Separation turned on");
             config_1.config.boid.repulsionRadius = config_1.config.boid.repulsionRadiusDefault;
+            this.separationLabel.textContent = "ON";
         }
     }
     toggleAlignment() {
@@ -579,11 +584,13 @@ class MouseHandler {
             // tslint:disable-next-line:no-console
             console.log("Alignment turned off");
             config_1.config.boid.alignmentRadius = 0;
+            this.alignmentLabel.textContent = "OFF";
         }
         else {
             // tslint:disable-next-line:no-console
             console.log("Alignment turned on");
             config_1.config.boid.alignmentRadius = config_1.config.boid.alignmentRadiusDefault;
+            this.alignmentLabel.textContent = "ON";
         }
     }
     toggleCohesion() {
@@ -591,11 +598,13 @@ class MouseHandler {
             // tslint:disable-next-line:no-console
             console.log("Cohesion turned off");
             config_1.config.boid.attractionRadius = 0;
+            this.cohesionLabel.textContent = "OFF";
         }
         else {
             // tslint:disable-next-line:no-console
             console.log("Cohesion turned on");
             config_1.config.boid.attractionRadius = config_1.config.boid.attractionRadiusDefault;
+            this.cohesionLabel.textContent = "ON";
         }
     }
 }
