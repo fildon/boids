@@ -7,11 +7,11 @@
         <script src="bundle.js"></script>
     </head>
     <body>
-        <div id='config'>
+        <div id='config' style='display: none'>
             <label for="mouseRadius">Mouse radius</label>
-            <input data-bind="value: mouseRadius" id="mouseRadius"></input>
+            <input data-bind="value: mouseRadius" id="mouseRadius">
             <label for="turningMax">Turning max</label>
-            <input data-bind="value: turningMax" id="turningMax"></input>
+            <input data-bind="value: turningMax" id="turningMax">
             <span>Boids: </span>
             <span data-bind="text: numberOfBoids">&nbsp;</span>
             <button data-bind="click: createBoid">Create Boid</button>
