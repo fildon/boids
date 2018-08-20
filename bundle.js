@@ -90,7 +90,7 @@ exports.config = {
         maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 0,
-        quantity: 200,
+        quantity: 1,
         repulsionRadius: 20,
         repulsionRadiusDefault: 20,
         size: 4,
@@ -98,6 +98,7 @@ exports.config = {
     },
     creature: {
         acceleration: 0.2,
+        headingFuzz: 0.05,
         maxHistory: 5,
         turningMax: 0.2,
         wallAvoidRadius: 25,
@@ -297,15 +298,13 @@ class Boid extends creature_1.Creature {
             .scaleToLength(this.maxSpeed);
     }
     alignmentVector() {
-        const alignmentFuzz = 0.05;
         const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.alignmentRadius).filter((boid) => boid.id !== this.id);
         if (neighbours.length === 0) {
             return null;
         }
         return vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.velocity;
-        }))
-            .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
+        }));
     }
     attractionVector() {
         const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.attractionRadius).filter((boid) => boid.id !== this.id);
@@ -390,7 +389,10 @@ class Creature {
         const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.creature.turningMax), -config_1.config.creature.turningMax);
         let limitedSpeed = Math.max(Math.min(vector.length, this.maxSpeed), this.minSpeed);
         limitedSpeed = Math.max(Math.min(limitedSpeed, this.velocity.length + config_1.config.creature.acceleration), this.velocity.length - config_1.config.creature.acceleration);
-        this.velocity = this.velocity.rotate(limitedTurn).scaleToLength(limitedSpeed);
+        this.velocity = this.velocity
+            .rotate(limitedTurn)
+            .rotate(2 * config_1.config.creature.headingFuzz * Math.random() - config_1.config.creature.headingFuzz)
+            .scaleToLength(limitedSpeed);
         return;
     }
     wallAvoidVector() {

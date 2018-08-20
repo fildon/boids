@@ -8,7 +8,7 @@ export const config = {
         maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 0,
-        quantity: 200,
+        quantity: 1,
         repulsionRadius: 20,
         repulsionRadiusDefault: 20,
         size: 4,
@@ -16,6 +16,7 @@ export const config = {
     },
     creature: {
         acceleration: 0.2,
+        headingFuzz: 0.05,
         maxHistory: 5,
         turningMax: 0.2, // radians
         wallAvoidRadius: 25,

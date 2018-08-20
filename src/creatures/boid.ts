@@ -70,7 +70,6 @@ export class Boid extends Creature {
     }
 
     public alignmentVector(): Vector2 | null {
-        const alignmentFuzz = 0.05;
         const neighbours = this.creatureStorage.getBoidsInArea(
             this.position,
             config.boid.alignmentRadius,
@@ -82,8 +81,7 @@ export class Boid extends Creature {
             neighbours.map((creature) => {
                 return creature.velocity;
             }),
-        )
-        .rotate(2 * alignmentFuzz * Math.random() - alignmentFuzz);
+        );
     }
 
     public attractionVector(): Vector2 | null {

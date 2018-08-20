@@ -91,7 +91,10 @@ export abstract class Creature {
                 limitedSpeed,
                 this.velocity.length + config.creature.acceleration),
             this.velocity.length - config.creature.acceleration);
-        this.velocity = this.velocity.rotate(limitedTurn).scaleToLength(limitedSpeed);
+        this.velocity = this.velocity
+            .rotate(limitedTurn)
+            .rotate(2 * config.creature.headingFuzz * Math.random() - config.creature.headingFuzz)
+            .scaleToLength(limitedSpeed);
         return;
     }
 
