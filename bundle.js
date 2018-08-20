@@ -83,13 +83,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
     boid: {
         alignmentRadius: 40,
+        alignmentRadiusDefault: 40,
         attractionRadius: 200,
+        attractionRadiusDefault: 200,
         defaultColour: "LightSteelBlue",
         maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 0,
         quantity: 200,
         repulsionRadius: 20,
+        repulsionRadiusDefault: 20,
         size: 4,
         visionRadius: 100,
     },
@@ -504,6 +507,7 @@ exports.StaticTools = StaticTools;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
+const config_1 = require("./config");
 class MouseHandler {
     constructor(mouseArea, createBoid, createHunter) {
         this.mousePosition = new vector2_1.Vector2(-1, -1);
@@ -517,6 +521,9 @@ class MouseHandler {
         this.mouseArea.onclick = (event) => {
             this.handleMouseClick(event);
         };
+        window.addEventListener("keyup", (event) => {
+            this.handleKeyUp(event);
+        });
     }
     setMousePosition(event) {
         const rect = this.mouseArea.getBoundingClientRect();
@@ -536,10 +543,63 @@ class MouseHandler {
     handleMouseOut() {
         this.mousePosition = null;
     }
+    handleKeyUp(event) {
+        const oneKeyCode = 49;
+        const twoKeyCode = 50;
+        const threeKeyCode = 51;
+        switch (event.keyCode) {
+            case oneKeyCode:
+                this.toggleSeparation();
+                break;
+            case twoKeyCode:
+                this.toggleAlignment();
+                break;
+            case threeKeyCode:
+                this.toggleCohesion();
+                break;
+            default: return;
+        }
+    }
+    toggleSeparation() {
+        if (config_1.config.boid.repulsionRadius) {
+            // tslint:disable-next-line:no-console
+            console.log("Separation turned off");
+            config_1.config.boid.repulsionRadius = 0;
+        }
+        else {
+            // tslint:disable-next-line:no-console
+            console.log("Separation turned on");
+            config_1.config.boid.repulsionRadius = config_1.config.boid.repulsionRadiusDefault;
+        }
+    }
+    toggleAlignment() {
+        if (config_1.config.boid.alignmentRadius) {
+            // tslint:disable-next-line:no-console
+            console.log("Alignment turned off");
+            config_1.config.boid.alignmentRadius = 0;
+        }
+        else {
+            // tslint:disable-next-line:no-console
+            console.log("Alignment turned on");
+            config_1.config.boid.alignmentRadius = config_1.config.boid.alignmentRadiusDefault;
+        }
+    }
+    toggleCohesion() {
+        if (config_1.config.boid.attractionRadius) {
+            // tslint:disable-next-line:no-console
+            console.log("Cohesion turned off");
+            config_1.config.boid.attractionRadius = 0;
+        }
+        else {
+            // tslint:disable-next-line:no-console
+            console.log("Cohesion turned on");
+            config_1.config.boid.attractionRadius = config_1.config.boid.attractionRadiusDefault;
+        }
+    }
 }
 exports.MouseHandler = MouseHandler;
 
-},{"./vector2":14}],12:[function(require,module,exports){
+},{"./config":3,"./vector2":14}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");

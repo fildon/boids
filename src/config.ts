@@ -1,13 +1,16 @@
 export const config = {
     boid: {
         alignmentRadius: 40,
+        alignmentRadiusDefault: 40,
         attractionRadius: 200,
+        attractionRadiusDefault: 200,
         defaultColour: "LightSteelBlue",
         maxSpeed: 9,
         minSpeed: 4,
         mouseAvoidRadius: 0,
         quantity: 200,
         repulsionRadius: 20,
+        repulsionRadiusDefault: 20,
         size: 4,
         visionRadius: 100,
     },
