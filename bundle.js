@@ -505,17 +505,30 @@ exports.StaticTools = StaticTools;
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
 class MouseHandler {
-    constructor(mouseArea) {
+    constructor(mouseArea, createBoid, createHunter) {
         this.mousePosition = new vector2_1.Vector2(-1, -1);
         this.mouseArea = mouseArea;
+        this.createBoid = createBoid;
+        this.createHunter = createHunter;
         this.mouseArea.onmousemove = (event) => {
             this.handleMouseMove(event);
         };
         this.mouseArea.onmouseout = () => { this.handleMouseOut(); };
+        this.mouseArea.onclick = (event) => {
+            this.handleMouseClick(event);
+        };
     }
     handleMouseMove(event) {
         const rect = this.mouseArea.getBoundingClientRect();
         this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
+    }
+    handleMouseClick(event) {
+        if (event.ctrlKey) {
+            this.createHunter();
+        }
+        else {
+            this.createBoid();
+        }
     }
     handleMouseOut() {
         this.mousePosition = null;
@@ -541,7 +554,7 @@ class SimulationManager {
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
-        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
+        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement, () => this.createBoid(), () => this.createHunter());
         ko.applyBindings(this.simulationViewModel);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
             this.creatureStorage.addBoid();

@@ -18,7 +18,11 @@ export class SimulationManager {
         }
         this.canvas = new Canvas(canvasElement);
         this.simulationViewModel = new SimulationViewModel(this);
-        this.mouseHandler = new MouseHandler(canvasElement);
+        this.mouseHandler = new MouseHandler(
+            canvasElement,
+            () => this.createBoid(),
+            () => this.createHunter(),
+        );
         ko.applyBindings(this.simulationViewModel);
 
         for (let i = 0; i < config.boid.quantity; i++) {
