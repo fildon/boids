@@ -149,14 +149,14 @@ class CreatureStorage {
             this.bucketMap[bucketX][bucketY].push(creature);
         });
     }
-    addHunter() {
-        const newHunter = new hunter_1.Hunter(this.nextId, this);
+    addHunter(position) {
+        const newHunter = new hunter_1.Hunter(this.nextId, this, position);
         this.creatures.set(this.nextId, newHunter);
         this.nextId++;
         return newHunter;
     }
-    addBoid() {
-        const newBoid = new boid_1.Boid(this.nextId, this);
+    addBoid(position) {
+        const newBoid = new boid_1.Boid(this.nextId, this, position);
         this.creatures.set(this.nextId, newBoid);
         this.nextId++;
         return newBoid;
@@ -328,13 +328,13 @@ const config_1 = require("../config");
 const vector2_1 = require("../vector2");
 const creatureStorage_1 = require("../creatureStorage");
 class Creature {
-    constructor(id = 0, creatureStorage = new creatureStorage_1.CreatureStorage()) {
+    constructor(id = 0, creatureStorage = new creatureStorage_1.CreatureStorage(), position) {
         this.id = id;
         this.creatureStorage = creatureStorage;
         this.velocity = new vector2_1.Vector2();
         this.history = [];
         this.colour = "black";
-        this.position = new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
+        this.position = position || new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
         for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
             this.history.push(this.position);
         }
@@ -523,11 +523,13 @@ class MouseHandler {
         this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
     }
     handleMouseClick(event) {
-        if (event.ctrlKey) {
-            this.createHunter();
-        }
-        else {
-            this.createBoid();
+        if (this.mousePosition) {
+            if (event.ctrlKey) {
+                this.createHunter(this.mousePosition);
+            }
+            else {
+                this.createBoid(this.mousePosition);
+            }
         }
     }
     handleMouseOut() {
@@ -554,7 +556,7 @@ class SimulationManager {
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
-        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement, () => this.createBoid(), () => this.createHunter());
+        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
         ko.applyBindings(this.simulationViewModel);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
             this.creatureStorage.addBoid();
@@ -563,11 +565,11 @@ class SimulationManager {
             this.creatureStorage.addHunter();
         }
     }
-    createBoid() {
-        this.creatureStorage.addBoid();
+    createBoid(position) {
+        this.creatureStorage.addBoid(position);
     }
-    createHunter() {
-        this.creatureStorage.addHunter();
+    createHunter(position) {
+        this.creatureStorage.addHunter(position);
     }
     runSimulation() {
         this.tick();

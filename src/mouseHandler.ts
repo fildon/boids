@@ -3,13 +3,13 @@ import { Vector2 } from "./vector2";
 export class MouseHandler {
     public mousePosition: Vector2 | null;
     private mouseArea: HTMLElement;
-    private createBoid: () => void;
-    private createHunter: () => void;
+    private createBoid: (position: Vector2) => void;
+    private createHunter: (position: Vector2) => void;
 
     constructor(
         mouseArea: HTMLElement,
-        createBoid: () => void,
-        createHunter: () => void,
+        createBoid: (position: Vector2) => void,
+        createHunter: (position: Vector2) => void,
     ) {
         this.mousePosition = new Vector2(-1, -1);
         this.mouseArea = mouseArea;
@@ -33,10 +33,12 @@ export class MouseHandler {
     }
 
     public handleMouseClick(event: MouseEvent) {
-        if (event.ctrlKey) {
-            this.createHunter();
-        } else {
-            this.createBoid();
+        if (this.mousePosition) {
+            if (event.ctrlKey) {
+                this.createHunter(this.mousePosition);
+            } else {
+                this.createBoid(this.mousePosition);
+            }
         }
     }
 
