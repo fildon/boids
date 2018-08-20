@@ -5,6 +5,7 @@ import { config } from "./config";
 import { MouseHandler } from "./mouseHandler";
 import { SimulationViewModel } from "./simulationViewModel";
 import { CreatureStorage } from "./creatureStorage";
+import { Vector2 } from "./vector2";
 
 export class SimulationManager {
     private creatureStorage = new CreatureStorage();
@@ -18,7 +19,11 @@ export class SimulationManager {
         }
         this.canvas = new Canvas(canvasElement);
         this.simulationViewModel = new SimulationViewModel(this);
-        this.mouseHandler = new MouseHandler(canvasElement);
+        this.mouseHandler = new MouseHandler(
+            canvasElement,
+            (position: Vector2) => this.createBoid(position),
+            (position: Vector2) => this.createHunter(position),
+        );
         ko.applyBindings(this.simulationViewModel);
 
         for (let i = 0; i < config.boid.quantity; i++) {
@@ -29,12 +34,12 @@ export class SimulationManager {
         }
     }
 
-    public createBoid() {
-        this.creatureStorage.addBoid();
+    public createBoid(position?: Vector2) {
+        this.creatureStorage.addBoid(position);
     }
 
-    public createHunter() {
-        this.creatureStorage.addHunter();
+    public createHunter(position?: Vector2) {
+        this.creatureStorage.addHunter(position);
     }
 
     public runSimulation(): void {

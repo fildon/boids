@@ -40,20 +40,22 @@ export class CreatureStorage {
         });
     }
 
-    public addHunter(): Hunter {
+    public addHunter(position?: Vector2): Hunter {
         const newHunter = new Hunter(
             this.nextId,
             this,
+            position,
         );
         this.creatures.set(this.nextId, newHunter);
         this.nextId++;
         return newHunter;
     }
 
-    public addBoid(): Boid {
+    public addBoid(position?: Vector2): Boid {
         const newBoid = new Boid(
             this.nextId,
             this,
+            position,
         );
         this.creatures.set(this.nextId, newBoid);
         this.nextId++;

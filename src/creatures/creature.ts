@@ -18,8 +18,9 @@ export abstract class Creature {
     constructor(
         public readonly id: number = 0,
         public creatureStorage: CreatureStorage = new CreatureStorage(),
+        position?: Vector2,
     ) {
-        this.position = new Vector2(
+        this.position = position || new Vector2(
             Math.random() * config.screen.maxX,
             Math.random() * config.screen.maxY,
         );

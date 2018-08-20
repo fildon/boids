@@ -87,8 +87,8 @@ exports.config = {
         defaultColour: "LightSteelBlue",
         maxSpeed: 9,
         minSpeed: 4,
-        mouseAvoidRadius: 100,
-        quantity: 500,
+        mouseAvoidRadius: 0,
+        quantity: 200,
         repulsionRadius: 20,
         size: 4,
         visionRadius: 100,
@@ -104,7 +104,7 @@ exports.config = {
         eatRadius: 20,
         maxSpeed: 6,
         minSpeed: 5,
-        quantity: 1,
+        quantity: 0,
         size: 8,
         visionRadius: 90,
     },
@@ -149,14 +149,14 @@ class CreatureStorage {
             this.bucketMap[bucketX][bucketY].push(creature);
         });
     }
-    addHunter() {
-        const newHunter = new hunter_1.Hunter(this.nextId, this);
+    addHunter(position) {
+        const newHunter = new hunter_1.Hunter(this.nextId, this, position);
         this.creatures.set(this.nextId, newHunter);
         this.nextId++;
         return newHunter;
     }
-    addBoid() {
-        const newBoid = new boid_1.Boid(this.nextId, this);
+    addBoid(position) {
+        const newBoid = new boid_1.Boid(this.nextId, this, position);
         this.creatures.set(this.nextId, newBoid);
         this.nextId++;
         return newBoid;
@@ -328,13 +328,13 @@ const config_1 = require("../config");
 const vector2_1 = require("../vector2");
 const creatureStorage_1 = require("../creatureStorage");
 class Creature {
-    constructor(id = 0, creatureStorage = new creatureStorage_1.CreatureStorage()) {
+    constructor(id = 0, creatureStorage = new creatureStorage_1.CreatureStorage(), position) {
         this.id = id;
         this.creatureStorage = creatureStorage;
         this.velocity = new vector2_1.Vector2();
         this.history = [];
         this.colour = "black";
-        this.position = new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
+        this.position = position || new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
         for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
             this.history.push(this.position);
         }
@@ -505,17 +505,32 @@ exports.StaticTools = StaticTools;
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
 class MouseHandler {
-    constructor(mouseArea) {
+    constructor(mouseArea, createBoid, createHunter) {
         this.mousePosition = new vector2_1.Vector2(-1, -1);
         this.mouseArea = mouseArea;
+        this.createBoid = createBoid;
+        this.createHunter = createHunter;
         this.mouseArea.onmousemove = (event) => {
             this.handleMouseMove(event);
         };
         this.mouseArea.onmouseout = () => { this.handleMouseOut(); };
+        this.mouseArea.onclick = (event) => {
+            this.handleMouseClick(event);
+        };
     }
     handleMouseMove(event) {
         const rect = this.mouseArea.getBoundingClientRect();
         this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
+    }
+    handleMouseClick(event) {
+        if (this.mousePosition) {
+            if (event.ctrlKey) {
+                this.createHunter(this.mousePosition);
+            }
+            else {
+                this.createBoid(this.mousePosition);
+            }
+        }
     }
     handleMouseOut() {
         this.mousePosition = null;
@@ -541,7 +556,7 @@ class SimulationManager {
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
-        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement);
+        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
         ko.applyBindings(this.simulationViewModel);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
             this.creatureStorage.addBoid();
@@ -550,11 +565,11 @@ class SimulationManager {
             this.creatureStorage.addHunter();
         }
     }
-    createBoid() {
-        this.creatureStorage.addBoid();
+    createBoid(position) {
+        this.creatureStorage.addBoid(position);
     }
-    createHunter() {
-        this.creatureStorage.addHunter();
+    createHunter(position) {
+        this.creatureStorage.addHunter(position);
     }
     runSimulation() {
         this.tick();
