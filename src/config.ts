@@ -8,7 +8,7 @@ export const config = {
         maxSpeed: 7,
         minSpeed: 4,
         mouseAvoidRadius: 0,
-        quantity: 1,
+        quantity: 100,
         repulsionRadius: 30,
         repulsionRadiusDefault: 20,
         size: 4,
