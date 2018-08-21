@@ -82,16 +82,16 @@ exports.Canvas = Canvas;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
     boid: {
-        alignmentRadius: 0,
+        alignmentRadius: 40,
         alignmentRadiusDefault: 40,
-        attractionRadius: 0,
+        attractionRadius: 200,
         attractionRadiusDefault: 200,
         defaultColour: "LightSteelBlue",
         maxSpeed: 7,
         minSpeed: 4,
         mouseAvoidRadius: 0,
         quantity: 200,
-        repulsionRadius: 0,
+        repulsionRadius: 20,
         repulsionRadiusDefault: 20,
         size: 4,
         visionRadius: 100,
