@@ -119,7 +119,7 @@ export abstract class Creature {
         if (result.length === 0) {
             return null;
         }
-        return result.scaleToLength(this.velocity.length);
+        return result.scaleToLength(this.maxSpeed);
     }
 
     public abstract die(): void;

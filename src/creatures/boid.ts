@@ -49,7 +49,7 @@ export class Boid extends Creature {
             neighbours.map((creature) => {
                 return creature.position.vectorTo(this.position);
             }),
-        ).scaleToLength(this.velocity.length * 0.9);
+        ).scaleToLength(Math.max(this.velocity.length, (1/10) * this.maxSpeed + (9/10) * this.minSpeed));
     }
 
     public hunterEvasionVector(): Vector2 | null {
@@ -81,7 +81,7 @@ export class Boid extends Creature {
             neighbours.map((creature) => {
                 return creature.velocity;
             }),
-        );
+        ).scaleByScalar(0.99);
     }
 
     public attractionVector(): Vector2 | null {
