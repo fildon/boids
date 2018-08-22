@@ -88,7 +88,7 @@ exports.config = {
         attractionRadiusDefault: 200,
         defaultColour: "LightSteelBlue",
         maxSpeed: 7,
-        minSpeed: 0.1,
+        minSpeed: 4,
         mouseAvoidRadius: 0,
         quantity: 200,
         repulsionRadius: 20,
@@ -106,9 +106,9 @@ exports.config = {
     hunter: {
         defaultColour: "yellow",
         eatRadius: 20,
-        maxSpeed: 3,
-        minSpeed: 2,
-        quantity: 1,
+        maxSpeed: 6,
+        minSpeed: 5,
+        quantity: 0,
         size: 8,
         visionRadius: 90,
     },
@@ -284,7 +284,7 @@ class Boid extends creature_1.Creature {
         }
         return vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.position.vectorTo(this.position);
-        })).scaleToLength(Math.max(this.velocity.length, (1 / 10) * this.maxSpeed + (9 / 10) * this.minSpeed));
+        })).scaleToLength(this.velocity.length * 0.9);
     }
     hunterEvasionVector() {
         const huntersInSight = this.creatureStorage.getHuntersInArea(this.position, config_1.config.boid.visionRadius);
@@ -304,7 +304,7 @@ class Boid extends creature_1.Creature {
         }
         return vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.velocity;
-        })).scaleByScalar(0.99);
+        }));
     }
     attractionVector() {
         const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.attractionRadius).filter((boid) => boid.id !== this.id);
@@ -416,7 +416,7 @@ class Creature {
         if (result.length === 0) {
             return null;
         }
-        return result.scaleToLength(this.maxSpeed);
+        return result.scaleToLength(this.velocity.length);
     }
 }
 exports.Creature = Creature;
