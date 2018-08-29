@@ -151,6 +151,15 @@ describe("Boid", () => {
     });
 
     describe("mouse avoid vector", () => {
+        const mouseAvoidRadiusOriginalValue = config.boid.mouseAvoidRadius;
+        /* This before/after ensure that these tests 'make sense' even when
+        I'm regularly playing around with the particulars of the config values */
+        before(() => { 
+            config.boid.mouseAvoidRadius = 10;
+        });
+        after(() => {
+            config.boid.mouseAvoidRadius = mouseAvoidRadiusOriginalValue;
+        });
         it("points away from the mouse when within it's radius", () => {
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2();
