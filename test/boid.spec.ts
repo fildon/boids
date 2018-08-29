@@ -1,5 +1,6 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
+import * as sinon from "sinon";
 import { config } from "../src/config";
 import { Vector2 } from "../src/vector2";
 import { CreatureStorage } from "../src/creatureStorage";
@@ -151,6 +152,15 @@ describe("Boid", () => {
     });
 
     describe("mouse avoid vector", () => {
+        const mouseAvoidRadiusOriginalValue = config.boid.mouseAvoidRadius;
+        /* This before/after ensure that these tests 'make sense' even when
+        I'm regularly playing around with the particulars of the config values */
+        before(() => { 
+            config.boid.mouseAvoidRadius = 10;
+        });
+        after(() => {
+            config.boid.mouseAvoidRadius = mouseAvoidRadiusOriginalValue;
+        });
         it("points away from the mouse when within it's radius", () => {
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2();
@@ -178,6 +188,9 @@ describe("Boid", () => {
     });
 
     describe("update heading towards", () => {
+        before(() => {
+            sinon.stub(Math, 'random').returns(0.5);
+        });
         it("limits the turn by the turningMax", () => {
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2();
