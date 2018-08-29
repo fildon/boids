@@ -1,5 +1,6 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
+import * as sinon from "sinon";
 import { config } from "../src/config";
 import { Vector2 } from "../src/vector2";
 import { CreatureStorage } from "../src/creatureStorage";
@@ -187,6 +188,9 @@ describe("Boid", () => {
     });
 
     describe("update heading towards", () => {
+        before(() => {
+            sinon.stub(Math, 'random').returns(0.5);
+        });
         it("limits the turn by the turningMax", () => {
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2();

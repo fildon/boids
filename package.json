@@ -31,7 +31,9 @@
     "dependencies": {
         "@types/knockout": "^3.4.51",
         "@types/node": "^9.4.5",
+        "@types/sinon": "^5.0.2",
         "knockout": "^3.5.0-beta",
+        "sinon": "^6.1.5",
         "typescript": "^2.7.1"
     },
     "devDependencies": {
