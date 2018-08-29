@@ -71,13 +71,9 @@ export class MouseHandler {
 
     public toggleSeparation() {
         if (config.boid.repulsionRadius) {
-            // tslint:disable-next-line:no-console
-            console.log("Separation turned off");
             config.boid.repulsionRadius = 0;
             this.separationLabel.textContent = "OFF";
         } else {
-            // tslint:disable-next-line:no-console
-            console.log("Separation turned on");
             config.boid.repulsionRadius = config.boid.repulsionRadiusDefault;
             this.separationLabel.textContent = "ON";
         }
@@ -85,13 +81,9 @@ export class MouseHandler {
 
     public toggleAlignment() {
         if (config.boid.alignmentRadius) {
-            // tslint:disable-next-line:no-console
-            console.log("Alignment turned off");
             config.boid.alignmentRadius = 0;
             this.alignmentLabel.textContent = "OFF";
         } else {
-            // tslint:disable-next-line:no-console
-            console.log("Alignment turned on");
             config.boid.alignmentRadius = config.boid.alignmentRadiusDefault;
             this.alignmentLabel.textContent = "ON";
         }
@@ -99,13 +91,9 @@ export class MouseHandler {
 
     public toggleCohesion() {
         if (config.boid.attractionRadius) {
-            // tslint:disable-next-line:no-console
-            console.log("Cohesion turned off");
             config.boid.attractionRadius = 0;
             this.cohesionLabel.textContent = "OFF";
         } else {
-            // tslint:disable-next-line:no-console
-            console.log("Cohesion turned on");
             config.boid.attractionRadius = config.boid.attractionRadiusDefault;
             this.cohesionLabel.textContent = "ON";
         }

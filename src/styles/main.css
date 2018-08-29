@@ -3,11 +3,21 @@ body {
     flex-direction: column;
     width: 100%;
     height: 100%;
-    margin: 0px;
+    margin: 0;
 }
 
 canvas {
     align-self: center;
     position: absolute;
     top: 5%;
+}
+
+.info-box {
+    margin-left: 50px
+}
+
+.rule-status {
+    margin: 0 10px;
+    width: 50px;
+    display:inline-block
 }

@@ -2,27 +2,26 @@
 <html>
     <head>
         <title>Boids</title>
-        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="src/styles/main.css">
         <script>var exports = {};</script>
         <script src="bundle.js"></script>
     </head>
     <body>
-        <div>
-            <span style='margin-left: 50px'>1: Separation </span><span style='margin: 0 10px; width: 50px; display:inline-block' id='separation-status'>ON</span>
-            <span style='margin-left: 50px'>2: Alignment </span><span style='margin: 0 10px; width: 50px; display:inline-block' id='alignment-status'>ON</span>
-            <span style='margin-left: 50px'>3: Cohesion </span><span style='margin: 0 10px; width: 50px; display:inline-block' id='cohesion-status'>ON</span>
+        <div class='info-box'>
+            <span>1: Separation </span>
+            <span class='rule-status' id='separation-status'>ON</span>
+            <span>2: Alignment </span>
+            <span class='rule-status' id='alignment-status'>ON</span>
+            <span>3: Cohesion </span>
+            <span class='rule-status' id='cohesion-status'>ON</span>
         </div>
-        <div style='margin-left:50px' id='config'>
-            <label style='display: none' for="mouseRadius">Mouse radius</label>
-            <input style='display: none' data-bind="value: mouseRadius" id="mouseRadius">
-            <label style='display: none' for="turningMax">Turning max</label>
-            <input style='display: none' data-bind="value: turningMax" id="turningMax">
+        <div class='info-box'>
             <span>Boids: </span>
             <span data-bind="text: numberOfBoids">&nbsp;</span>
-            <button style='display: none' data-bind="click: createBoid">Create Boid</button>
-            <span style='display: none' >Hunters: </span>
-            <span style='display: none' >&nbsp;</span>
-            <button style='display: none' data-bind="click: createHunter">Create Hunter</button>
+        </div>
+        <div class='info-box'>
+            <span>Hunters: </span>
+            <span data-bind="text: numberOfHunters">&nbsp;</span>
         </div>
         <canvas id='canvas'></canvas>
     </body>
