@@ -17,16 +17,7 @@ export class CreatureStorage {
     }
 
     public update(): void {
-        this.bucketMap = [];
-        this.bucketColumns = Math.ceil(config.screen.maxX / this.bucketSize);
-        this.bucketRows = Math.ceil(config.screen.maxY / this.bucketSize);
-        for (let i = 0; i < this.bucketColumns; i++) {
-            const bucketRow: Creature[][] = [];
-            for (let j = 0; j < this.bucketRows; j++) {
-                bucketRow.push([]);
-            }
-            this.bucketMap.push(bucketRow);
-        }
+        this.resetBucketMap();
         this.creatures.forEach((creature) => {
             const bucketX = Math.min(
                 Math.floor(creature.position.x / this.bucketSize),
@@ -121,5 +112,18 @@ export class CreatureStorage {
 
     public remove(creatureId: number): void {
         this.creatures.delete(creatureId);
+    }
+
+    private resetBucketMap(): void {
+        this.bucketMap = [];
+        this.bucketColumns = Math.ceil(config.screen.maxX / this.bucketSize);
+        this.bucketRows = Math.ceil(config.screen.maxY / this.bucketSize);
+        for (let i = 0; i < this.bucketColumns; i++) {
+            const bucketRow: Creature[][] = [];
+            for (let j = 0; j < this.bucketRows; j++) {
+                bucketRow.push([]);
+            }
+            this.bucketMap.push(bucketRow);
+        }
     }
 }

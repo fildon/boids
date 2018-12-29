@@ -4,7 +4,6 @@
         "target": "es6",
         "sourceMap": true,
         "strict": true,
-        "outDir": "dist",
-        "types": ["node", "mocha", "chai"]
+        "outDir": "dist"
     }
 }

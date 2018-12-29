@@ -137,16 +137,7 @@ class CreatureStorage {
         this.update();
     }
     update() {
-        this.bucketMap = [];
-        this.bucketColumns = Math.ceil(config_1.config.screen.maxX / this.bucketSize);
-        this.bucketRows = Math.ceil(config_1.config.screen.maxY / this.bucketSize);
-        for (let i = 0; i < this.bucketColumns; i++) {
-            const bucketRow = [];
-            for (let j = 0; j < this.bucketRows; j++) {
-                bucketRow.push([]);
-            }
-            this.bucketMap.push(bucketRow);
-        }
+        this.resetBucketMap();
         this.creatures.forEach((creature) => {
             const bucketX = Math.min(Math.floor(creature.position.x / this.bucketSize), this.bucketColumns - 1);
             const bucketY = Math.min(Math.floor(creature.position.y / this.bucketSize), this.bucketRows - 1);
@@ -216,6 +207,18 @@ class CreatureStorage {
     }
     remove(creatureId) {
         this.creatures.delete(creatureId);
+    }
+    resetBucketMap() {
+        this.bucketMap = [];
+        this.bucketColumns = Math.ceil(config_1.config.screen.maxX / this.bucketSize);
+        this.bucketRows = Math.ceil(config_1.config.screen.maxY / this.bucketSize);
+        for (let i = 0; i < this.bucketColumns; i++) {
+            const bucketRow = [];
+            for (let j = 0; j < this.bucketRows; j++) {
+                bucketRow.push([]);
+            }
+            this.bucketMap.push(bucketRow);
+        }
     }
 }
 exports.CreatureStorage = CreatureStorage;
@@ -567,42 +570,30 @@ class MouseHandler {
     }
     toggleSeparation() {
         if (config_1.config.boid.repulsionRadius) {
-            // tslint:disable-next-line:no-console
-            console.log("Separation turned off");
             config_1.config.boid.repulsionRadius = 0;
             this.separationLabel.textContent = "OFF";
         }
         else {
-            // tslint:disable-next-line:no-console
-            console.log("Separation turned on");
             config_1.config.boid.repulsionRadius = config_1.config.boid.repulsionRadiusDefault;
             this.separationLabel.textContent = "ON";
         }
     }
     toggleAlignment() {
         if (config_1.config.boid.alignmentRadius) {
-            // tslint:disable-next-line:no-console
-            console.log("Alignment turned off");
             config_1.config.boid.alignmentRadius = 0;
             this.alignmentLabel.textContent = "OFF";
         }
         else {
-            // tslint:disable-next-line:no-console
-            console.log("Alignment turned on");
             config_1.config.boid.alignmentRadius = config_1.config.boid.alignmentRadiusDefault;
             this.alignmentLabel.textContent = "ON";
         }
     }
     toggleCohesion() {
         if (config_1.config.boid.attractionRadius) {
-            // tslint:disable-next-line:no-console
-            console.log("Cohesion turned off");
             config_1.config.boid.attractionRadius = 0;
             this.cohesionLabel.textContent = "OFF";
         }
         else {
-            // tslint:disable-next-line:no-console
-            console.log("Cohesion turned on");
             config_1.config.boid.attractionRadius = config_1.config.boid.attractionRadiusDefault;
             this.cohesionLabel.textContent = "ON";
         }
@@ -616,7 +607,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
 const canvas_1 = require("./canvas");
 const config_1 = require("./config");
-const mouseHandler_1 = require("./mouseHandler");
+const inputHandler_1 = require("./inputHandler");
 const simulationViewModel_1 = require("./simulationViewModel");
 const creatureStorage_1 = require("./creatureStorage");
 class SimulationManager {
@@ -628,7 +619,7 @@ class SimulationManager {
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
-        this.mouseHandler = new mouseHandler_1.MouseHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
+        this.mouseHandler = new inputHandler_1.MouseHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
         ko.applyBindings(this.simulationViewModel);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
             this.creatureStorage.addBoid();
@@ -667,7 +658,7 @@ class SimulationManager {
 }
 exports.SimulationManager = SimulationManager;
 
-},{"./canvas":2,"./config":3,"./creatureStorage":4,"./mouseHandler":11,"./simulationViewModel":13,"knockout":15}],13:[function(require,module,exports){
+},{"./canvas":2,"./config":3,"./creatureStorage":4,"./inputHandler":11,"./simulationViewModel":13,"knockout":15}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
