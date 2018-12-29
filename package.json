@@ -14,7 +14,7 @@
         "lint": "tslint -c tslint.json src/**/*.ts",
         "mutation": "stryker run",
         "test": "nyc mocha",
-        "coverage": "nyc --check-coverage --lines 95 --functions 95 --branches 95 mocha"
+        "coverage": "nyc --check-coverage mocha"
     },
     "nyc": {
         "include": [

@@ -2,7 +2,7 @@ import * as ko from "knockout";
 
 import { Canvas } from "./canvas";
 import { config } from "./config";
-import { MouseHandler } from "./mouseHandler";
+import { MouseHandler } from "./inputHandler";
 import { SimulationViewModel } from "./simulationViewModel";
 import { CreatureStorage } from "./creatureStorage";
 import { Vector2 } from "./vector2";
