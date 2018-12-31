@@ -27,6 +27,15 @@ export class Hunter extends Creature {
         this.move();
     }
 
+    public chanceToSee(viewerPosition: Vector2, viewerSightRange: number): number {
+        const distance = viewerPosition.distance(this.position);
+        const visibilityFromDistance = (viewerSightRange - distance) / viewerSightRange;
+        const visibilityFromSpeed =
+            (this.velocity.length - config.hunter.minSpeed)
+            / (config.hunter.maxSpeed - config.hunter.minSpeed);
+        return visibilityFromDistance * visibilityFromSpeed;
+    }
+
     public huntingVector(): Vector2 | null {
         const preyInSight = this.creatureStorage.getBoidsInArea(
             this.position,

@@ -87,14 +87,14 @@ exports.config = {
         attractionRadius: 200,
         attractionRadiusDefault: 200,
         defaultColour: "LightSteelBlue",
-        maxSpeed: 7,
-        minSpeed: 4,
+        maxSpeed: 6,
+        minSpeed: 3,
         mouseAvoidRadius: 0,
         quantity: 200,
         repulsionRadius: 20,
         repulsionRadiusDefault: 20,
         size: 4,
-        visionRadius: 100,
+        visionRadius: 200,
     },
     creature: {
         acceleration: 0.2,
@@ -106,9 +106,9 @@ exports.config = {
     hunter: {
         defaultColour: "yellow",
         eatRadius: 20,
-        maxSpeed: 6,
-        minSpeed: 5,
-        quantity: 0,
+        maxSpeed: 5,
+        minSpeed: 4,
+        quantity: 1,
         size: 8,
         visionRadius: 90,
     },
@@ -290,7 +290,9 @@ class Boid extends creature_1.Creature {
         })).scaleToLength(this.velocity.length * 0.9);
     }
     hunterEvasionVector() {
-        const huntersInSight = this.creatureStorage.getHuntersInArea(this.position, config_1.config.boid.visionRadius);
+        const huntersInSight = this.creatureStorage.getHuntersInArea(this.position, config_1.config.boid.visionRadius).filter((hunter) => {
+            return Math.random() < hunter.chanceToSee(this.position, config_1.config.boid.visionRadius);
+        });
         if (huntersInSight.length === 0) {
             return null;
         }
@@ -451,6 +453,13 @@ class Hunter extends creature_1.Creature {
     update() {
         this.eat();
         this.move();
+    }
+    chanceToSee(viewerPosition, viewerSightRange) {
+        const distance = viewerPosition.distance(this.position);
+        const visibilityFromDistance = (viewerSightRange - distance) / viewerSightRange;
+        const visibilityFromSpeed = (this.velocity.length - config_1.config.hunter.minSpeed)
+            / (config_1.config.hunter.maxSpeed - config_1.config.hunter.minSpeed);
+        return visibilityFromDistance * visibilityFromSpeed;
     }
     huntingVector() {
         const preyInSight = this.creatureStorage.getBoidsInArea(this.position, config_1.config.hunter.visionRadius);
