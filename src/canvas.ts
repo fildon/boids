@@ -1,6 +1,5 @@
 import { config } from "./config";
 import { Creature } from "./creatures/creature";
-import { Vector2 } from "./vector2";
 
 export class Canvas {
     private canvas: HTMLCanvasElement;
