@@ -103,54 +103,6 @@ describe("Boid", () => {
         });
     });
 
-    describe("wallAvoidVector", () => {
-        it("points away from the edges", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2();
-            const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector()!).to.deep.equal(expected);
-        });
-
-        it("points away from the edges", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2(config.screen.maxX, config.screen.maxY);
-            const expected = new Vector2(-1, -1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector()!).to.deep.equal(expected);
-        });
-
-        it("points away from the edges", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2(0, config.screen.maxY);
-            const expected = new Vector2(1, -1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector()!).to.deep.equal(expected);
-        });
-
-        it("points away from the edges", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2(config.screen.maxX, 0);
-            const expected = new Vector2(-1, 1).scaleToLength(boid.velocity.length);
-            expect(boid.wallAvoidVector()!).to.deep.equal(expected);
-        });
-
-        it("does not repel exactly at wall avoid radius", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2(
-                config.creature.wallAvoidRadius,
-                config.creature.wallAvoidRadius,
-            );
-            expect(boid.wallAvoidVector()).to.equal(null);
-        });
-
-        it("does not repel exactly at wall avoid radius", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2(
-                config.screen.maxX - config.creature.wallAvoidRadius,
-                config.screen.maxY - config.creature.wallAvoidRadius,
-            );
-            expect(boid.wallAvoidVector()).to.equal(null);
-        });
-    });
-
     describe("mouse avoid vector", () => {
         const mouseAvoidRadiusOriginalValue = config.boid.mouseAvoidRadius;
         /* This before/after ensure that these tests 'make sense' even when

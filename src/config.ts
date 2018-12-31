@@ -19,14 +19,13 @@ export const config = {
         headingFuzz: 0.05,
         maxHistory: 5,
         turningMax: 0.2, // radians
-        wallAvoidRadius: 25,
     },
     hunter: {
         defaultColour: "yellow",
         eatRadius: 20,
         maxSpeed: 5,
         minSpeed: 4,
-        quantity: 1,
+        quantity: 0,
         size: 8,
         visionRadius: 90,
     },

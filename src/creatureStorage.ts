@@ -89,13 +89,13 @@ export class CreatureStorage {
         const bucketX = Math.floor(center.x / this.bucketSize);
         const bucketY = Math.floor(center.y / this.bucketSize);
         const bucketRadius = Math.ceil(radius / this.bucketSize);
-        const minX = Math.max(0, bucketX - bucketRadius);
-        const maxX = Math.min(this.bucketColumns - 1, bucketX + bucketRadius);
-        const minY = Math.max(0, bucketY - bucketRadius);
-        const maxY = Math.min(this.bucketRows - 1, bucketY + bucketRadius);
+        const minX = (bucketX - bucketRadius + this.bucketColumns) % this.bucketColumns;
+        const maxX = (bucketX + bucketRadius + 1) % this.bucketColumns;
+        const minY = (bucketY - bucketRadius + this.bucketRows) % this.bucketRows;
+        const maxY = (bucketY + bucketRadius + 1) % this.bucketRows;
         let creatures: Creature[] = [];
-        for (let i = minX; i <= maxX; i++) {
-            for (let j = minY; j <= maxY; j++) {
+        for (let i = minX; i !== maxX; i++, i = i % this.bucketColumns) {
+            for (let j = minY; j !== maxY; j++, j = j % this.bucketRows) {
                 creatures = creatures.concat(this.bucketMap[i][j]);
             }
         }

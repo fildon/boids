@@ -10,6 +10,7 @@ canvas {
     align-self: center;
     position: absolute;
     top: 5%;
+    border: 1px solid black;
 }
 
 .info-box {

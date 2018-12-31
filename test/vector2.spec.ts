@@ -1,5 +1,6 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
+import { config } from "../src/config";
 import { Vector2 } from "../src/vector2";
 
 const expect = chai.expect;
@@ -35,11 +36,27 @@ describe("Vector2", () => {
     });
 
     describe("vectorTo", () => {
-        it("computes the distance from one vector to another", () => {
+        it("computes the vector from one position vector to another", () => {
             const v0 = new Vector2(1, 1);
             const v1 = new Vector2(2, 3);
             const actual = v0.vectorTo(v1);
             const expected = new Vector2(1, 2);
+            expect(actual).to.deep.equal(expected);
+        });
+
+        it("wraps negatively if that is shorter", () => {
+            const v0 = new Vector2(1, 1);
+            const v1 = new Vector2(config.screen.maxX - 1, config.screen.maxY - 1);
+            const actual = v0.vectorTo(v1);
+            const expected = new Vector2(-2, -2);
+            expect(actual).to.deep.equal(expected);
+        });
+
+        it("wraps positively if that is shorter", () => {
+            const v0 = new Vector2(config.screen.maxX - 1, config.screen.maxY - 1);
+            const v1 = new Vector2(1, 1);
+            const actual = v0.vectorTo(v1);
+            const expected = new Vector2(2, 2);
             expect(actual).to.deep.equal(expected);
         });
     });
@@ -64,22 +81,6 @@ describe("Vector2", () => {
             const v1 = new Vector2(0, Math.sqrt(2));
             const v2 = v0.rotate(Math.PI / 4);
             expect(fuzzyVectorEquality(v2, v1)).to.be.true;
-        });
-    });
-
-    describe("clip", () => {
-        it("does not clip a vector inside the bounds", () => {
-            const v0 = new Vector2(1, 1);
-            const v1 = v0.clip(0, 2, 0, 2);
-            expect(v1.x).to.equal(1);
-            expect(v1.y).to.equal(1);
-        });
-
-        it("clips x and y", () => {
-            const v0 = new Vector2(1 , 1);
-            const v1 = v0.clip(2, 3, 0, 1);
-            expect(v1.x).to.equal(2);
-            expect(v1.y).to.equal(1);
         });
     });
 
@@ -142,5 +143,39 @@ describe("Vector2", () => {
             expect(actual.x).to.equal(expected.x);
             expect(actual.y).to.equal(expected.y);
         });
+    });
+
+    describe("unitVector", () => {
+        it("returns a vector scaled to length 1", () => {
+            const v = new Vector2(10, 0);
+
+            const expected = new Vector2(1, 0);
+            const actual = v.unitVector();
+
+            expect(actual.x).to.equal(expected.x);
+            expect(actual.y).to.equal(expected.y);
+        });
+    });
+
+    describe("scaleToLength", () => {
+        it("performs no-op if current length is zero", () => {
+            const v = new Vector2(0, 0);
+
+            const actual = v.scaleToLength(5);
+
+            expect(actual).to.equal(v);
+        });
+    })
+
+    describe("normalize", () => {
+        it("puts a negative vector into the positive space", () => {
+            const v = new Vector2(-1, -1);
+
+            const expected = new Vector2(config.screen.maxX - 1, config.screen.maxY - 1);
+            const actual = v.normalize();
+
+            expect(actual.x).to.equal(expected.x);
+            expect(actual.y).to.equal(expected.y);
+        })
     });
 });

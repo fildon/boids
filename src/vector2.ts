@@ -1,3 +1,5 @@
+import { config } from "./config";
+
 export class Vector2 {
     public static average(vectors: Vector2[]): Vector2 {
         if (vectors.length === 0) {
@@ -14,8 +16,8 @@ export class Vector2 {
     public y: number;
     public length: number;
     constructor(x: number = 0, y: number = 0) {
-        this.x = x;
-        this.y = y;
+        this.x = x % config.screen.maxX;
+        this.y = y % config.screen.maxY;
         this.length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
@@ -28,7 +30,21 @@ export class Vector2 {
     }
 
     public vectorTo(vector: Vector2): Vector2 {
-        return new Vector2(vector.x - this.x, vector.y - this.y);
+        let nearestX = (vector.x - this.x) % config.screen.maxX;
+        if (nearestX > (config.screen.maxX / 2)) {
+            nearestX -= config.screen.maxX;
+        }
+        if (nearestX < -(config.screen.maxX / 2)) {
+            nearestX += config.screen.maxX;
+        }
+        let nearestY = (vector.y - this.y) % config.screen.maxY;
+        if (nearestY > (config.screen.maxY / 2)) {
+            nearestY -= config.screen.maxY;
+        }
+        if (nearestY < -(config.screen.maxY / 2)) {
+            nearestY += config.screen.maxY;
+        }
+        return new Vector2(nearestX, nearestY);
     }
 
     public rotate(radians: number): Vector2 {
@@ -50,13 +66,6 @@ export class Vector2 {
         return new Vector2(this.x + v.x, this.y + v.y);
     }
 
-    public clip(xMin: number, xMax: number, yMin: number, yMax: number) {
-        return new Vector2(
-            Math.min(Math.max(this.x, xMin), xMax),
-            Math.min(Math.max(this.y, yMin), yMax),
-        );
-    }
-
     public equals(v: Vector2): boolean {
         return this.x === v.x && this.y === v.y;
     }
@@ -73,5 +82,16 @@ export class Vector2 {
 
     public isParallelTo(v: Vector2): boolean {
         return this.x * v.y === this.y * v.x;
+    }
+
+    public normalize(): Vector2 {
+        if (0 <= this.x &&
+            0 <= this.y) {
+            return this;
+        }
+        return new Vector2(
+            ((this.x % config.screen.maxX) + config.screen.maxX) % config.screen.maxX,
+            ((this.y % config.screen.maxY) + config.screen.maxY) % config.screen.maxY,
+        );
     }
 }

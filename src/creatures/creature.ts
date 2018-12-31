@@ -45,8 +45,7 @@ export abstract class Creature {
         while (this.history.length > config.creature.maxHistory) {
             this.history = this.history.slice(1);
         }
-        this.position = this.position.add(this.velocity);
-        this.position = this.position.clip(0, config.screen.maxX, 0, config.screen.maxY);
+        this.position = this.position.add(this.velocity).normalize();
         this.updateHeading();
     }
 
@@ -96,30 +95,6 @@ export abstract class Creature {
             .rotate(2 * config.creature.headingFuzz * Math.random() - config.creature.headingFuzz)
             .scaleToLength(limitedSpeed);
         return;
-    }
-
-    public wallAvoidVector(): Vector2 | null {
-        const xMin = this.position.x;
-        const xMax = config.screen.maxX - this.position.x;
-        const yMin = this.position.y;
-        const yMax = config.screen.maxY - this.position.y;
-        let result = new Vector2();
-        if (xMin < config.creature.wallAvoidRadius) {
-            result = result.add(new Vector2(1, 0));
-        }
-        if (xMax < config.creature.wallAvoidRadius) {
-            result = result.add(new Vector2(-1, 0));
-        }
-        if (yMin < config.creature.wallAvoidRadius) {
-            result = result.add(new Vector2(0, 1));
-        }
-        if (yMax < config.creature.wallAvoidRadius) {
-            result = result.add(new Vector2(0, -1));
-        }
-        if (result.length === 0) {
-            return null;
-        }
-        return result.scaleToLength(this.velocity.length);
     }
 
     public abstract die(): void;

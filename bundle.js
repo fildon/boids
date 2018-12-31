@@ -101,14 +101,13 @@ exports.config = {
         headingFuzz: 0.05,
         maxHistory: 5,
         turningMax: 0.2,
-        wallAvoidRadius: 25,
     },
     hunter: {
         defaultColour: "yellow",
         eatRadius: 20,
         maxSpeed: 5,
         minSpeed: 4,
-        quantity: 1,
+        quantity: 0,
         size: 8,
         visionRadius: 90,
     },
@@ -187,13 +186,13 @@ class CreatureStorage {
         const bucketX = Math.floor(center.x / this.bucketSize);
         const bucketY = Math.floor(center.y / this.bucketSize);
         const bucketRadius = Math.ceil(radius / this.bucketSize);
-        const minX = Math.max(0, bucketX - bucketRadius);
-        const maxX = Math.min(this.bucketColumns - 1, bucketX + bucketRadius);
-        const minY = Math.max(0, bucketY - bucketRadius);
-        const maxY = Math.min(this.bucketRows - 1, bucketY + bucketRadius);
+        const minX = (bucketX - bucketRadius + this.bucketColumns) % this.bucketColumns;
+        const maxX = (bucketX + bucketRadius + 1) % this.bucketColumns;
+        const minY = (bucketY - bucketRadius + this.bucketRows) % this.bucketRows;
+        const maxY = (bucketY + bucketRadius + 1) % this.bucketRows;
         let creatures = [];
-        for (let i = minX; i <= maxX; i++) {
-            for (let j = minY; j <= maxY; j++) {
+        for (let i = minX; i !== maxX; i++, i = i % this.bucketColumns) {
+            for (let j = minY; j !== maxY; j++, j = j % this.bucketRows) {
                 creatures = creatures.concat(this.bucketMap[i][j]);
             }
         }
@@ -260,7 +259,6 @@ class Boid extends creature_1.Creature {
         this.size = config_1.config.boid.size;
         this.priorities = [
             new behaviour_1.Behaviour(() => this.mouseAvoidVector(), "red"),
-            new behaviour_1.Behaviour(() => this.wallAvoidVector(), "red"),
             new behaviour_1.Behaviour(() => this.hunterEvasionVector(), "red"),
             new behaviour_1.Behaviour(() => this.repulsionVector(), "orange"),
             new behaviour_1.Behaviour(() => this.alignmentVector(), "blue"),
@@ -358,8 +356,7 @@ class Creature {
         while (this.history.length > config_1.config.creature.maxHistory) {
             this.history = this.history.slice(1);
         }
-        this.position = this.position.add(this.velocity);
-        this.position = this.position.clip(0, config_1.config.screen.maxX, 0, config_1.config.screen.maxY);
+        this.position = this.position.add(this.velocity).normalize();
         this.updateHeading();
     }
     updateHeading() {
@@ -400,29 +397,6 @@ class Creature {
             .scaleToLength(limitedSpeed);
         return;
     }
-    wallAvoidVector() {
-        const xMin = this.position.x;
-        const xMax = config_1.config.screen.maxX - this.position.x;
-        const yMin = this.position.y;
-        const yMax = config_1.config.screen.maxY - this.position.y;
-        let result = new vector2_1.Vector2();
-        if (xMin < config_1.config.creature.wallAvoidRadius) {
-            result = result.add(new vector2_1.Vector2(1, 0));
-        }
-        if (xMax < config_1.config.creature.wallAvoidRadius) {
-            result = result.add(new vector2_1.Vector2(-1, 0));
-        }
-        if (yMin < config_1.config.creature.wallAvoidRadius) {
-            result = result.add(new vector2_1.Vector2(0, 1));
-        }
-        if (yMax < config_1.config.creature.wallAvoidRadius) {
-            result = result.add(new vector2_1.Vector2(0, -1));
-        }
-        if (result.length === 0) {
-            return null;
-        }
-        return result.scaleToLength(this.velocity.length);
-    }
 }
 exports.Creature = Creature;
 
@@ -442,7 +416,6 @@ class Hunter extends creature_1.Creature {
         this.minSpeed = config_1.config.hunter.minSpeed;
         this.size = config_1.config.hunter.size;
         this.priorities = [
-            new behaviour_1.Behaviour(() => this.wallAvoidVector(), "red"),
             new behaviour_1.Behaviour(() => this.huntingVector(), "DeepPink"),
         ];
     }
@@ -704,6 +677,7 @@ exports.SimulationViewModel = SimulationViewModel;
 },{"./config":3,"knockout":15}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("./config");
 class Vector2 {
     static average(vectors) {
         if (vectors.length === 0) {
@@ -715,8 +689,8 @@ class Vector2 {
         return totalVector.scaleByScalar(1 / vectors.length);
     }
     constructor(x = 0, y = 0) {
-        this.x = x;
-        this.y = y;
+        this.x = x % config_1.config.screen.maxX;
+        this.y = y % config_1.config.screen.maxY;
         this.length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
     unitVector() {
@@ -726,7 +700,21 @@ class Vector2 {
         return this.vectorTo(v).length;
     }
     vectorTo(vector) {
-        return new Vector2(vector.x - this.x, vector.y - this.y);
+        let nearestX = (vector.x - this.x) % config_1.config.screen.maxX;
+        if (nearestX > (config_1.config.screen.maxX / 2)) {
+            nearestX -= config_1.config.screen.maxX;
+        }
+        if (nearestX < -(config_1.config.screen.maxX / 2)) {
+            nearestX += config_1.config.screen.maxX;
+        }
+        let nearestY = (vector.y - this.y) % config_1.config.screen.maxY;
+        if (nearestY > (config_1.config.screen.maxY / 2)) {
+            nearestY -= config_1.config.screen.maxY;
+        }
+        if (nearestY < -(config_1.config.screen.maxY / 2)) {
+            nearestY += config_1.config.screen.maxY;
+        }
+        return new Vector2(nearestX, nearestY);
     }
     rotate(radians) {
         return new Vector2(this.x * Math.cos(radians) - this.y * Math.sin(radians), this.x * Math.sin(radians) + this.y * Math.cos(radians));
@@ -737,9 +725,6 @@ class Vector2 {
     }
     add(v) {
         return new Vector2(this.x + v.x, this.y + v.y);
-    }
-    clip(xMin, xMax, yMin, yMax) {
-        return new Vector2(Math.min(Math.max(this.x, xMin), xMax), Math.min(Math.max(this.y, yMin), yMax));
     }
     equals(v) {
         return this.x === v.x && this.y === v.y;
@@ -755,10 +740,17 @@ class Vector2 {
     isParallelTo(v) {
         return this.x * v.y === this.y * v.x;
     }
+    normalize() {
+        if (0 <= this.x &&
+            0 <= this.y) {
+            return this;
+        }
+        return new Vector2(((this.x % config_1.config.screen.maxX) + config_1.config.screen.maxX) % config_1.config.screen.maxX, ((this.y % config_1.config.screen.maxY) + config_1.config.screen.maxY) % config_1.config.screen.maxY);
+    }
 }
 exports.Vector2 = Vector2;
 
-},{}],15:[function(require,module,exports){
+},{"./config":3}],15:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.5.0-beta
  * (c) The Knockout.js team - http://knockoutjs.com/

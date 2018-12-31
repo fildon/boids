@@ -12,7 +12,6 @@ export class Boid extends Creature {
     public size = config.boid.size;
     public priorities = [
         new Behaviour(() => this.mouseAvoidVector(), "red"),
-        new Behaviour(() => this.wallAvoidVector(), "red"),
         new Behaviour(() => this.hunterEvasionVector(), "red"),
         new Behaviour(() => this.repulsionVector(), "orange"),
         new Behaviour(() => this.alignmentVector(), "blue"),
