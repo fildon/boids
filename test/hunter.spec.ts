@@ -1,7 +1,9 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
+import * as sinon from "sinon";
 import { Vector2 } from "../src/vector2";
 import { CreatureStorage } from "../src/creatureStorage";
+import { AssertionError } from "assert";
 
 const expect = chai.expect;
 
@@ -10,6 +12,21 @@ describe("Hunter", () => {
     beforeEach(() => {
         creatureStorage = new CreatureStorage();
     });
+
+    describe("update", () => {
+        it("eats before moving", () => {
+            const hunter = creatureStorage.addHunter();
+            const boid = creatureStorage.addBoid();
+            hunter.position = new Vector2(1, 1);
+            boid.position = new Vector2(1, 1);
+            const boidDieSpy = sinon.spy(boid, "die");
+
+            hunter.update();
+
+            expect(boidDieSpy.calledOnce);
+        })
+    });
+
     describe("hunting vector", () => {
         it("returns null if no prey in sight", () => {
             const hunter = creatureStorage.addHunter();

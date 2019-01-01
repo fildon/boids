@@ -23,6 +23,17 @@ describe("Boid", () => {
         });
     });
 
+    describe("update", () => {
+        it("becomes afraid", () => {
+            const boid = creatureStorage.addBoid();
+            boid.fearCountdown = 10;
+
+            boid.update();
+
+            expect(boid.fearCountdown).to.equal(9);
+        });
+    });
+
     describe("movement", () => {
         it("adds velocity to position", () => {
             const boid = creatureStorage.addBoid();

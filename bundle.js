@@ -87,6 +87,7 @@ exports.config = {
         attractionRadius: 200,
         attractionRadiusDefault: 200,
         defaultColour: "LightSteelBlue",
+        fearDuration: 30,
         maxSpeed: 6,
         minSpeed: 3,
         mouseAvoidRadius: 0,
@@ -107,7 +108,7 @@ exports.config = {
         eatRadius: 20,
         maxSpeed: 5,
         minSpeed: 4,
-        quantity: 0,
+        quantity: 1,
         size: 8,
         visionRadius: 90,
     },
@@ -227,14 +228,14 @@ exports.CreatureStorage = CreatureStorage;
 Object.defineProperty(exports, "__esModule", { value: true });
 const priority_1 = require("./priority");
 class Behaviour {
-    constructor(getIdealHeading, color) {
+    constructor(getIdealHeading, getColor) {
         this.getIdealHeading = getIdealHeading;
-        this.color = color;
+        this.getColor = getColor;
     }
     getCurrentPriority() {
         const currentPriority = this.getIdealHeading();
         if (currentPriority) {
-            return new priority_1.Priority(currentPriority, this.color);
+            return new priority_1.Priority(currentPriority, this.getColor());
         }
         return null;
     }
@@ -257,17 +258,24 @@ class Boid extends creature_1.Creature {
         this.maxSpeed = config_1.config.boid.maxSpeed;
         this.minSpeed = config_1.config.boid.minSpeed;
         this.size = config_1.config.boid.size;
+        this.fearCountdown = 0;
         this.priorities = [
-            new behaviour_1.Behaviour(() => this.mouseAvoidVector(), "red"),
-            new behaviour_1.Behaviour(() => this.hunterEvasionVector(), "red"),
-            new behaviour_1.Behaviour(() => this.repulsionVector(), "orange"),
-            new behaviour_1.Behaviour(() => this.alignmentVector(), "blue"),
-            new behaviour_1.Behaviour(() => this.attractionVector(), "green"),
+            new behaviour_1.Behaviour(() => this.mouseAvoidVector(), () => "red"),
+            new behaviour_1.Behaviour(() => this.hunterEvasionVector(), () => "red"),
+            new behaviour_1.Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "red" : "orange"),
+            new behaviour_1.Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "red" : "blue"),
+            new behaviour_1.Behaviour(() => this.attractionVector(), () => this.fearCountdown ? "red" : "green"),
         ];
     }
     initializeVelocity() {
         const heading = Math.random() * 2 * Math.PI;
-        this.velocity = new vector2_1.Vector2(config_1.config.boid.minSpeed * Math.cos(heading), config_1.config.boid.minSpeed * Math.sin(heading));
+        this.velocity = new vector2_1.Vector2(config_1.config.boid.maxSpeed * Math.cos(heading), config_1.config.boid.maxSpeed * Math.sin(heading));
+    }
+    update() {
+        if (this.fearCountdown) {
+            this.fearCountdown--;
+        }
+        this.move();
     }
     mouseAvoidVector() {
         if (this.mousePosition) {
@@ -278,15 +286,6 @@ class Boid extends creature_1.Creature {
         }
         return null;
     }
-    repulsionVector() {
-        const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.repulsionRadius).filter((boid) => boid.id !== this.id);
-        if (neighbours.length === 0) {
-            return null;
-        }
-        return vector2_1.Vector2.average(neighbours.map((creature) => {
-            return creature.position.vectorTo(this.position);
-        })).scaleToLength(this.velocity.length * 0.9);
-    }
     hunterEvasionVector() {
         const huntersInSight = this.creatureStorage.getHuntersInArea(this.position, config_1.config.boid.visionRadius).filter((hunter) => {
             return Math.random() < hunter.chanceToSee(this.position, config_1.config.boid.visionRadius);
@@ -294,20 +293,34 @@ class Boid extends creature_1.Creature {
         if (huntersInSight.length === 0) {
             return null;
         }
+        this.fearCountdown = config_1.config.boid.fearDuration;
         const nearestHunter = staticTools_1.StaticTools
             .nearestCreatureToPosition(huntersInSight, this.position);
         return nearestHunter.position
             .vectorTo(this.position)
             .scaleToLength(this.maxSpeed);
     }
+    repulsionVector() {
+        const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.repulsionRadius).filter((boid) => boid.id !== this.id);
+        if (neighbours.length === 0) {
+            return null;
+        }
+        return vector2_1.Vector2.average(neighbours.map((creature) => {
+            return creature.position.vectorTo(this.position);
+        })).scaleToLength(this.fearCountdown ? this.maxSpeed : this.velocity.length * 0.9);
+    }
     alignmentVector() {
         const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.alignmentRadius).filter((boid) => boid.id !== this.id);
         if (neighbours.length === 0) {
             return null;
         }
-        return vector2_1.Vector2.average(neighbours.map((creature) => {
+        const averageAlignmentVector = vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.velocity;
         }));
+        if (this.fearCountdown) {
+            return averageAlignmentVector.scaleToLength(this.maxSpeed);
+        }
+        return averageAlignmentVector;
     }
     attractionVector() {
         const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.attractionRadius).filter((boid) => boid.id !== this.id);
@@ -318,7 +331,7 @@ class Boid extends creature_1.Creature {
             .nearestCreatureToPosition(neighbours, this.position);
         return this.position
             .vectorTo(nearestNeighbour.position)
-            .scaleToLength(nearestNeighbour.velocity.length * 1.1);
+            .scaleToLength(this.fearCountdown ? this.maxSpeed : nearestNeighbour.velocity.length * 1.1);
     }
     die() {
         this.creatureStorage.remove(this.id);
@@ -347,9 +360,6 @@ class Creature {
     }
     distanceToCreature(creature) {
         return this.position.distance(creature.position);
-    }
-    update() {
-        this.move();
     }
     move() {
         this.history.push(this.position);
@@ -416,7 +426,7 @@ class Hunter extends creature_1.Creature {
         this.minSpeed = config_1.config.hunter.minSpeed;
         this.size = config_1.config.hunter.size;
         this.priorities = [
-            new behaviour_1.Behaviour(() => this.huntingVector(), "DeepPink"),
+            new behaviour_1.Behaviour(() => this.huntingVector(), () => "DeepPink"),
         ];
     }
     initializeVelocity() {

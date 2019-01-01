@@ -36,9 +36,7 @@ export abstract class Creature {
         return this.position.distance(creature.position);
     }
 
-    public update() {
-        this.move();
-    }
+    public abstract update(): void;
 
     public move() {
         this.history.push(this.position);

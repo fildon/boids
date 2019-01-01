@@ -10,7 +10,7 @@ export class Hunter extends Creature {
     public minSpeed = config.hunter.minSpeed;
     public size = config.hunter.size;
     public priorities = [
-        new Behaviour(() => this.huntingVector(), "DeepPink"),
+        new Behaviour(() => this.huntingVector(), () => "DeepPink"),
     ];
 
     public initializeVelocity(): void {

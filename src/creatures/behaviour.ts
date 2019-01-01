@@ -3,15 +3,15 @@ import { Priority } from "./priority";
 
 export class Behaviour {
     public getIdealHeading: (() => Vector2 | null);
-    public color: string;
-    constructor(getIdealHeading: (() => Vector2 | null), color: string) {
+    public getColor: (() => string);
+    constructor(getIdealHeading: (() => Vector2 | null), getColor: () => string) {
         this.getIdealHeading = getIdealHeading;
-        this.color = color;
+        this.getColor = getColor;
     }
     public getCurrentPriority(): Priority | null {
         const currentPriority = this.getIdealHeading();
         if (currentPriority) {
-            return new Priority(currentPriority, this.color);
+            return new Priority(currentPriority, this.getColor());
         }
         return null;
     }
