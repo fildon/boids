@@ -3,6 +3,7 @@ import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
 import { Creature } from "./creature";
 import { StaticTools } from "./staticTools";
+import THREE = require("three");
 
 export class Hunter extends Creature {
     public defaultColour = config.hunter.defaultColour;
@@ -10,7 +11,7 @@ export class Hunter extends Creature {
     public minSpeed = config.hunter.minSpeed;
     public size = config.hunter.size;
     public priorities = [
-        new Behaviour(() => this.huntingVector(), () => "DeepPink"),
+        new Behaviour(() => this.huntingVector(), () => 0xff0099),
     ];
 
     public initializeVelocity(): void {
@@ -24,6 +25,9 @@ export class Hunter extends Creature {
     public update() {
         this.eat();
         this.move();
+        this.renderedBody.position.x = this.position.x / 100 - 5;
+        this.renderedBody.position.y = this.position.y / 100 - 5;
+        this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour })
     }
 
     public chanceToSee(viewerPosition: Vector2, viewerSightRange: number): number {
@@ -57,9 +61,5 @@ export class Hunter extends Creature {
             this.position,
             config.hunter.eatRadius,
         ).forEach((prey) => prey.die());
-    }
-
-    public die(): void {
-        this.creatureStorage.remove(this.id);
     }
 }

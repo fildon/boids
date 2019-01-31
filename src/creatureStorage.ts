@@ -3,8 +3,10 @@ import { Hunter } from "./creatures/hunter";
 import { Boid } from "./creatures/boid";
 import { Vector2 } from "./vector2";
 import { config } from "./config";
+import { Canvas } from "./canvas";
 
 export class CreatureStorage {
+    private canvas: Canvas;
     private nextId = 0;
     private creatures = new Map<number, Creature>();
     private bucketMap: Creature[][][] = [];
@@ -12,7 +14,8 @@ export class CreatureStorage {
     private bucketRows: number = 1;
     private readonly bucketSize = 100;
 
-    constructor() {
+    constructor(canvas: Canvas) {
+        this.canvas = canvas;
         this.update();
     }
 
@@ -35,6 +38,7 @@ export class CreatureStorage {
         const newHunter = new Hunter(
             this.nextId,
             this,
+            this.canvas,
             position,
         );
         this.creatures.set(this.nextId, newHunter);
@@ -46,6 +50,7 @@ export class CreatureStorage {
         const newBoid = new Boid(
             this.nextId,
             this,
+            this.canvas,
             position,
         );
         this.creatures.set(this.nextId, newBoid);

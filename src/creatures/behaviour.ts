@@ -3,8 +3,8 @@ import { Priority } from "./priority";
 
 export class Behaviour {
     public getIdealHeading: (() => Vector2 | null);
-    public getColor: (() => string);
-    constructor(getIdealHeading: (() => Vector2 | null), getColor: () => string) {
+    public getColor: (() => number);
+    constructor(getIdealHeading: (() => Vector2 | null), getColor: () => number) {
         this.getIdealHeading = getIdealHeading;
         this.getColor = getColor;
     }

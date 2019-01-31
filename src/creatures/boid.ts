@@ -3,6 +3,8 @@ import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
 import { Creature } from "./creature";
 import { StaticTools } from "./staticTools";
+import { Material } from "three";
+import THREE = require("three");
 
 export class Boid extends Creature {
     public mousePosition: Vector2 | null = null;
@@ -12,11 +14,11 @@ export class Boid extends Creature {
     public size = config.boid.size;
     public fearCountdown = 0;
     public priorities = [
-        new Behaviour(() => this.mouseAvoidVector(), () => "red"),
-        new Behaviour(() => this.hunterEvasionVector(), () => "red"),
-        new Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "red" : "orange"),
-        new Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "red" : "blue"),
-        new Behaviour(() => this.attractionVector(), () => this.fearCountdown ? "red" : "green"),
+        new Behaviour(() => this.mouseAvoidVector(), () => 0xff0000),
+        new Behaviour(() => this.hunterEvasionVector(), () => 0xff0000),
+        new Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? 0xff0000 : 0xffaa00),
+        new Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? 0xff0000 : 0x0000ff),
+        new Behaviour(() => this.attractionVector(), () => this.fearCountdown ? 0xff0000 : 0x00ff00),
     ];
 
     public initializeVelocity(): void {
@@ -32,6 +34,9 @@ export class Boid extends Creature {
             this.fearCountdown--;
         }
         this.move();
+        this.renderedBody.position.x = this.position.x / 100 - 5;
+        this.renderedBody.position.y = this.position.y / 100 - 5;
+        this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour })
     }
 
     public mouseAvoidVector(): Vector2 | null {
@@ -114,9 +119,5 @@ export class Boid extends Creature {
         return this.position
             .vectorTo(nearestNeighbour.position)
             .scaleToLength(this.fearCountdown ? this.maxSpeed : nearestNeighbour.velocity.length * 1.1);
-    }
-
-    public die(): void {
-        this.creatureStorage.remove(this.id);
     }
 }

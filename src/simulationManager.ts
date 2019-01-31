@@ -2,28 +2,18 @@ import * as ko from "knockout";
 
 import { Canvas } from "./canvas";
 import { config } from "./config";
-import { MouseHandler } from "./inputHandler";
 import { SimulationViewModel } from "./simulationViewModel";
 import { CreatureStorage } from "./creatureStorage";
 import { Vector2 } from "./vector2";
 
 export class SimulationManager {
-    private creatureStorage = new CreatureStorage();
     private canvas: Canvas;
-    private mouseHandler: MouseHandler;
+    private creatureStorage: CreatureStorage;
     private simulationViewModel: SimulationViewModel;
     constructor() {
-        const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
-        if (!canvasElement) {
-            throw new Error("couldn't find 'canvas' on document");
-        }
-        this.canvas = new Canvas(canvasElement);
+        this.canvas = new Canvas();
+        this.creatureStorage = new CreatureStorage(this.canvas);
         this.simulationViewModel = new SimulationViewModel(this);
-        this.mouseHandler = new MouseHandler(
-            canvasElement,
-            (position: Vector2) => this.createBoid(position),
-            (position: Vector2) => this.createHunter(position),
-        );
         ko.applyBindings(this.simulationViewModel);
 
         for (let i = 0; i < config.boid.quantity; i++) {
@@ -47,25 +37,20 @@ export class SimulationManager {
     }
 
     public tick(): void {
+        requestAnimationFrame(() => this.tick());
+        this.canvas.render();
         this.creatureStorage.update();
         for (const boid of this.creatureStorage.getAllBoids()) {
-            boid.mousePosition = this.mouseHandler.mousePosition;
             boid.update();
         }
         for (const hunter of this.creatureStorage.getAllHunters()) {
             hunter.update();
         }
-        this.canvas.draw(this.creatureStorage.getAllCreatures());
         this.simulationViewModel.updateHunterCount(
             this.creatureStorage.getHunterCount(),
         );
         this.simulationViewModel.updateBoidCount(
             this.creatureStorage.getBoidCount(),
         );
-        ((thisCaptured) => {
-            setTimeout(() => {
-                thisCaptured.tick();
-            }, 1000 / 60);
-        }) (this);
     }
 }

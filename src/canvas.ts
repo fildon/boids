@@ -1,85 +1,50 @@
 import { config } from "./config";
 import { Creature } from "./creatures/creature";
+import THREE = require("three");
 
 export class Canvas {
-    private canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
+    private scene: THREE.Scene;
+    private camera: THREE.PerspectiveCamera;
+    private renderer: THREE.WebGLRenderer;
 
-    constructor(canvasElement: HTMLCanvasElement) {
-        this.canvas = canvasElement;
-        const context = this.canvas.getContext("2d");
-        if (!context) {
-            throw new Error("could not get canvas context");
-        } else {
-            this.ctx = context;
-        }
-        this.canvas.height = config.screen.maxY;
-        this.canvas.width = config.screen.maxX;
+    constructor() {
+        this.scene = new THREE.Scene();
 
-        this.setScreenSize();
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth/window.innerHeight
+        );
+        this.camera.position.z = 5;
+
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize(
+            window.innerWidth * 0.9,
+            window.innerHeight * 0.9
+        );
+
+        document.body.appendChild(this.renderer.domElement);
+
+        window.addEventListener('resize', () => this.setScreenSize(), false);
     }
 
     public setScreenSize(): void {
-        if (window) {
-            config.screen.maxX = window.innerWidth * 0.9;
-            config.screen.maxY = window.innerHeight * 0.9;
-        }
-        this.ctx.canvas.width = config.screen.maxX;
-        this.ctx.canvas.height = config.screen.maxY;
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(
+            window.innerWidth * 0.9,
+            window.innerHeight * 0.9
+        );
     }
 
-    public draw(creatures: Creature[]): void {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.setScreenSize();
-        this.drawGhosts(creatures);
-        creatures.forEach((creature) => {
-            this.drawCreature(creature);
-        });
+    render(): void {
+        this.renderer.render(this.scene, this.camera);
     }
 
-    public drawGhosts(creatures: Creature[]) {
-        if (!config.creature.maxHistory) {
-            return;
-        }
-        for (let i = 0; i < config.creature.maxHistory; i++) {
-            creatures.forEach((creature) => {
-                this.drawGhost(creature, i);
-            });
-        }
+    add(renderedBody: THREE.Mesh): void {
+        this.scene.add(renderedBody);
     }
 
-    public drawGhost(creature: Creature, historyIndex: number) {
-        this.drawCreatureBody(creature, historyIndex);
-    }
-
-    public drawCreature(creature: Creature): void {
-        this.drawCreatureBody(creature);
-        this.drawCreatureBeak(creature);
-    }
-
-    public drawCreatureBody(creature: Creature, historyIndex?: number): void {
-        const position = historyIndex ? creature.history[historyIndex] : creature.position;
-        const radius = historyIndex ?
-            creature.size * ((historyIndex + 1) / (config.creature.maxHistory + 1)) :
-            creature.size;
-        this.ctx.beginPath();
-        this.ctx.arc(
-            position.x,
-            position.y,
-            radius,
-            0, 2 * Math.PI);
-        this.ctx.fillStyle = creature.colour;
-        this.ctx.fill();
-    }
-
-    public drawCreatureBeak(creature: Creature): void {
-        const heading = creature.velocity.unitVector();
-        this.ctx.beginPath();
-        this.ctx.arc(
-            creature.position.x + (creature.size + 1) * heading.x,
-            creature.position.y + (creature.size + 1) * heading.y,
-            creature.size / 2, 0, 2 * Math.PI);
-        this.ctx.fillStyle = "black";
-        this.ctx.fill();
+    delete(renderedBody: THREE.Mesh): void {
+        this.scene.remove(renderedBody);
     }
 }

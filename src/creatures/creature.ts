@@ -3,21 +3,25 @@ import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
 import { Priority } from "./priority";
 import { CreatureStorage } from "../creatureStorage";
+import { Canvas } from "../canvas";
+import THREE = require("three");
 
 export abstract class Creature {
     public position: Vector2;
     public velocity = new Vector2();
     public history: Vector2[] = [];
-    public abstract defaultColour: string;
-    public colour = "black";
+    public abstract defaultColour: number;
+    public colour = 0xffffff;
     public abstract priorities: Behaviour[];
     public abstract maxSpeed: number;
     public abstract minSpeed: number;
     public abstract size: number;
+    public renderedBody: THREE.Mesh;
 
     constructor(
         public readonly id: number = 0,
-        public creatureStorage: CreatureStorage = new CreatureStorage(),
+        public creatureStorage: CreatureStorage = new CreatureStorage(new Canvas()),
+        public canvas: Canvas = new Canvas(),
         position?: Vector2,
     ) {
         this.position = position || new Vector2(
@@ -28,6 +32,13 @@ export abstract class Creature {
             this.history.push(this.position);
         }
         this.initializeVelocity();
+
+        this.renderedBody = new THREE.Mesh(
+            new THREE.SphereBufferGeometry(0.05, 16, 8),
+            new THREE.MeshBasicMaterial({ color: this.colour })
+        );
+        this.renderedBody.position.z = 0;
+        this.canvas.add(this.renderedBody);
     }
 
     public abstract initializeVelocity(): void;
@@ -95,5 +106,8 @@ export abstract class Creature {
         return;
     }
 
-    public abstract die(): void;
+    public die(): void {
+        this.creatureStorage.remove(this.id);
+        this.canvas.delete(this.renderedBody);
+    };
 }

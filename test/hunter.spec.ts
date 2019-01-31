@@ -4,13 +4,14 @@ import * as sinon from "sinon";
 import { Vector2 } from "../src/vector2";
 import { CreatureStorage } from "../src/creatureStorage";
 import { AssertionError } from "assert";
+import { Canvas } from "../src/canvas";
 
 const expect = chai.expect;
 
 describe("Hunter", () => {
     let creatureStorage: CreatureStorage;
     beforeEach(() => {
-        creatureStorage = new CreatureStorage();
+        creatureStorage = new CreatureStorage(new Canvas());
     });
 
     describe("update", () => {
