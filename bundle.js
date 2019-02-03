@@ -10,18 +10,29 @@ document.addEventListener("DOMContentLoaded", () => {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const THREE = require("three");
+const config_1 = require("./config");
 class Canvas {
     constructor() {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
-        this.camera.position.z = 5;
+        this.camera.position.z = 520;
+        this.worldBox = new THREE.Mesh(new THREE.BoxBufferGeometry(window.innerWidth * 0.9, window.innerHeight * 0.9, 0.1), new THREE.MeshBasicMaterial({ color: 0xaaaadd }));
+        this.scene.add(this.worldBox);
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth * 0.9, window.innerHeight * 0.9);
         document.body.appendChild(this.renderer.domElement);
+        this.setScreenSize();
         window.addEventListener('resize', () => this.setScreenSize(), false);
     }
     setScreenSize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.worldBox.position.x = innerWidth * 0.45;
+        this.worldBox.position.y = innerHeight * 0.45;
+        this.worldBox.geometry = new THREE.BoxBufferGeometry(window.innerWidth * 0.9, window.innerHeight * 0.9, 0.1),
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+        config_1.config.screen.maxX = window.innerWidth * 0.9;
+        config_1.config.screen.maxY = window.innerHeight * 0.9;
+        this.camera.position.x = window.innerWidth * 0.45;
+        this.camera.position.y = window.innerHeight * 0.45;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth * 0.9, window.innerHeight * 0.9);
     }
@@ -37,7 +48,7 @@ class Canvas {
 }
 exports.Canvas = Canvas;
 
-},{"three":15}],3:[function(require,module,exports){
+},{"./config":3,"three":15}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
@@ -238,8 +249,8 @@ class Boid extends creature_1.Creature {
             this.fearCountdown--;
         }
         this.move();
-        this.renderedBody.position.x = this.position.x / 100 - 5;
-        this.renderedBody.position.y = this.position.y / 100 - 5;
+        this.renderedBody.position.x = this.position.x;
+        this.renderedBody.position.y = this.position.y;
         this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour });
     }
     mouseAvoidVector() {
@@ -322,7 +333,7 @@ class Creature {
             this.history.push(this.position);
         }
         this.initializeVelocity();
-        this.renderedBody = new THREE.Mesh(new THREE.SphereBufferGeometry(0.05, 16, 8), new THREE.MeshBasicMaterial({ color: this.colour }));
+        this.renderedBody = new THREE.Mesh(new THREE.SphereBufferGeometry(5, 16, 8), new THREE.MeshBasicMaterial({ color: this.colour }));
         this.renderedBody.position.z = 0;
         this.canvas.add(this.renderedBody);
     }
@@ -392,9 +403,14 @@ const behaviour_1 = require("./behaviour");
 const creature_1 = require("./creature");
 const staticTools_1 = require("./staticTools");
 const THREE = require("three");
+const creatureStorage_1 = require("../creatureStorage");
+const canvas_1 = require("../canvas");
 class Hunter extends creature_1.Creature {
-    constructor() {
-        super(...arguments);
+    constructor(id = 0, creatureStorage = new creatureStorage_1.CreatureStorage(new canvas_1.Canvas()), canvas = new canvas_1.Canvas(), position) {
+        super(id, creatureStorage, canvas, position);
+        this.id = id;
+        this.creatureStorage = creatureStorage;
+        this.canvas = canvas;
         this.defaultColour = config_1.config.hunter.defaultColour;
         this.maxSpeed = config_1.config.hunter.maxSpeed;
         this.minSpeed = config_1.config.hunter.minSpeed;
@@ -402,6 +418,7 @@ class Hunter extends creature_1.Creature {
         this.priorities = [
             new behaviour_1.Behaviour(() => this.huntingVector(), () => 0xff0099),
         ];
+        this.renderedBody.geometry = new THREE.SphereBufferGeometry(10, 16, 8);
     }
     initializeVelocity() {
         const heading = Math.random() * 2 * Math.PI;
@@ -410,8 +427,8 @@ class Hunter extends creature_1.Creature {
     update() {
         this.eat();
         this.move();
-        this.renderedBody.position.x = this.position.x / 100 - 5;
-        this.renderedBody.position.y = this.position.y / 100 - 5;
+        this.renderedBody.position.x = this.position.x;
+        this.renderedBody.position.y = this.position.y;
         this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour });
     }
     chanceToSee(viewerPosition, viewerSightRange) {
@@ -438,7 +455,7 @@ class Hunter extends creature_1.Creature {
 }
 exports.Hunter = Hunter;
 
-},{"../config":3,"../vector2":13,"./behaviour":5,"./creature":7,"./staticTools":10,"three":15}],9:[function(require,module,exports){
+},{"../canvas":2,"../config":3,"../creatureStorage":4,"../vector2":13,"./behaviour":5,"./creature":7,"./staticTools":10,"three":15}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Priority {

@@ -4,6 +4,8 @@ import { Behaviour } from "./behaviour";
 import { Creature } from "./creature";
 import { StaticTools } from "./staticTools";
 import THREE = require("three");
+import { CreatureStorage } from "../creatureStorage";
+import { Canvas } from "../canvas";
 
 export class Hunter extends Creature {
     public defaultColour = config.hunter.defaultColour;
@@ -13,6 +15,16 @@ export class Hunter extends Creature {
     public priorities = [
         new Behaviour(() => this.huntingVector(), () => 0xff0099),
     ];
+
+    constructor(
+        public readonly id: number = 0,
+        public creatureStorage: CreatureStorage = new CreatureStorage(new Canvas()),
+        public canvas: Canvas = new Canvas(),
+        position?: Vector2,
+    ) {
+        super(id, creatureStorage, canvas, position);
+        this.renderedBody.geometry = new THREE.SphereBufferGeometry(10, 16, 8);
+    }
 
     public initializeVelocity(): void {
         const heading = Math.random() * 2 * Math.PI;
@@ -25,8 +37,8 @@ export class Hunter extends Creature {
     public update() {
         this.eat();
         this.move();
-        this.renderedBody.position.x = this.position.x / 100 - 5;
-        this.renderedBody.position.y = this.position.y / 100 - 5;
+        this.renderedBody.position.x = this.position.x;
+        this.renderedBody.position.y = this.position.y;
         this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour })
     }
 

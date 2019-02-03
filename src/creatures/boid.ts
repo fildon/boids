@@ -34,8 +34,8 @@ export class Boid extends Creature {
             this.fearCountdown--;
         }
         this.move();
-        this.renderedBody.position.x = this.position.x / 100 - 5;
-        this.renderedBody.position.y = this.position.y / 100 - 5;
+        this.renderedBody.position.x = this.position.x;
+        this.renderedBody.position.y = this.position.y;
         this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour })
     }
 
