@@ -37,7 +37,7 @@ export class Boid extends Creature {
         this.renderedBody.position.x = this.position.x;
         this.renderedBody.position.y = this.position.y;
         this.renderedBody.rotation.z = -this.velocity.angleTo(new Vector2(0, 1));
-        this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour })
+        this.renderedBody.material = new THREE.MeshStandardMaterial({ color: this.colour })
     }
 
     public mouseAvoidVector(): Vector2 | null {

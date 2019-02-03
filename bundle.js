@@ -16,8 +16,10 @@ class Canvas {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
         this.camera.position.z = 520;
-        this.worldBox = new THREE.Mesh(new THREE.BoxBufferGeometry(window.innerWidth * 0.9, window.innerHeight * 0.9, 0.1), new THREE.MeshBasicMaterial({ color: 0xaaaadd }));
+        this.worldBox = new THREE.Mesh(new THREE.BoxBufferGeometry(window.innerWidth * 0.9, window.innerHeight * 0.9, 0.1), new THREE.MeshStandardMaterial({ color: 0xaaaadd }));
         this.scene.add(this.worldBox);
+        this.light = new THREE.HemisphereLight(0xffffff, 0x888888);
+        this.scene.add(this.light);
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth * 0.9, window.innerHeight * 0.9);
         document.body.appendChild(this.renderer.domElement);
@@ -252,7 +254,7 @@ class Boid extends creature_1.Creature {
         this.renderedBody.position.x = this.position.x;
         this.renderedBody.position.y = this.position.y;
         this.renderedBody.rotation.z = -this.velocity.angleTo(new vector2_1.Vector2(0, 1));
-        this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour });
+        this.renderedBody.material = new THREE.MeshStandardMaterial({ color: this.colour });
     }
     mouseAvoidVector() {
         if (this.mousePosition) {
@@ -430,7 +432,7 @@ class Hunter extends creature_1.Creature {
         this.move();
         this.renderedBody.position.x = this.position.x;
         this.renderedBody.position.y = this.position.y;
-        this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour });
+        this.renderedBody.material = new THREE.MeshStandardMaterial({ color: this.colour });
     }
     chanceToSee(viewerPosition, viewerSightRange) {
         const distance = viewerPosition.distance(this.position);

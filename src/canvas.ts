@@ -1,12 +1,13 @@
 import THREE = require("three");
 import { config } from "./config";
-import { Line } from "three";
+import { Line, Scene } from "three";
 
 export class Canvas {
     private scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private worldBox: THREE.Mesh;
+    private light: THREE.Light;
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -23,10 +24,13 @@ export class Canvas {
                 window.innerHeight * 0.9,
                 0.1
             ),
-            new THREE.MeshBasicMaterial({color: 0xaaaadd})
+            new THREE.MeshStandardMaterial({color: 0xaaaadd})
         );
 
         this.scene.add(this.worldBox);
+
+        this.light = new THREE.HemisphereLight(0xffffff, 0x888888);
+        this.scene.add(this.light);
 
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(

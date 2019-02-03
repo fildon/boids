@@ -39,7 +39,7 @@ export class Hunter extends Creature {
         this.move();
         this.renderedBody.position.x = this.position.x;
         this.renderedBody.position.y = this.position.y;
-        this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour })
+        this.renderedBody.material = new THREE.MeshStandardMaterial({ color: this.colour })
     }
 
     public chanceToSee(viewerPosition: Vector2, viewerSightRange: number): number {
