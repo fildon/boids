@@ -251,6 +251,7 @@ class Boid extends creature_1.Creature {
         this.move();
         this.renderedBody.position.x = this.position.x;
         this.renderedBody.position.y = this.position.y;
+        this.renderedBody.rotation.z = -this.velocity.angleTo(new vector2_1.Vector2(0, 1));
         this.renderedBody.material = new THREE.MeshBasicMaterial({ color: this.colour });
     }
     mouseAvoidVector() {
@@ -333,7 +334,7 @@ class Creature {
             this.history.push(this.position);
         }
         this.initializeVelocity();
-        this.renderedBody = new THREE.Mesh(new THREE.SphereBufferGeometry(5, 16, 8), new THREE.MeshBasicMaterial({ color: this.colour }));
+        this.renderedBody = new THREE.Mesh(new THREE.ConeGeometry(5, 16, 8), new THREE.MeshBasicMaterial({ color: this.colour }));
         this.renderedBody.position.z = 0;
         this.canvas.add(this.renderedBody);
     }

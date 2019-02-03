@@ -34,7 +34,7 @@ export abstract class Creature {
         this.initializeVelocity();
 
         this.renderedBody = new THREE.Mesh(
-            new THREE.SphereBufferGeometry(5, 16, 8),
+            new THREE.ConeGeometry(5, 16, 8),
             new THREE.MeshBasicMaterial({ color: this.colour })
         );
         this.renderedBody.position.z = 0;
