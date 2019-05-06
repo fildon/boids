@@ -90,7 +90,7 @@ exports.config = {
         fearDuration: 30,
         maxSpeed: 6,
         minSpeed: 3,
-        mouseAvoidRadius: 0,
+        mouseAvoidRadius: 100,
         quantity: 200,
         repulsionRadius: 20,
         repulsionRadiusDefault: 20,
