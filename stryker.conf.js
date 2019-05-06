@@ -1,8 +1,5 @@
 module.exports = function(config) {
   config.set({
-    files: [
-      "!src/app.ts"
-    ],
     testRunner: "mocha",
     mutator: "typescript",
     transpilers: ["typescript"],
@@ -14,8 +11,13 @@ module.exports = function(config) {
       "src/**/*.ts",
       "!src/app.ts",
       "!src/simulationManager.ts",
-      '!src/mouseHandler.ts',
+      '!src/inputHandler.ts',
       "!src/canvas.ts"
-    ]
+    ],
+    mochaOptions: {
+      files: [
+        "dist/**/*.spec.js",
+      ]
+    }
   });
 };
