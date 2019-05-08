@@ -564,30 +564,36 @@ class MouseHandler {
         if (config_1.config.boid.repulsionRadius) {
             config_1.config.boid.repulsionRadius = 0;
             this.separationLabel.textContent = "OFF";
+            this.separationLabel.style.color = "red";
         }
         else {
             config_1.config.boid.repulsionRadius = config_1.config.boid.repulsionRadiusDefault;
             this.separationLabel.textContent = "ON";
+            this.separationLabel.style.color = "green";
         }
     }
     toggleAlignment() {
         if (config_1.config.boid.alignmentRadius) {
             config_1.config.boid.alignmentRadius = 0;
             this.alignmentLabel.textContent = "OFF";
+            this.alignmentLabel.style.color = "red";
         }
         else {
             config_1.config.boid.alignmentRadius = config_1.config.boid.alignmentRadiusDefault;
             this.alignmentLabel.textContent = "ON";
+            this.alignmentLabel.style.color = "green";
         }
     }
     toggleCohesion() {
         if (config_1.config.boid.attractionRadius) {
             config_1.config.boid.attractionRadius = 0;
             this.cohesionLabel.textContent = "OFF";
+            this.cohesionLabel.style.color = "red";
         }
         else {
             config_1.config.boid.attractionRadius = config_1.config.boid.attractionRadiusDefault;
             this.cohesionLabel.textContent = "ON";
+            this.cohesionLabel.style.color = "green";
         }
     }
 }

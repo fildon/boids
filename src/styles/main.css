@@ -8,11 +8,9 @@ canvas {
     top: 0;
 }
 
-.info-box {
-    margin-left: 50px
-}
-
 .rule-status {
+    color: green;
+    font-weight: bold;
     margin: 0 10px;
     width: 50px;
     display: inline-block
