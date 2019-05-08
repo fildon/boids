@@ -1,16 +1,11 @@
 body {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
+    overflow: hidden;
     margin: 0;
 }
 
 canvas {
-    align-self: center;
     position: absolute;
-    top: 5%;
-    border: 1px solid black;
+    top: 0;
 }
 
 .info-box {
@@ -20,5 +15,5 @@ canvas {
 .rule-status {
     margin: 0 10px;
     width: 50px;
-    display:inline-block
+    display: inline-block
 }

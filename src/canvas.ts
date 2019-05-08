@@ -21,8 +21,8 @@ export class Canvas {
 
     public setScreenSize(): void {
         if (window) {
-            config.screen.maxX = window.innerWidth * 0.9;
-            config.screen.maxY = window.innerHeight * 0.9;
+            config.screen.maxX = window.innerWidth;
+            config.screen.maxY = window.innerHeight;
         }
         this.ctx.canvas.width = config.screen.maxX;
         this.ctx.canvas.height = config.screen.maxY;

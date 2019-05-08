@@ -26,8 +26,8 @@ class Canvas {
     }
     setScreenSize() {
         if (window) {
-            config_1.config.screen.maxX = window.innerWidth * 0.9;
-            config_1.config.screen.maxY = window.innerHeight * 0.9;
+            config_1.config.screen.maxX = window.innerWidth;
+            config_1.config.screen.maxY = window.innerHeight;
         }
         this.ctx.canvas.width = config_1.config.screen.maxX;
         this.ctx.canvas.height = config_1.config.screen.maxY;
