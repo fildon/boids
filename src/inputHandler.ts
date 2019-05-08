@@ -1,7 +1,7 @@
 import { Vector2 } from "./vector2";
 import { config } from "./config";
 
-export class MouseHandler {
+export class InputHandler {
     public mousePosition: Vector2 | null;
     private mouseArea: HTMLElement;
     private createBoid: (position: Vector2) => void;

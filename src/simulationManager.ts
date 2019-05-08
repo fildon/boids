@@ -2,7 +2,7 @@ import * as ko from "knockout";
 
 import { Canvas } from "./canvas";
 import { config } from "./config";
-import { MouseHandler } from "./inputHandler";
+import { InputHandler } from "./inputHandler";
 import { SimulationViewModel } from "./simulationViewModel";
 import { CreatureStorage } from "./creatureStorage";
 import { Vector2 } from "./vector2";
@@ -10,7 +10,7 @@ import { Vector2 } from "./vector2";
 export class SimulationManager {
     private creatureStorage = new CreatureStorage();
     private canvas: Canvas;
-    private mouseHandler: MouseHandler;
+    private mouseHandler: InputHandler;
     private simulationViewModel: SimulationViewModel;
     constructor() {
         const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
@@ -19,7 +19,7 @@ export class SimulationManager {
         }
         this.canvas = new Canvas(canvasElement);
         this.simulationViewModel = new SimulationViewModel(this);
-        this.mouseHandler = new MouseHandler(
+        this.mouseHandler = new InputHandler(
             canvasElement,
             (position: Vector2) => this.createBoid(position),
             (position: Vector2) => this.createHunter(position),
