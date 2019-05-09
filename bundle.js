@@ -88,15 +88,15 @@ exports.config = {
         attractionRadiusDefault: 200,
         defaultColour: "LightSteelBlue",
         fearDuration: 30,
-        maxSpeed: 6,
-        minSpeed: 3,
+        maxSpeed: 5.1,
+        minSpeed: 2,
         mouseAvoidRadius: 100,
         quantity: 200,
-        reproductionAge: 600,
+        reproductionAge: 700,
         repulsionRadius: 20,
         repulsionRadiusDefault: 20,
         size: 4,
-        visionRadius: 200,
+        visionRadius: 120,
     },
     creature: {
         acceleration: 0.2,
@@ -107,9 +107,12 @@ exports.config = {
     hunter: {
         defaultColour: "yellow",
         eatRadius: 20,
+        hungerLimit: 500,
         maxSpeed: 5,
         minSpeed: 4,
-        quantity: 1,
+        quantity: 2,
+        reproductionAge: 1000,
+        repulsionRadius: 20,
         size: 8,
         visionRadius: 90,
     },
@@ -277,7 +280,7 @@ class Boid extends creature_1.Creature {
             this.fearCountdown--;
         }
         this.move();
-        this.reproduce();
+        this.reproduceOrDie();
     }
     mouseAvoidVector() {
         if (this.mousePosition) {
@@ -338,8 +341,11 @@ class Boid extends creature_1.Creature {
     die() {
         this.creatureStorage.remove(this.id);
     }
-    reproduce() {
-        if (this.frameCount > config_1.config.boid.reproductionAge && Math.random() < 0.01) {
+    reproduceOrDie() {
+        if (this.frameCount > config_1.config.boid.reproductionAge * 3) {
+            return this.die();
+        }
+        if (this.frameCount > config_1.config.boid.reproductionAge && Math.random() < 0.001) {
             this.creatureStorage.addBoid(this.position);
             this.frameCount = 0;
         }
@@ -436,16 +442,20 @@ class Hunter extends creature_1.Creature {
         this.minSpeed = config_1.config.hunter.minSpeed;
         this.size = config_1.config.hunter.size;
         this.priorities = [
+            new behaviour_1.Behaviour(() => this.repulsionVector(), () => "blue"),
             new behaviour_1.Behaviour(() => this.huntingVector(), () => "DeepPink"),
         ];
+        this.hungerCounter = 0;
     }
     initializeVelocity() {
         const heading = Math.random() * 2 * Math.PI;
         this.velocity = new vector2_1.Vector2(config_1.config.hunter.minSpeed * Math.cos(heading), config_1.config.hunter.minSpeed * Math.sin(heading));
     }
     update() {
+        this.hungerCounter++;
         this.eat();
         this.move();
+        this.reproduceOrDie();
     }
     chanceToSee(viewerPosition, viewerSightRange) {
         const distance = viewerPosition.distance(this.position);
@@ -465,14 +475,33 @@ class Hunter extends creature_1.Creature {
             .vectorTo(nearestPrey.position.add(nearestPrey.velocity))
             .scaleToLength(config_1.config.hunter.maxSpeed);
     }
+    repulsionVector() {
+        const neighbours = this.creatureStorage.getHuntersInArea(this.position, config_1.config.hunter.repulsionRadius).filter((hunter) => hunter.id !== this.id);
+        if (neighbours.length === 0) {
+            return null;
+        }
+        return vector2_1.Vector2.average(neighbours.map((creature) => {
+            return creature.position.vectorTo(this.position);
+        })).scaleToLength(this.maxSpeed);
+    }
     eat() {
-        this.creatureStorage.getBoidsInArea(this.position, config_1.config.hunter.eatRadius).forEach((prey) => prey.die());
+        const prey = this.creatureStorage.getBoidsInArea(this.position, config_1.config.hunter.eatRadius);
+        prey.forEach((boid) => boid.die());
+        if (prey.length > 0) {
+            this.hungerCounter = 0;
+        }
     }
     die() {
         this.creatureStorage.remove(this.id);
     }
-    reproduce() {
-        // TODO rfm !
+    reproduceOrDie() {
+        if (this.hungerCounter > config_1.config.hunter.hungerLimit || this.frameCount > config_1.config.hunter.reproductionAge * 2) {
+            return this.die();
+        }
+        if (this.frameCount > config_1.config.hunter.reproductionAge && this.hungerCounter < 100 && Math.random() < 0.01) {
+            this.creatureStorage.addHunter(this.position);
+            this.frameCount = 0;
+        }
     }
 }
 exports.Hunter = Hunter;

@@ -99,6 +99,4 @@ export abstract class Creature {
     }
 
     public abstract die(): void;
-
-    public abstract reproduce(): void;
 }
