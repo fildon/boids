@@ -32,6 +32,7 @@ export class Boid extends Creature {
             this.fearCountdown--;
         }
         this.move();
+        this.reproduce();
     }
 
     public mouseAvoidVector(): Vector2 | null {
@@ -118,5 +119,12 @@ export class Boid extends Creature {
 
     public die(): void {
         this.creatureStorage.remove(this.id);
+    }
+
+    public reproduce(): void {
+        if (this.frameCount > config.boid.reproductionAge && Math.random() < 0.01) {
+            this.creatureStorage.addBoid(this.position);
+            this.frameCount = 0;
+        }
     }
 }

@@ -92,6 +92,7 @@ exports.config = {
         minSpeed: 3,
         mouseAvoidRadius: 100,
         quantity: 200,
+        reproductionAge: 600,
         repulsionRadius: 20,
         repulsionRadiusDefault: 20,
         size: 4,
@@ -276,6 +277,7 @@ class Boid extends creature_1.Creature {
             this.fearCountdown--;
         }
         this.move();
+        this.reproduce();
     }
     mouseAvoidVector() {
         if (this.mousePosition) {
@@ -336,6 +338,12 @@ class Boid extends creature_1.Creature {
     die() {
         this.creatureStorage.remove(this.id);
     }
+    reproduce() {
+        if (this.frameCount > config_1.config.boid.reproductionAge && Math.random() < 0.01) {
+            this.creatureStorage.addBoid(this.position);
+            this.frameCount = 0;
+        }
+    }
 }
 exports.Boid = Boid;
 
@@ -357,11 +365,13 @@ class Creature {
             this.history.push(this.position);
         }
         this.initializeVelocity();
+        this.frameCount = Math.floor(Math.random() * 100);
     }
     distanceToCreature(creature) {
         return this.position.distance(creature.position);
     }
     move() {
+        this.frameCount++;
         this.history.push(this.position);
         while (this.history.length > config_1.config.creature.maxHistory) {
             this.history = this.history.slice(1);
@@ -460,6 +470,9 @@ class Hunter extends creature_1.Creature {
     }
     die() {
         this.creatureStorage.remove(this.id);
+    }
+    reproduce() {
+        // TODO rfm !
     }
 }
 exports.Hunter = Hunter;

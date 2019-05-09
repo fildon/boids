@@ -10,6 +10,7 @@ export const config = {
         minSpeed: 3,
         mouseAvoidRadius: 100,
         quantity: 200,
+        reproductionAge: 600,
         repulsionRadius: 20,
         repulsionRadiusDefault: 20,
         size: 4,

@@ -62,4 +62,8 @@ export class Hunter extends Creature {
     public die(): void {
         this.creatureStorage.remove(this.id);
     }
+
+    public reproduce(): void {
+        // TODO rfm !
+    }
 }

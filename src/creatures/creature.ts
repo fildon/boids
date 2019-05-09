@@ -14,6 +14,7 @@ export abstract class Creature {
     public abstract maxSpeed: number;
     public abstract minSpeed: number;
     public abstract size: number;
+    public frameCount: number;
 
     constructor(
         public readonly id: number = 0,
@@ -28,6 +29,7 @@ export abstract class Creature {
             this.history.push(this.position);
         }
         this.initializeVelocity();
+        this.frameCount = Math.floor(Math.random() * 100);
     }
 
     public abstract initializeVelocity(): void;
@@ -39,6 +41,7 @@ export abstract class Creature {
     public abstract update(): void;
 
     public move() {
+        this.frameCount++;
         this.history.push(this.position);
         while (this.history.length > config.creature.maxHistory) {
             this.history = this.history.slice(1);
@@ -96,4 +99,6 @@ export abstract class Creature {
     }
 
     public abstract die(): void;
+
+    public abstract reproduce(): void;
 }
