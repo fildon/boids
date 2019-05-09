@@ -30,15 +30,6 @@ export class Hunter extends Creature {
         this.reproduceOrDie();
     }
 
-    public chanceToSee(viewerPosition: Vector2, viewerSightRange: number): number {
-        const distance = viewerPosition.distance(this.position);
-        const visibilityFromDistance = (viewerSightRange - distance) / viewerSightRange;
-        const visibilityFromSpeed =
-            (this.velocity.length - config.hunter.minSpeed)
-            / (config.hunter.maxSpeed - config.hunter.minSpeed);
-        return visibilityFromDistance * visibilityFromSpeed;
-    }
-
     public huntingVector(): Vector2 | null {
         const preyInSight = this.creatureStorage.getBoidsInArea(
             this.position,
@@ -53,7 +44,7 @@ export class Hunter extends Creature {
             .nearestCreatureToPosition(preyInSight, this.position);
         return this.position
             .vectorTo(nearestPrey.position.add(nearestPrey.velocity))
-            .scaleToLength(config.hunter.maxSpeed);
+            .scaleToLength(this.hungerModifiedSpeed());
     }
 
     public repulsionVector(): Vector2 | null {
@@ -68,7 +59,11 @@ export class Hunter extends Creature {
             neighbours.map((creature) => {
                 return creature.position.vectorTo(this.position);
             }),
-        ).scaleToLength(this.maxSpeed);
+        ).scaleToLength(this.hungerModifiedSpeed());
+    }
+
+    public hungerModifiedSpeed() {
+        return Math.max(config.hunter.minSpeed, this.maxSpeed * (this.hungerCounter / config.hunter.hungerLimit));
     }
 
     public eat() {

@@ -88,7 +88,7 @@ exports.config = {
         attractionRadiusDefault: 200,
         defaultColour: "LightSteelBlue",
         fearDuration: 30,
-        maxSpeed: 5.1,
+        maxSpeed: 5,
         minSpeed: 2,
         mouseAvoidRadius: 100,
         quantity: 200,
@@ -108,13 +108,13 @@ exports.config = {
         defaultColour: "yellow",
         eatRadius: 20,
         hungerLimit: 500,
-        maxSpeed: 5,
+        maxSpeed: 7,
         minSpeed: 4,
-        quantity: 2,
+        quantity: 4,
         reproductionAge: 1000,
-        repulsionRadius: 20,
+        repulsionRadius: 25,
         size: 8,
-        visionRadius: 90,
+        visionRadius: 110,
     },
     screen: {
         // maxX and maxY are overwritten at run time
@@ -292,9 +292,7 @@ class Boid extends creature_1.Creature {
         return null;
     }
     hunterEvasionVector() {
-        const huntersInSight = this.creatureStorage.getHuntersInArea(this.position, config_1.config.boid.visionRadius).filter((hunter) => {
-            return Math.random() < hunter.chanceToSee(this.position, config_1.config.boid.visionRadius);
-        });
+        const huntersInSight = this.creatureStorage.getHuntersInArea(this.position, config_1.config.boid.visionRadius);
         if (huntersInSight.length === 0) {
             return null;
         }
@@ -457,13 +455,6 @@ class Hunter extends creature_1.Creature {
         this.move();
         this.reproduceOrDie();
     }
-    chanceToSee(viewerPosition, viewerSightRange) {
-        const distance = viewerPosition.distance(this.position);
-        const visibilityFromDistance = (viewerSightRange - distance) / viewerSightRange;
-        const visibilityFromSpeed = (this.velocity.length - config_1.config.hunter.minSpeed)
-            / (config_1.config.hunter.maxSpeed - config_1.config.hunter.minSpeed);
-        return visibilityFromDistance * visibilityFromSpeed;
-    }
     huntingVector() {
         const preyInSight = this.creatureStorage.getBoidsInArea(this.position, config_1.config.hunter.visionRadius);
         if (preyInSight.length === 0) {
@@ -473,7 +464,7 @@ class Hunter extends creature_1.Creature {
             .nearestCreatureToPosition(preyInSight, this.position);
         return this.position
             .vectorTo(nearestPrey.position.add(nearestPrey.velocity))
-            .scaleToLength(config_1.config.hunter.maxSpeed);
+            .scaleToLength(this.hungerModifiedSpeed());
     }
     repulsionVector() {
         const neighbours = this.creatureStorage.getHuntersInArea(this.position, config_1.config.hunter.repulsionRadius).filter((hunter) => hunter.id !== this.id);
@@ -482,7 +473,10 @@ class Hunter extends creature_1.Creature {
         }
         return vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.position.vectorTo(this.position);
-        })).scaleToLength(this.maxSpeed);
+        })).scaleToLength(this.hungerModifiedSpeed());
+    }
+    hungerModifiedSpeed() {
+        return Math.max(config_1.config.hunter.minSpeed, this.maxSpeed * (this.hungerCounter / config_1.config.hunter.hungerLimit));
     }
     eat() {
         const prey = this.creatureStorage.getBoidsInArea(this.position, config_1.config.hunter.eatRadius);

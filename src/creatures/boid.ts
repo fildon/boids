@@ -49,9 +49,7 @@ export class Boid extends Creature {
         const huntersInSight = this.creatureStorage.getHuntersInArea(
             this.position,
             config.boid.visionRadius,
-        ).filter((hunter) => {
-            return Math.random() < hunter.chanceToSee(this.position, config.boid.visionRadius);
-        });
+        );
         if (huntersInSight.length === 0) {
             return null;
         }
