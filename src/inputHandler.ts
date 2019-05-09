@@ -15,7 +15,7 @@ export class InputHandler {
         createBoid: (position: Vector2) => void,
         createHunter: (position: Vector2) => void,
     ) {
-        this.mousePosition = new Vector2(-1, -1);
+        this.mousePosition = null;
         this.mouseArea = mouseArea;
         this.createBoid = createBoid;
         this.createHunter = createHunter;

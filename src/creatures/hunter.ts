@@ -5,13 +5,17 @@ import { Creature } from "./creature";
 import { StaticTools } from "./staticTools";
 
 export class Hunter extends Creature {
+    public colourSet = [
+        "black",
+        "orange",
+    ];
     public defaultColour = config.hunter.defaultColour;
     public maxSpeed = config.hunter.maxSpeed;
     public minSpeed = config.hunter.minSpeed;
     public size = config.hunter.size;
     public priorities = [
-        new Behaviour(() => this.repulsionVector(), () => "blue"),
-        new Behaviour(() => this.huntingVector(), () => "DeepPink"),
+        new Behaviour(() => this.repulsionVector(), () => "orange"),
+        new Behaviour(() => this.huntingVector(), () => "black"),
     ];
     private hungerCounter = 0;
 

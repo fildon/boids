@@ -65,7 +65,7 @@ export class SimulationManager {
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
-            }, 1000 / 60);
+            });
         }) (this);
     }
 }

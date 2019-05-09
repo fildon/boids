@@ -29,8 +29,8 @@ export class Canvas {
     }
 
     public draw(creatures: Creature[]): void {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.setScreenSize();
+        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // this.setScreenSize();
         this.drawGhosts(creatures);
         creatures.forEach((creature) => {
             this.drawCreature(creature);

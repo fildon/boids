@@ -33,8 +33,8 @@ class Canvas {
         this.ctx.canvas.height = config_1.config.screen.maxY;
     }
     draw(creatures) {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.setScreenSize();
+        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // this.setScreenSize();
         this.drawGhosts(creatures);
         creatures.forEach((creature) => {
             this.drawCreature(creature);
@@ -101,11 +101,11 @@ exports.config = {
     creature: {
         acceleration: 0.2,
         headingFuzz: 0.05,
-        maxHistory: 5,
+        maxHistory: 0,
         turningMax: 0.2,
     },
     hunter: {
-        defaultColour: "yellow",
+        defaultColour: "#083758",
         eatRadius: 20,
         hungerLimit: 500,
         maxSpeed: 7,
@@ -257,6 +257,10 @@ const staticTools_1 = require("./staticTools");
 class Boid extends creature_1.Creature {
     constructor() {
         super(...arguments);
+        this.colourSet = [
+            "maroon",
+            "white",
+        ];
         this.mousePosition = null;
         this.defaultColour = config_1.config.boid.defaultColour;
         this.maxSpeed = config_1.config.boid.maxSpeed;
@@ -265,10 +269,10 @@ class Boid extends creature_1.Creature {
         this.fearCountdown = 0;
         this.priorities = [
             new behaviour_1.Behaviour(() => this.mouseAvoidVector(), () => "red"),
-            new behaviour_1.Behaviour(() => this.hunterEvasionVector(), () => "red"),
-            new behaviour_1.Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "red" : "orange"),
-            new behaviour_1.Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "red" : "blue"),
-            new behaviour_1.Behaviour(() => this.attractionVector(), () => this.fearCountdown ? "red" : "green"),
+            new behaviour_1.Behaviour(() => this.hunterEvasionVector(), () => "#e2c997"),
+            new behaviour_1.Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "#e2c997" : "#26576e"),
+            new behaviour_1.Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "#e2c997" : "#73a4a4"),
+            new behaviour_1.Behaviour(() => this.attractionVector(), () => this.fearCountdown ? "#e2c997" : "#c3dac3"),
         ];
     }
     initializeVelocity() {
@@ -387,10 +391,17 @@ class Creature {
         const priority = this.getCurrentPriorityOrNull();
         if (priority) {
             this.updateHeadingTowards(priority.idealHeading);
-            this.colour = priority.color;
+            this.colour = this.randomColor();
             return;
         }
         this.defaultBehaviour();
+    }
+    randomColor() {
+        // const r = Math.floor(Math.random() * 255);
+        // const g = Math.floor(Math.random() * 255);
+        // const b = Math.floor(Math.random() * 255);
+        // return `rgba(${r}, ${g}, ${b}, 1)`;
+        return this.colourSet[Math.floor(Math.random() * this.colourSet.length)];
     }
     getCurrentPriorityOrNull() {
         for (const priority of this.priorities) {
@@ -402,7 +413,7 @@ class Creature {
         return null;
     }
     defaultBehaviour() {
-        this.colour = this.defaultColour;
+        this.colour = this.randomColor();
         this.velocity = this.velocity.scaleToLength(Math.max(this.velocity.length - config_1.config.creature.acceleration, this.minSpeed));
         const randomTurn = 2 * config_1.config.creature.turningMax * Math.random() - config_1.config.creature.turningMax;
         this.velocity = this.velocity.rotate(randomTurn);
@@ -435,13 +446,17 @@ const staticTools_1 = require("./staticTools");
 class Hunter extends creature_1.Creature {
     constructor() {
         super(...arguments);
+        this.colourSet = [
+            "black",
+            "orange",
+        ];
         this.defaultColour = config_1.config.hunter.defaultColour;
         this.maxSpeed = config_1.config.hunter.maxSpeed;
         this.minSpeed = config_1.config.hunter.minSpeed;
         this.size = config_1.config.hunter.size;
         this.priorities = [
-            new behaviour_1.Behaviour(() => this.repulsionVector(), () => "blue"),
-            new behaviour_1.Behaviour(() => this.huntingVector(), () => "DeepPink"),
+            new behaviour_1.Behaviour(() => this.repulsionVector(), () => "orange"),
+            new behaviour_1.Behaviour(() => this.huntingVector(), () => "black"),
         ];
         this.hungerCounter = 0;
     }
@@ -543,7 +558,7 @@ const vector2_1 = require("./vector2");
 const config_1 = require("./config");
 class InputHandler {
     constructor(mouseArea, createBoid, createHunter) {
-        this.mousePosition = new vector2_1.Vector2(-1, -1);
+        this.mousePosition = null;
         this.mouseArea = mouseArea;
         this.createBoid = createBoid;
         this.createHunter = createHunter;
@@ -686,7 +701,7 @@ class SimulationManager {
         ((thisCaptured) => {
             setTimeout(() => {
                 thisCaptured.tick();
-            }, 1000 / 60);
+            });
         })(this);
     }
 }

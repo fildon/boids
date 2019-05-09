@@ -19,11 +19,11 @@ export const config = {
     creature: {
         acceleration: 0.2,
         headingFuzz: 0.05,
-        maxHistory: 5,
+        maxHistory: 0,
         turningMax: 0.2, // radians
     },
     hunter: {
-        defaultColour: "yellow",
+        defaultColour: "#083758",
         eatRadius: 20,
         hungerLimit: 500,
         maxSpeed: 7,

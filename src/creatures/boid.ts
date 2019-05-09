@@ -5,6 +5,10 @@ import { Creature } from "./creature";
 import { StaticTools } from "./staticTools";
 
 export class Boid extends Creature {
+    public colourSet = [
+        "maroon",
+        "white",
+    ];
     public mousePosition: Vector2 | null = null;
     public defaultColour = config.boid.defaultColour;
     public maxSpeed = config.boid.maxSpeed;
@@ -13,10 +17,10 @@ export class Boid extends Creature {
     public fearCountdown = 0;
     public priorities = [
         new Behaviour(() => this.mouseAvoidVector(), () => "red"),
-        new Behaviour(() => this.hunterEvasionVector(), () => "red"),
-        new Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "red" : "orange"),
-        new Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "red" : "blue"),
-        new Behaviour(() => this.attractionVector(), () => this.fearCountdown ? "red" : "green"),
+        new Behaviour(() => this.hunterEvasionVector(), () => "#e2c997"),
+        new Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "#e2c997" : "#26576e"),
+        new Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "#e2c997" : "#73a4a4"),
+        new Behaviour(() => this.attractionVector(), () => this.fearCountdown ? "#e2c997" : "#c3dac3"),
     ];
 
     public initializeVelocity(): void {

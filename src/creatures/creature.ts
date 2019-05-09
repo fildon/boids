@@ -15,6 +15,7 @@ export abstract class Creature {
     public abstract minSpeed: number;
     public abstract size: number;
     public frameCount: number;
+    public abstract colourSet: string[];
 
     constructor(
         public readonly id: number = 0,
@@ -54,11 +55,20 @@ export abstract class Creature {
         const priority = this.getCurrentPriorityOrNull();
         if (priority) {
             this.updateHeadingTowards(priority.idealHeading);
-            this.colour = priority.color;
+            this.colour = this.randomColor();
             return;
         }
 
         this.defaultBehaviour();
+    }
+
+    public randomColor(): string {
+        // const r = Math.floor(Math.random() * 255);
+        // const g = Math.floor(Math.random() * 255);
+        // const b = Math.floor(Math.random() * 255);
+        // return `rgba(${r}, ${g}, ${b}, 1)`;
+
+        return this.colourSet[Math.floor(Math.random() * this.colourSet.length)];
     }
 
     public getCurrentPriorityOrNull(): Priority | null {
@@ -72,7 +82,7 @@ export abstract class Creature {
     }
 
     public defaultBehaviour(): void {
-        this.colour = this.defaultColour;
+        this.colour = this.randomColor();
         this.velocity = this.velocity.scaleToLength(
             Math.max(this.velocity.length - config.creature.acceleration, this.minSpeed));
         const randomTurn = 2 * config.creature.turningMax * Math.random() - config.creature.turningMax;
