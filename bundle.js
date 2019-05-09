@@ -26,8 +26,8 @@ class Canvas {
     }
     setScreenSize() {
         if (window) {
-            config_1.config.screen.maxX = window.innerWidth * 0.9;
-            config_1.config.screen.maxY = window.innerHeight * 0.9;
+            config_1.config.screen.maxX = window.innerWidth;
+            config_1.config.screen.maxY = window.innerHeight;
         }
         this.ctx.canvas.width = config_1.config.screen.maxX;
         this.ctx.canvas.height = config_1.config.screen.maxY;
@@ -505,7 +505,7 @@ exports.StaticTools = StaticTools;
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
 const config_1 = require("./config");
-class MouseHandler {
+class InputHandler {
     constructor(mouseArea, createBoid, createHunter) {
         this.mousePosition = new vector2_1.Vector2(-1, -1);
         this.mouseArea = mouseArea;
@@ -564,34 +564,40 @@ class MouseHandler {
         if (config_1.config.boid.repulsionRadius) {
             config_1.config.boid.repulsionRadius = 0;
             this.separationLabel.textContent = "OFF";
+            this.separationLabel.style.color = "red";
         }
         else {
             config_1.config.boid.repulsionRadius = config_1.config.boid.repulsionRadiusDefault;
             this.separationLabel.textContent = "ON";
+            this.separationLabel.style.color = "green";
         }
     }
     toggleAlignment() {
         if (config_1.config.boid.alignmentRadius) {
             config_1.config.boid.alignmentRadius = 0;
             this.alignmentLabel.textContent = "OFF";
+            this.alignmentLabel.style.color = "red";
         }
         else {
             config_1.config.boid.alignmentRadius = config_1.config.boid.alignmentRadiusDefault;
             this.alignmentLabel.textContent = "ON";
+            this.alignmentLabel.style.color = "green";
         }
     }
     toggleCohesion() {
         if (config_1.config.boid.attractionRadius) {
             config_1.config.boid.attractionRadius = 0;
             this.cohesionLabel.textContent = "OFF";
+            this.cohesionLabel.style.color = "red";
         }
         else {
             config_1.config.boid.attractionRadius = config_1.config.boid.attractionRadiusDefault;
             this.cohesionLabel.textContent = "ON";
+            this.cohesionLabel.style.color = "green";
         }
     }
 }
-exports.MouseHandler = MouseHandler;
+exports.InputHandler = InputHandler;
 
 },{"./config":3,"./vector2":14}],12:[function(require,module,exports){
 "use strict";
@@ -611,7 +617,7 @@ class SimulationManager {
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
-        this.mouseHandler = new inputHandler_1.MouseHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
+        this.mouseHandler = new inputHandler_1.InputHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
         ko.applyBindings(this.simulationViewModel);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
             this.creatureStorage.addBoid();
