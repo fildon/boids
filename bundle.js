@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new simulationManager_1.SimulationManager().runSimulation();
 }, false);
 
-},{"./simulationManager":12}],2:[function(require,module,exports){
+},{"./simulationManager":14}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
@@ -68,9 +68,8 @@ class Canvas {
         this.ctx.fill();
     }
     drawCreatureBeak(creature) {
-        const heading = creature.velocity.unitVector();
         this.ctx.beginPath();
-        this.ctx.arc(creature.position.x + (creature.size + 1) * heading.x, creature.position.y + (creature.size + 1) * heading.y, creature.size / 2, 0, 2 * Math.PI);
+        this.ctx.arc(creature.position.x + (creature.size + 1) * Math.cos(creature.heading), creature.position.y + (creature.size + 1) * Math.sin(creature.heading), creature.size / 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
     }
@@ -126,8 +125,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const hunter_1 = require("./creatures/hunter");
 const boid_1 = require("./creatures/boid");
 const config_1 = require("./config");
+const playerFish_1 = require("./creatures/playerFish");
 class CreatureStorage {
-    constructor() {
+    constructor(inputHandler) {
+        this.inputHandler = inputHandler;
         this.nextId = 0;
         this.creatures = new Map();
         this.bucketMap = [];
@@ -156,6 +157,12 @@ class CreatureStorage {
         this.nextId++;
         return newBoid;
     }
+    addPlayerFish() {
+        const newPlayer = new playerFish_1.default(this.inputHandler);
+        this.creatures.set(this.nextId, newPlayer);
+        this.nextId++;
+        return newPlayer;
+    }
     getAllHunters() {
         return [...this.creatures.values()].filter((creature) => {
             return creature instanceof hunter_1.Hunter;
@@ -181,6 +188,13 @@ class CreatureStorage {
             .filter((creature) => {
             return creature instanceof boid_1.Boid &&
                 creature.position.distance(center) < radius;
+        });
+    }
+    getBoidsOrPlayersInArea(center, radius) {
+        return this.getCreaturesInArea(center, radius)
+            .filter((creature) => {
+            return ((creature instanceof boid_1.Boid || creature instanceof playerFish_1.default) &&
+                creature.position.distance(center) < radius);
         });
     }
     getCreaturesInArea(center, radius) {
@@ -223,7 +237,7 @@ class CreatureStorage {
 }
 exports.CreatureStorage = CreatureStorage;
 
-},{"./config":3,"./creatures/boid":6,"./creatures/hunter":8}],5:[function(require,module,exports){
+},{"./config":3,"./creatures/boid":7,"./creatures/hunter":9,"./creatures/playerFish":10}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const priority_1 = require("./priority");
@@ -242,15 +256,83 @@ class Behaviour {
 }
 exports.Behaviour = Behaviour;
 
-},{"./priority":9}],6:[function(require,module,exports){
+},{"./priority":11}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("../config");
+const vector2_1 = require("../vector2");
+const creature_1 = require("./creature");
+class BehaviourControlledCreature extends creature_1.Creature {
+    constructor(id = 0, creatureStorage, position) {
+        super();
+        this.id = id;
+        this.creatureStorage = creatureStorage;
+        this.colour = "black";
+        this.history = [];
+        this.position = position || new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
+        for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
+            this.history.push(this.position);
+        }
+        this.initializeVelocity();
+    }
+    distanceToCreature(creature) {
+        return this.position.distance(creature.position);
+    }
+    move() {
+        this.updateHistory();
+        this.position = this.position.add(this.velocity()).normalize();
+        this.updateHeading();
+    }
+    updateHeading() {
+        const priority = this.getCurrentPriorityOrNull();
+        if (priority) {
+            this.updateHeadingTowards(priority.idealHeading);
+            this.colour = priority.color;
+            return;
+        }
+        this.defaultBehaviour();
+    }
+    getCurrentPriorityOrNull() {
+        for (const priority of this.priorities) {
+            const priorityNow = priority.getCurrentPriority();
+            if (priorityNow) {
+                return priorityNow;
+            }
+        }
+        return null;
+    }
+    defaultBehaviour() {
+        this.colour = this.defaultColour;
+        this.speed = Math.max(this.velocity.length - config_1.config.creature.acceleration, this.minSpeed);
+        const randomTurn = 2 * config_1.config.creature.turningMax * Math.random() - config_1.config.creature.turningMax;
+        this.heading = this.heading + randomTurn;
+    }
+    updateHeadingTowards(vector) {
+        if (!vector) {
+            return;
+        }
+        let limitedSpeed = Math.max(Math.min(vector.length, this.maxSpeed), this.minSpeed);
+        limitedSpeed = Math.max(Math.min(limitedSpeed, this.speed + config_1.config.creature.acceleration), this.speed - config_1.config.creature.acceleration);
+        this.speed = limitedSpeed;
+        const idealTurn = this.velocity().angleTo(vector);
+        const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.creature.turningMax), -config_1.config.creature.turningMax);
+        this.heading = this.heading
+            + limitedTurn
+            + 2 * config_1.config.creature.headingFuzz * Math.random() - config_1.config.creature.headingFuzz;
+        return;
+    }
+}
+exports.BehaviourControlledCreature = BehaviourControlledCreature;
+
+},{"../config":3,"../vector2":16,"./creature":8}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const vector2_1 = require("../vector2");
 const behaviour_1 = require("./behaviour");
-const creature_1 = require("./creature");
 const staticTools_1 = require("./staticTools");
-class Boid extends creature_1.Creature {
+const behaviourControlledCreature_1 = require("./behaviourControlledCreature");
+class Boid extends behaviourControlledCreature_1.BehaviourControlledCreature {
     constructor() {
         super(...arguments);
         this.mousePosition = null;
@@ -259,6 +341,8 @@ class Boid extends creature_1.Creature {
         this.minSpeed = config_1.config.boid.minSpeed;
         this.size = config_1.config.boid.size;
         this.fearCountdown = 0;
+        this.heading = 2 * Math.PI * Math.random();
+        this.speed = config_1.config.boid.maxSpeed;
         this.priorities = [
             new behaviour_1.Behaviour(() => this.mouseAvoidVector(), () => "red"),
             new behaviour_1.Behaviour(() => this.hunterEvasionVector(), () => "red"),
@@ -268,8 +352,8 @@ class Boid extends creature_1.Creature {
         ];
     }
     initializeVelocity() {
-        const heading = Math.random() * 2 * Math.PI;
-        this.velocity = new vector2_1.Vector2(config_1.config.boid.maxSpeed * Math.cos(heading), config_1.config.boid.maxSpeed * Math.sin(heading));
+        this.heading = Math.random() * 2 * Math.PI;
+        this.speed = config_1.config.boid.maxSpeed;
     }
     update() {
         if (this.fearCountdown) {
@@ -301,21 +385,23 @@ class Boid extends creature_1.Creature {
             .scaleToLength(this.maxSpeed);
     }
     repulsionVector() {
-        const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.repulsionRadius).filter((boid) => boid.id !== this.id);
+        const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(this.position, config_1.config.boid.repulsionRadius).filter((boid) => boid !== this);
         if (neighbours.length === 0) {
             return null;
         }
         return vector2_1.Vector2.average(neighbours.map((creature) => {
             return creature.position.vectorTo(this.position);
-        })).scaleToLength(this.fearCountdown ? this.maxSpeed : this.velocity.length * 0.9);
+        })).scaleToLength(this.fearCountdown
+            ? this.maxSpeed
+            : this.speed * 0.9);
     }
     alignmentVector() {
-        const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.alignmentRadius).filter((boid) => boid.id !== this.id);
+        const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(this.position, config_1.config.boid.alignmentRadius).filter((boid) => boid !== this);
         if (neighbours.length === 0) {
             return null;
         }
         const averageAlignmentVector = vector2_1.Vector2.average(neighbours.map((creature) => {
-            return creature.velocity;
+            return creature.velocity();
         }));
         if (this.fearCountdown) {
             return averageAlignmentVector.scaleToLength(this.maxSpeed);
@@ -323,7 +409,7 @@ class Boid extends creature_1.Creature {
         return averageAlignmentVector;
     }
     attractionVector() {
-        const neighbours = this.creatureStorage.getBoidsInArea(this.position, config_1.config.boid.attractionRadius).filter((boid) => boid.id !== this.id);
+        const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(this.position, config_1.config.boid.attractionRadius).filter((boid) => boid !== this);
         if (neighbours.length === 0) {
             return null;
         }
@@ -331,7 +417,9 @@ class Boid extends creature_1.Creature {
             .nearestCreatureToPosition(neighbours, this.position);
         return this.position
             .vectorTo(nearestNeighbour.position)
-            .scaleToLength(this.fearCountdown ? this.maxSpeed : nearestNeighbour.velocity.length * 1.1);
+            .scaleToLength(this.fearCountdown
+            ? this.maxSpeed
+            : nearestNeighbour.speed * 1.1);
     }
     die() {
         this.creatureStorage.remove(this.id);
@@ -339,99 +427,47 @@ class Boid extends creature_1.Creature {
 }
 exports.Boid = Boid;
 
-},{"../config":3,"../vector2":14,"./behaviour":5,"./creature":7,"./staticTools":10}],7:[function(require,module,exports){
+},{"../config":3,"../vector2":16,"./behaviour":5,"./behaviourControlledCreature":6,"./staticTools":12}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("../config");
 const vector2_1 = require("../vector2");
-const creatureStorage_1 = require("../creatureStorage");
 class Creature {
-    constructor(id = 0, creatureStorage = new creatureStorage_1.CreatureStorage(), position) {
-        this.id = id;
-        this.creatureStorage = creatureStorage;
-        this.velocity = new vector2_1.Vector2();
-        this.history = [];
-        this.colour = "black";
-        this.position = position || new vector2_1.Vector2(Math.random() * config_1.config.screen.maxX, Math.random() * config_1.config.screen.maxY);
-        for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
-            this.history.push(this.position);
-        }
-        this.initializeVelocity();
-    }
     distanceToCreature(creature) {
         return this.position.distance(creature.position);
     }
-    move() {
+    updateHistory() {
         this.history.push(this.position);
-        while (this.history.length > config_1.config.creature.maxHistory) {
-            this.history = this.history.slice(1);
-        }
-        this.position = this.position.add(this.velocity).normalize();
-        this.updateHeading();
+        this.history = this.history.slice(1);
     }
-    updateHeading() {
-        const priority = this.getCurrentPriorityOrNull();
-        if (priority) {
-            this.updateHeadingTowards(priority.idealHeading);
-            this.colour = priority.color;
-            return;
-        }
-        this.defaultBehaviour();
-    }
-    getCurrentPriorityOrNull() {
-        for (const priority of this.priorities) {
-            const priorityNow = priority.getCurrentPriority();
-            if (priorityNow) {
-                return priorityNow;
-            }
-        }
-        return null;
-    }
-    defaultBehaviour() {
-        this.colour = this.defaultColour;
-        this.velocity = this.velocity.scaleToLength(Math.max(this.velocity.length - config_1.config.creature.acceleration, this.minSpeed));
-        const randomTurn = 2 * config_1.config.creature.turningMax * Math.random() - config_1.config.creature.turningMax;
-        this.velocity = this.velocity.rotate(randomTurn);
-    }
-    updateHeadingTowards(vector) {
-        if (!vector) {
-            return;
-        }
-        const idealTurn = this.velocity.angleTo(vector);
-        const limitedTurn = Math.max(Math.min(idealTurn, config_1.config.creature.turningMax), -config_1.config.creature.turningMax);
-        let limitedSpeed = Math.max(Math.min(vector.length, this.maxSpeed), this.minSpeed);
-        limitedSpeed = Math.max(Math.min(limitedSpeed, this.velocity.length + config_1.config.creature.acceleration), this.velocity.length - config_1.config.creature.acceleration);
-        this.velocity = this.velocity
-            .rotate(limitedTurn)
-            .rotate(2 * config_1.config.creature.headingFuzz * Math.random() - config_1.config.creature.headingFuzz)
-            .scaleToLength(limitedSpeed);
-        return;
+    velocity() {
+        return vector2_1.Vector2.fromHeadingAndSpeed(this.heading, this.speed);
     }
 }
 exports.Creature = Creature;
 
-},{"../config":3,"../creatureStorage":4,"../vector2":14}],8:[function(require,module,exports){
+},{"../vector2":16}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
-const vector2_1 = require("../vector2");
 const behaviour_1 = require("./behaviour");
-const creature_1 = require("./creature");
 const staticTools_1 = require("./staticTools");
-class Hunter extends creature_1.Creature {
+const behaviourControlledCreature_1 = require("./behaviourControlledCreature");
+class Hunter extends behaviourControlledCreature_1.BehaviourControlledCreature {
     constructor() {
         super(...arguments);
         this.defaultColour = config_1.config.hunter.defaultColour;
         this.maxSpeed = config_1.config.hunter.maxSpeed;
         this.minSpeed = config_1.config.hunter.minSpeed;
         this.size = config_1.config.hunter.size;
+        this.heading = 0;
+        this.speed = 0;
         this.priorities = [
             new behaviour_1.Behaviour(() => this.huntingVector(), () => "DeepPink"),
         ];
     }
     initializeVelocity() {
-        const heading = Math.random() * 2 * Math.PI;
-        this.velocity = new vector2_1.Vector2(config_1.config.hunter.minSpeed * Math.cos(heading), config_1.config.hunter.minSpeed * Math.sin(heading));
+        this.heading = Math.random() * 2 * Math.PI;
+        this.speed = config_1.config.hunter.minSpeed;
     }
     update() {
         this.eat();
@@ -440,7 +476,7 @@ class Hunter extends creature_1.Creature {
     chanceToSee(viewerPosition, viewerSightRange) {
         const distance = viewerPosition.distance(this.position);
         const visibilityFromDistance = (viewerSightRange - distance) / viewerSightRange;
-        const visibilityFromSpeed = (this.velocity.length - config_1.config.hunter.minSpeed)
+        const visibilityFromSpeed = (this.speed - config_1.config.hunter.minSpeed)
             / (config_1.config.hunter.maxSpeed - config_1.config.hunter.minSpeed);
         return visibilityFromDistance * visibilityFromSpeed;
     }
@@ -452,7 +488,7 @@ class Hunter extends creature_1.Creature {
         const nearestPrey = staticTools_1.StaticTools
             .nearestCreatureToPosition(preyInSight, this.position);
         return this.position
-            .vectorTo(nearestPrey.position.add(nearestPrey.velocity))
+            .vectorTo(nearestPrey.position.add(nearestPrey.velocity()))
             .scaleToLength(config_1.config.hunter.maxSpeed);
     }
     eat() {
@@ -464,7 +500,38 @@ class Hunter extends creature_1.Creature {
 }
 exports.Hunter = Hunter;
 
-},{"../config":3,"../vector2":14,"./behaviour":5,"./creature":7,"./staticTools":10}],9:[function(require,module,exports){
+},{"../config":3,"./behaviour":5,"./behaviourControlledCreature":6,"./staticTools":12}],10:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const vector2_1 = require("../vector2");
+const creature_1 = require("./creature");
+const config_1 = require("../config");
+class PlayerFish extends creature_1.Creature {
+    constructor(inputHandler) {
+        super();
+        this.inputHandler = inputHandler;
+        this.colour = "black";
+        this.size = 6;
+        this.heading = 0;
+        this.speed = 0;
+        this.history = [];
+        this.position = new vector2_1.Vector2(window.innerWidth / 2, window.innerHeight / 2);
+        for (let i = 0; i < config_1.config.creature.maxHistory; i++) {
+            this.history.push(this.position);
+        }
+    }
+    update() {
+        this.updateHistory();
+        const direction = this.inputHandler.getDirectionInput();
+        this.heading += Math.max(-0.1, Math.min(0.1, direction));
+        this.speed += Math.max(0, 0.5 - 0.5 * Math.abs(1 - Math.abs(direction / 10)));
+        this.speed *= 0.98;
+        this.position = this.position.add(this.velocity()).normalize();
+    }
+}
+exports.default = PlayerFish;
+
+},{"../config":3,"../vector2":16,"./creature":8}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Priority {
@@ -475,7 +542,7 @@ class Priority {
 }
 exports.Priority = Priority;
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class StaticTools {
@@ -500,13 +567,17 @@ class StaticTools {
 }
 exports.StaticTools = StaticTools;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
 const config_1 = require("./config");
 class InputHandler {
     constructor(mouseArea, createBoid, createHunter) {
+        this.left = false;
+        this.right = false;
+        this.leftCount = 0;
+        this.rightCount = 0;
         this.mousePosition = new vector2_1.Vector2(-1, -1);
         this.mouseArea = mouseArea;
         this.createBoid = createBoid;
@@ -523,6 +594,12 @@ class InputHandler {
         };
         window.addEventListener("keyup", (event) => {
             this.handleKeyUp(event);
+        });
+        window.addEventListener("keyup", (event) => {
+            this.setArrow(event.key, false);
+        });
+        window.addEventListener("keydown", (event) => {
+            this.setArrow(event.key, true);
         });
     }
     setMousePosition(event) {
@@ -596,10 +673,37 @@ class InputHandler {
             this.cohesionLabel.style.color = "green";
         }
     }
+    getDirectionInput() {
+        if (this.left && !this.right) {
+            this.rightCount = 0;
+            this.leftCount++;
+        }
+        else if (this.right && !this.left) {
+            this.leftCount = 0;
+            this.rightCount++;
+        }
+        else {
+            this.leftCount = 0;
+            this.rightCount = 0;
+        }
+        return this.rightCount - this.leftCount;
+    }
+    setArrow(key, newState) {
+        switch (key) {
+            case "ArrowLeft":
+                this.left = newState;
+                break;
+            case "ArrowRight":
+                this.right = newState;
+                break;
+            default:
+                return;
+        }
+    }
 }
 exports.InputHandler = InputHandler;
 
-},{"./config":3,"./vector2":14}],12:[function(require,module,exports){
+},{"./config":3,"./vector2":16}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
@@ -610,21 +714,22 @@ const simulationViewModel_1 = require("./simulationViewModel");
 const creatureStorage_1 = require("./creatureStorage");
 class SimulationManager {
     constructor() {
-        this.creatureStorage = new creatureStorage_1.CreatureStorage();
         const canvasElement = document.getElementById("canvas");
         if (!canvasElement) {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
-        this.mouseHandler = new inputHandler_1.InputHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
+        this.inputHandler = new inputHandler_1.InputHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
         ko.applyBindings(this.simulationViewModel);
+        this.creatureStorage = new creatureStorage_1.CreatureStorage(this.inputHandler);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
             this.creatureStorage.addBoid();
         }
         for (let i = 0; i < config_1.config.hunter.quantity; i++) {
             this.creatureStorage.addHunter();
         }
+        this.playerFish = this.creatureStorage.addPlayerFish();
     }
     createBoid(position) {
         this.creatureStorage.addBoid(position);
@@ -638,12 +743,13 @@ class SimulationManager {
     tick() {
         this.creatureStorage.update();
         for (const boid of this.creatureStorage.getAllBoids()) {
-            boid.mousePosition = this.mouseHandler.mousePosition;
+            boid.mousePosition = this.inputHandler.mousePosition;
             boid.update();
         }
         for (const hunter of this.creatureStorage.getAllHunters()) {
             hunter.update();
         }
+        this.playerFish.update();
         this.canvas.draw(this.creatureStorage.getAllCreatures());
         this.simulationViewModel.updateHunterCount(this.creatureStorage.getHunterCount());
         this.simulationViewModel.updateBoidCount(this.creatureStorage.getBoidCount());
@@ -656,7 +762,7 @@ class SimulationManager {
 }
 exports.SimulationManager = SimulationManager;
 
-},{"./canvas":2,"./config":3,"./creatureStorage":4,"./inputHandler":11,"./simulationViewModel":13,"knockout":15}],13:[function(require,module,exports){
+},{"./canvas":2,"./config":3,"./creatureStorage":4,"./inputHandler":13,"./simulationViewModel":15,"knockout":17}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
@@ -690,7 +796,7 @@ class SimulationViewModel {
 }
 exports.SimulationViewModel = SimulationViewModel;
 
-},{"./config":3,"knockout":15}],14:[function(require,module,exports){
+},{"./config":3,"knockout":17}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
@@ -703,6 +809,12 @@ class Vector2 {
             return partialSum.add(current);
         });
         return totalVector.scaleByScalar(1 / vectors.length);
+    }
+    static fromHeadingAndSpeed(heading, speed) {
+        if (!speed) {
+            return new Vector2(0, 0);
+        }
+        return new Vector2(speed * Math.cos(heading), speed * Math.sin(heading));
     }
     constructor(x = 0, y = 0) {
         this.x = x % config_1.config.screen.maxX;
@@ -763,10 +875,16 @@ class Vector2 {
         }
         return new Vector2(((this.x % config_1.config.screen.maxX) + config_1.config.screen.maxX) % config_1.config.screen.maxX, ((this.y % config_1.config.screen.maxY) + config_1.config.screen.maxY) % config_1.config.screen.maxY);
     }
+    toHeading() {
+        return Math.atan2(this.y, this.x);
+    }
+    toString() {
+        return `[${this.x}, ${this.y}]`;
+    }
 }
 exports.Vector2 = Vector2;
 
-},{"./config":3}],15:[function(require,module,exports){
+},{"./config":3}],17:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.5.0-beta
  * (c) The Knockout.js team - http://knockoutjs.com/

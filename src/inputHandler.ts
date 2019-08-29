@@ -10,6 +10,11 @@ export class InputHandler {
     private alignmentLabel: HTMLElement;
     private cohesionLabel: HTMLElement;
 
+    private left = false;
+    private right = false;
+    private leftCount = 0;
+    private rightCount = 0;
+
     constructor(
         mouseArea: HTMLElement,
         createBoid: (position: Vector2) => void,
@@ -31,6 +36,12 @@ export class InputHandler {
         };
         window.addEventListener("keyup", (event: KeyboardEvent) => {
             this.handleKeyUp(event);
+        });
+        window.addEventListener("keyup", (event) => {
+            this.setArrow(event.key, false);
+        });
+        window.addEventListener("keydown", (event) => {
+            this.setArrow(event.key, true);
         });
     }
 
@@ -103,5 +114,32 @@ export class InputHandler {
             this.cohesionLabel.textContent = "ON";
             this.cohesionLabel.style.color = "green";
         }
+    }
+
+    public getDirectionInput() {
+        if (this.left && !this.right) {
+            this.rightCount = 0;
+            this.leftCount++;
+        } else if (this.right && !this.left) {
+            this.leftCount = 0;
+            this.rightCount++;
+        } else {
+            this.leftCount = 0;
+            this.rightCount = 0;
+        }
+        return this.rightCount - this.leftCount;
+    }
+
+    private setArrow(key: string, newState: boolean) {
+        switch (key) {
+            case "ArrowLeft":
+                this.left = newState;
+                break;
+            case "ArrowRight":
+                this.right = newState;
+                break;
+            default:
+                return;
+          }
     }
 }

@@ -3,14 +3,18 @@ import * as mocha from "mocha";
 import * as sinon from "sinon";
 import { Vector2 } from "../src/vector2";
 import { CreatureStorage } from "../src/creatureStorage";
-import { AssertionError } from "assert";
+import { InputHandler } from "../src/inputHandler";
 
 const expect = chai.expect;
 
 describe("Hunter", () => {
     let creatureStorage: CreatureStorage;
     beforeEach(() => {
-        creatureStorage = new CreatureStorage();
+        const inputHandlerMock = <InputHandler> <any> (sinon.mock(InputHandler));
+        creatureStorage = new CreatureStorage(inputHandlerMock);
+    });
+    afterEach(() => {
+        sinon.restore();
     });
 
     describe("update", () => {
@@ -39,16 +43,20 @@ describe("Hunter", () => {
         it("points towards nearest prey in sight", () => {
             const hunter = creatureStorage.addHunter();
             const boid = creatureStorage.addBoid();
-            boid.velocity = new Vector2();
             hunter.position = new Vector2(1, 1);
             boid.position = new Vector2(2, 3);
+            boid.speed = 0;
             creatureStorage.update();
 
             const actual = hunter.huntingVector();
             const expected = new Vector2(1, 2);
 
             expect(actual).to.not.equal(null);
-            expect(actual!.isParallelTo(expected)).to.be.true;
+            expect(Math.abs(actual!.toHeading() - expected.toHeading()))
+                .to.be.lte(
+                    0.001,
+                    `huntingVector was ${actual!.toString()}`
+                );
         });
     });
 

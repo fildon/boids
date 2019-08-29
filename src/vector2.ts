@@ -12,6 +12,16 @@ export class Vector2 {
         return totalVector.scaleByScalar(1 / vectors.length);
     }
 
+    public static fromHeadingAndSpeed(heading: number, speed: number): Vector2 {
+        if (!speed) {
+            return new Vector2(0, 0);
+        }
+        return new Vector2(
+            speed * Math.cos(heading),
+            speed * Math.sin(heading),
+        );
+    }
+
     public x: number;
     public y: number;
     public length: number;
@@ -93,5 +103,13 @@ export class Vector2 {
             ((this.x % config.screen.maxX) + config.screen.maxX) % config.screen.maxX,
             ((this.y % config.screen.maxY) + config.screen.maxY) % config.screen.maxY,
         );
+    }
+
+    public toHeading() {
+        return Math.atan2(this.y, this.x);
+    }
+
+    public toString() {
+        return `[${this.x}, ${this.y}]`;
     }
 }

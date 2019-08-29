@@ -4,13 +4,15 @@ import * as sinon from "sinon";
 import { config } from "../src/config";
 import { Vector2 } from "../src/vector2";
 import { CreatureStorage } from "../src/creatureStorage";
+import { InputHandler } from "../src/inputHandler";
 
 const expect = chai.expect;
 
 describe("Boid", () => {
     let creatureStorage: CreatureStorage;
     beforeEach(() => {
-        creatureStorage = new CreatureStorage();
+        const inputHandlerMock = <InputHandler> <any> (sinon.mock(InputHandler));
+        creatureStorage = new CreatureStorage(inputHandlerMock);
     });
 
     describe("constructor", () => {
@@ -31,17 +33,6 @@ describe("Boid", () => {
             boid.update();
 
             expect(boid.fearCountdown).to.equal(9);
-        });
-    });
-
-    describe("movement", () => {
-        it("adds velocity to position", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2(10, 20);
-            boid.velocity = new Vector2(30, 40);
-            boid.move();
-            const expected = new Vector2(40, 60);
-            expect(boid.position).to.deep.equal(expected);
         });
     });
 
@@ -154,24 +145,27 @@ describe("Boid", () => {
         before(() => {
             sinon.stub(Math, 'random').returns(0.5);
         });
+
         it("limits the turn by the turningMax", () => {
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2();
-            boid.velocity = new Vector2(1, 1).scaleToLength(config.boid.maxSpeed);
-            const expected = boid.velocity.rotate(config.creature.turningMax);
+            boid.speed = config.boid.maxSpeed;
+            boid.heading = Math.PI / 4;
+            const expected = boid.heading + config.creature.turningMax;
             boid.updateHeadingTowards(new Vector2(-100, -99));
-            const actual = boid.velocity;
-            expect(actual.distance(expected)).to.be.lte(0.0001);
+            const actual = boid.heading;
+            expect(Math.abs(actual - expected)).to.be.lte(0.0001);
         });
 
         it("limits the turn by the turningMax", () => {
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2();
-            boid.velocity = new Vector2(1, 1).scaleToLength(config.boid.maxSpeed);
-            const expected = boid.velocity.rotate(-config.creature.turningMax);
+            boid.speed = config.boid.maxSpeed;
+            boid.heading = Math.PI / 4;
+            const expected = boid.heading - config.creature.turningMax;
             boid.updateHeadingTowards(new Vector2(-99, -100));
-            const actual = boid.velocity;
-            expect(actual.distance(expected)).to.be.lte(0.0001);
+            const actual = boid.heading;
+            expect(Math.abs(actual - expected)).to.be.lte(0.0001);
         });
     });
 
@@ -179,10 +173,11 @@ describe("Boid", () => {
         it("rotates by a boundedly random turn if no ideal vectors", () => {
             const boid = creatureStorage.addBoid();
             boid.position = new Vector2(500, 500);
-            boid.velocity = new Vector2(1, 1);
-            const expectedMin = boid.velocity.rotate(-config.creature.turningMax);
+            boid.speed = config.boid.maxSpeed;
+            boid.heading = Math.PI / 4;
+            const expectedMin = boid.heading - config.creature.turningMax;
             boid.updateHeading();
-            expect(expectedMin.angleTo(boid.velocity)).to.be.lt(config.creature.turningMax * 2);
+            expect(expectedMin - boid.heading).to.be.lt(config.creature.turningMax * 2);
         });
     });
 });

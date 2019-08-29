@@ -73,11 +73,10 @@ export class Canvas {
     }
 
     public drawCreatureBeak(creature: Creature): void {
-        const heading = creature.velocity.unitVector();
         this.ctx.beginPath();
         this.ctx.arc(
-            creature.position.x + (creature.size + 1) * heading.x,
-            creature.position.y + (creature.size + 1) * heading.y,
+            creature.position.x + (creature.size + 1) * Math.cos(creature.heading),
+            creature.position.y + (creature.size + 1) * Math.sin(creature.heading),
             creature.size / 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();

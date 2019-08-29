@@ -3,6 +3,8 @@ import { Hunter } from "./creatures/hunter";
 import { Boid } from "./creatures/boid";
 import { Vector2 } from "./vector2";
 import { config } from "./config";
+import PlayerFish from "./creatures/playerFish";
+import { InputHandler } from "./inputHandler";
 
 export class CreatureStorage {
     private nextId = 0;
@@ -12,7 +14,7 @@ export class CreatureStorage {
     private bucketRows: number = 1;
     private readonly bucketSize = 100;
 
-    constructor() {
+    constructor(public inputHandler: InputHandler) {
         this.update();
     }
 
@@ -53,6 +55,15 @@ export class CreatureStorage {
         return newBoid;
     }
 
+    public addPlayerFish() {
+        const newPlayer = new PlayerFish(
+            this.inputHandler,
+        );
+        this.creatures.set(this.nextId, newPlayer);
+        this.nextId++;
+        return newPlayer;
+    }
+
     public getAllHunters(): Hunter[] {
         return [...this.creatures.values()].filter((creature) => {
             return creature instanceof Hunter;
@@ -83,6 +94,16 @@ export class CreatureStorage {
                 return creature instanceof Boid &&
                 creature.position.distance(center) < radius;
             }) as Boid[];
+    }
+
+    public getBoidsOrPlayersInArea(center: Vector2, radius: number): Creature[] {
+        return this.getCreaturesInArea(center, radius)
+            .filter((creature) => {
+                return (
+                    (creature instanceof Boid || creature instanceof PlayerFish) &&
+                    creature.position.distance(center) < radius
+                );
+            });
     }
 
     public getCreaturesInArea(center: Vector2, radius: number): Creature[] {
