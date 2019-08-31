@@ -76,6 +76,10 @@ export class Vector2 {
         return new Vector2(this.x + v.x, this.y + v.y);
     }
 
+    public subtract(v: Vector2): Vector2 {
+        return new Vector2(this.x - v.x, this.y - v.y);
+    }
+
     public equals(v: Vector2): boolean {
         return this.x === v.x && this.y === v.y;
     }

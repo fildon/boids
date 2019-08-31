@@ -1,11 +1,14 @@
 import { config } from "./config";
 import { Creature } from "./creatures/creature";
+import { Vector2 } from "./vector2";
 
 export class Canvas {
+    public cameraPosition: Vector2;
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
 
     constructor(canvasElement: HTMLCanvasElement) {
+        this.cameraPosition = new Vector2(window.innerWidth, window.innerHeight);
         this.canvas = canvasElement;
         const context = this.canvas.getContext("2d");
         if (!context) {
@@ -28,7 +31,9 @@ export class Canvas {
         this.ctx.canvas.height = config.screen.maxY;
     }
 
-    public draw(creatures: Creature[]): void {
+    public draw(
+        creatures: Creature[],
+    ): void {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.setScreenSize();
         this.drawGhosts(creatures);
@@ -57,8 +62,16 @@ export class Canvas {
         this.drawCreatureBeak(creature);
     }
 
+    public getPositionInCameraSpace(position: Vector2): Vector2 {
+        return position
+            .add(new Vector2(window.innerWidth / 2, window.innerHeight / 2))
+            .subtract(this.cameraPosition)
+            .normalize();
+    }
+
     public drawCreatureBody(creature: Creature, historyIndex?: number): void {
-        const position = historyIndex ? creature.history[historyIndex] : creature.position;
+        let position = historyIndex ? creature.history[historyIndex] : creature.position;
+        position = this.getPositionInCameraSpace(position);
         const radius = historyIndex ?
             creature.size * ((historyIndex + 1) / (config.creature.maxHistory + 1)) :
             creature.size;
@@ -73,10 +86,11 @@ export class Canvas {
     }
 
     public drawCreatureBeak(creature: Creature): void {
+        const position = this.getPositionInCameraSpace(creature.position);
         this.ctx.beginPath();
         this.ctx.arc(
-            creature.position.x + (creature.size + 1) * Math.cos(creature.heading),
-            creature.position.y + (creature.size + 1) * Math.sin(creature.heading),
+            position.x + (creature.size + 1) * Math.cos(creature.heading),
+            position.y + (creature.size + 1) * Math.sin(creature.heading),
             creature.size / 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();

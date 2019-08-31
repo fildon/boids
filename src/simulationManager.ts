@@ -60,6 +60,7 @@ export class SimulationManager {
             hunter.update();
         }
         this.playerFish.update();
+        this.canvas.cameraPosition = this.playerFish.position;
         this.canvas.draw(this.creatureStorage.getAllCreatures());
         this.simulationViewModel.updateHunterCount(
             this.creatureStorage.getHunterCount(),

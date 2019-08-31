@@ -10,8 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
+const vector2_1 = require("./vector2");
 class Canvas {
     constructor(canvasElement) {
+        this.cameraPosition = new vector2_1.Vector2(window.innerWidth, window.innerHeight);
         this.canvas = canvasElement;
         const context = this.canvas.getContext("2d");
         if (!context) {
@@ -57,8 +59,15 @@ class Canvas {
         this.drawCreatureBody(creature);
         this.drawCreatureBeak(creature);
     }
+    getPositionInCameraSpace(position) {
+        return position
+            .add(new vector2_1.Vector2(window.innerWidth / 2, window.innerHeight / 2))
+            .subtract(this.cameraPosition)
+            .normalize();
+    }
     drawCreatureBody(creature, historyIndex) {
-        const position = historyIndex ? creature.history[historyIndex] : creature.position;
+        let position = historyIndex ? creature.history[historyIndex] : creature.position;
+        position = this.getPositionInCameraSpace(position);
         const radius = historyIndex ?
             creature.size * ((historyIndex + 1) / (config_1.config.creature.maxHistory + 1)) :
             creature.size;
@@ -68,15 +77,16 @@ class Canvas {
         this.ctx.fill();
     }
     drawCreatureBeak(creature) {
+        const position = this.getPositionInCameraSpace(creature.position);
         this.ctx.beginPath();
-        this.ctx.arc(creature.position.x + (creature.size + 1) * Math.cos(creature.heading), creature.position.y + (creature.size + 1) * Math.sin(creature.heading), creature.size / 2, 0, 2 * Math.PI);
+        this.ctx.arc(position.x + (creature.size + 1) * Math.cos(creature.heading), position.y + (creature.size + 1) * Math.sin(creature.heading), creature.size / 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
     }
 }
 exports.Canvas = Canvas;
 
-},{"./config":3}],3:[function(require,module,exports){
+},{"./config":3,"./vector2":16}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
@@ -750,6 +760,7 @@ class SimulationManager {
             hunter.update();
         }
         this.playerFish.update();
+        this.canvas.cameraPosition = this.playerFish.position;
         this.canvas.draw(this.creatureStorage.getAllCreatures());
         this.simulationViewModel.updateHunterCount(this.creatureStorage.getHunterCount());
         this.simulationViewModel.updateBoidCount(this.creatureStorage.getBoidCount());
@@ -853,6 +864,9 @@ class Vector2 {
     }
     add(v) {
         return new Vector2(this.x + v.x, this.y + v.y);
+    }
+    subtract(v) {
+        return new Vector2(this.x - v.x, this.y - v.y);
     }
     equals(v) {
         return this.x === v.x && this.y === v.y;
