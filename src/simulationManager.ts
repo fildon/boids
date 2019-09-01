@@ -1,16 +1,12 @@
-import * as ko from "knockout";
-
 import { Canvas } from "./canvas";
 import { config } from "./config";
 import { InputHandler } from "./inputHandler";
-import { SimulationViewModel } from "./simulationViewModel";
 import { CreatureStorage } from "./creatureStorage";
 import { Vector2 } from "./vector2";
 import PlayerFish from "./creatures/playerFish";
 
 export class SimulationManager {
     private canvas: Canvas;
-    private simulationViewModel: SimulationViewModel;
     private inputHandler: InputHandler;
     private creatureStorage: CreatureStorage;
     private playerFish: PlayerFish;
@@ -20,13 +16,11 @@ export class SimulationManager {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new Canvas(canvasElement);
-        this.simulationViewModel = new SimulationViewModel();
         this.inputHandler = new InputHandler(
             this.canvas,
             (position: Vector2) => this.createBoid(position),
             (position: Vector2) => this.createHunter(position),
         );
-        ko.applyBindings(this.simulationViewModel);
 
         this.creatureStorage = new CreatureStorage(this.inputHandler);
         for (let i = 0; i < config.boid.quantity; i++) {
@@ -63,10 +57,10 @@ export class SimulationManager {
             this.creatureStorage.getAllCreatures(),
             this.playerFish.position,
         );
-        this.simulationViewModel.updateHunterCount(
+        this.updateHunterCountDisplay(
             this.creatureStorage.getHunterCount(),
         );
-        this.simulationViewModel.updateBoidCount(
+        this.updateBoidCountDisplay(
             this.creatureStorage.getBoidCount(),
         );
         ((thisCaptured) => {
@@ -74,5 +68,19 @@ export class SimulationManager {
                 thisCaptured.tick();
             }, 1000 / 60);
         }) (this);
+    }
+
+    private updateHunterCountDisplay(count: number) {
+        const countDisplay = document.getElementById("number-of-hunters");
+        if (countDisplay) {
+            countDisplay.textContent = `${count}`;
+        }
+    }
+
+    private updateBoidCountDisplay(count: number) {
+        const countDisplay = document.getElementById("number-of-boids");
+        if (countDisplay) {
+            countDisplay.textContent = `${count}`;
+        }
     }
 }
