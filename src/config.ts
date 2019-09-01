@@ -29,6 +29,10 @@ export const config = {
         size: 8,
         visionRadius: 90,
     },
+    player: {
+        maxSpeed: 64,
+        minSpeed: 0,
+    },
     screen: {
         // maxX and maxY are overwritten at run time
         // according to actual screen size

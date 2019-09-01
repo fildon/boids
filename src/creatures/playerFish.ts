@@ -26,10 +26,16 @@ export default class PlayerFish extends Creature {
 
     public update() {
         this.updateHistory();
-        const direction = this.inputHandler.getDirectionInput();
-        this.heading += Math.max(-0.1, Math.min(0.1, direction));
-        this.speed += Math.max(0, 0.5 - 0.5 * Math.abs(1 - Math.abs(direction / 10)));
-        this.speed *= 0.98;
-        this.position = this.position.add(this.velocity()).normalize();
+        this.heading += this.inputHandler.getHeadingUpdate();
+        this.speed += this.inputHandler.getSpeedUpdate();
+        this.speed = Math.max(
+            Math.min(
+                this.speed,
+                config.player.maxSpeed,
+            ),
+            config.player.minSpeed,
+        );
+        this.position = this.position
+            .add(this.velocity()).normalize();
     }
 }
