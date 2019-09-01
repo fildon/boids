@@ -20,7 +20,7 @@ export class SimulationManager {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new Canvas(canvasElement);
-        this.simulationViewModel = new SimulationViewModel(this);
+        this.simulationViewModel = new SimulationViewModel();
         this.inputHandler = new InputHandler(
             this.canvas,
             (position: Vector2) => this.createBoid(position),

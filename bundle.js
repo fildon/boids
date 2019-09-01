@@ -713,7 +713,7 @@ class SimulationManager {
             throw new Error("couldn't find 'canvas' on document");
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
-        this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
+        this.simulationViewModel = new simulationViewModel_1.SimulationViewModel();
         this.inputHandler = new inputHandler_1.InputHandler(this.canvas, (position) => this.createBoid(position), (position) => this.createHunter(position));
         ko.applyBindings(this.simulationViewModel);
         this.creatureStorage = new creatureStorage_1.CreatureStorage(this.inputHandler);
@@ -761,16 +761,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ko = require("knockout");
 const config_1 = require("./config");
 class SimulationViewModel {
-    constructor(simulationManager) {
-        this.simulationManager = simulationManager;
+    constructor() {
         this.numberOfBoids = ko.observable(config_1.config.boid.quantity);
         this.numberOfHunters = ko.observable(config_1.config.hunter.quantity);
-        this.createBoid = () => {
-            simulationManager.createBoid();
-        };
-        this.createHunter = () => {
-            simulationManager.createHunter();
-        };
     }
     updateBoidCount(boidsRemaining) {
         this.numberOfBoids(boidsRemaining);
