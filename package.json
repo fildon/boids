@@ -9,7 +9,7 @@
     "version": "1.0.0",
     "main": "app.js",
     "scripts": {
-        "build": "tsc && browserify dist/src/app.js -o bundle.js",
+        "build": "tsc && npx webpack --config webpack.config.js --mode=production",
         "full": "npm run build && npm run lint && npm run coverage",
         "lint": "tslint -c tslint.json src/**/*.ts",
         "mutation": "stryker run",
@@ -28,8 +28,7 @@
         ],
         "all": true
     },
-    "dependencies": {
-    },
+    "dependencies": {},
     "devDependencies": {
         "@stryker-mutator/core": "^1.3.1",
         "@stryker-mutator/mocha-framework": "^1.3.1",
@@ -39,12 +38,13 @@
         "@types/mocha": "^2.2.48",
         "@types/node": "^9.4.5",
         "@types/sinon": "^5.0.2",
-        "browserify": "^16.1.0",
         "chai": "^4.1.2",
         "mocha": "^5.0.0",
         "sinon": "^6.3.5",
         "ts-node": "^4.1.0",
         "tslint": "^5.9.1",
-        "typescript": "^2.9.2"
+        "typescript": "^2.9.2",
+        "webpack": "^4.39.3",
+        "webpack-cli": "^3.3.7"
     }
 }

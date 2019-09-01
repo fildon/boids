@@ -1,5 +1,4 @@
 node_modules
-
 dist
 
 # Test coverage
@@ -7,7 +6,3 @@ dist
 .nyc_output
 coverage
 .stryker-tmp/
-
-*.js
-!bundle.js #We need to include this so that github pages can run it!
-!stryker.conf.js
