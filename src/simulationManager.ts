@@ -22,7 +22,7 @@ export class SimulationManager {
         this.canvas = new Canvas(canvasElement);
         this.simulationViewModel = new SimulationViewModel(this);
         this.inputHandler = new InputHandler(
-            canvasElement,
+            this.canvas,
             (position: Vector2) => this.createBoid(position),
             (position: Vector2) => this.createHunter(position),
         );
@@ -53,15 +53,16 @@ export class SimulationManager {
     public tick(): void {
         this.creatureStorage.update();
         for (const boid of this.creatureStorage.getAllBoids()) {
-            boid.mousePosition = this.inputHandler.mousePosition;
             boid.update();
         }
         for (const hunter of this.creatureStorage.getAllHunters()) {
             hunter.update();
         }
         this.playerFish.update();
-        this.canvas.cameraPosition = this.playerFish.position;
-        this.canvas.draw(this.creatureStorage.getAllCreatures());
+        this.canvas.draw(
+            this.creatureStorage.getAllCreatures(),
+            this.playerFish.position,
+        );
         this.simulationViewModel.updateHunterCount(
             this.creatureStorage.getHunterCount(),
         );

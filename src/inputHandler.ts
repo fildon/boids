@@ -1,9 +1,9 @@
 import { Vector2 } from "./vector2";
 import { config } from "./config";
+import { Canvas } from "./canvas";
 
 export class InputHandler {
-    public mousePosition: Vector2 | null;
-    private mouseArea: HTMLElement;
+    private canvas: Canvas;
     private createBoid: (position: Vector2) => void;
     private createHunter: (position: Vector2) => void;
     private separationLabel: HTMLElement;
@@ -16,24 +16,19 @@ export class InputHandler {
     private rightCount = 0;
 
     constructor(
-        mouseArea: HTMLElement,
+        canvas: Canvas,
         createBoid: (position: Vector2) => void,
         createHunter: (position: Vector2) => void,
     ) {
-        this.mousePosition = new Vector2(-1, -1);
-        this.mouseArea = mouseArea;
+        this.canvas = canvas;
         this.createBoid = createBoid;
         this.createHunter = createHunter;
         this.separationLabel = document.getElementById("separation-status")!;
         this.alignmentLabel = document.getElementById("alignment-status")!;
         this.cohesionLabel = document.getElementById("cohesion-status")!;
-        this.mouseArea.onmousemove = (event: MouseEvent) => {
-            this.setMousePosition(event);
-        };
-        this.mouseArea.onmouseout = () => { this.handleMouseOut(); };
-        this.mouseArea.onclick = (event: MouseEvent) => {
+        this.canvas.onclick((event: MouseEvent) => {
             this.handleMouseClick(event);
-        };
+        });
         window.addEventListener("keyup", (event: KeyboardEvent) => {
             this.handleKeyUp(event);
         });
@@ -45,27 +40,18 @@ export class InputHandler {
         });
     }
 
-    public setMousePosition(event: MouseEvent) {
-        const rect = this.mouseArea.getBoundingClientRect();
-        this.mousePosition = new Vector2(
-            event.clientX - rect.left,
-            event.clientY - rect.top,
-        );
-    }
-
     public handleMouseClick(event: MouseEvent) {
-        this.setMousePosition(event);
-        if (this.mousePosition) {
-            if (event.ctrlKey || event.metaKey) {
-                this.createHunter(this.mousePosition);
-            } else {
-                this.createBoid(this.mousePosition);
-            }
+        const mousePosition = this.canvas.getPositionInWorldSpace(
+            new Vector2(
+                event.clientX,
+                event.clientY,
+            ),
+        );
+        if (event.ctrlKey || event.metaKey) {
+            this.createHunter(mousePosition);
+        } else {
+            this.createBoid(mousePosition);
         }
-    }
-
-    public handleMouseOut() {
-        this.mousePosition = null;
     }
 
     public handleKeyUp(event: KeyboardEvent) {

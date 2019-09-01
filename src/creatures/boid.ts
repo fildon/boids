@@ -5,7 +5,6 @@ import { StaticTools } from "./staticTools";
 import { BehaviourControlledCreature } from "./behaviourControlledCreature";
 
 export class Boid extends BehaviourControlledCreature {
-    public mousePosition: Vector2 | null = null;
     public defaultColour = config.boid.defaultColour;
     public maxSpeed = config.boid.maxSpeed;
     public minSpeed = config.boid.minSpeed;
@@ -14,7 +13,6 @@ export class Boid extends BehaviourControlledCreature {
     public heading = 2 * Math.PI * Math.random();
     public speed = config.boid.maxSpeed;
     public priorities = [
-        new Behaviour(() => this.mouseAvoidVector(), () => "red"),
         new Behaviour(() => this.hunterEvasionVector(), () => "red"),
         new Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "red" : "orange"),
         new Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "red" : "blue"),
@@ -31,16 +29,6 @@ export class Boid extends BehaviourControlledCreature {
             this.fearCountdown--;
         }
         this.move();
-    }
-
-    public mouseAvoidVector(): Vector2 | null {
-        if (this.mousePosition) {
-            const vectorFromMouse = this.mousePosition.vectorTo(this.position);
-            if (vectorFromMouse.length < config.boid.mouseAvoidRadius) {
-                return vectorFromMouse.scaleToLength(this.maxSpeed);
-            }
-        }
-        return null;
     }
 
     public hunterEvasionVector(): Vector2 | null {

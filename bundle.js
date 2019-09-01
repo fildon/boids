@@ -26,6 +26,9 @@ class Canvas {
         this.canvas.width = config_1.config.screen.maxX;
         this.setScreenSize();
     }
+    onclick(callback) {
+        this.canvas.onclick = callback;
+    }
     setScreenSize() {
         if (window) {
             config_1.config.screen.maxX = window.innerWidth;
@@ -34,7 +37,8 @@ class Canvas {
         this.ctx.canvas.width = config_1.config.screen.maxX;
         this.ctx.canvas.height = config_1.config.screen.maxY;
     }
-    draw(creatures) {
+    draw(creatures, cameraPosition) {
+        this.cameraPosition = cameraPosition;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.setScreenSize();
         this.drawGhosts(creatures);
@@ -63,6 +67,12 @@ class Canvas {
         return position
             .add(new vector2_1.Vector2(window.innerWidth / 2, window.innerHeight / 2))
             .subtract(this.cameraPosition)
+            .normalize();
+    }
+    getPositionInWorldSpace(position) {
+        return position
+            .subtract(new vector2_1.Vector2(window.innerWidth / 2, window.innerHeight / 2))
+            .add(this.cameraPosition)
             .normalize();
     }
     drawCreatureBody(creature, historyIndex) {
@@ -99,7 +109,6 @@ exports.config = {
         fearDuration: 30,
         maxSpeed: 6,
         minSpeed: 3,
-        mouseAvoidRadius: 100,
         quantity: 200,
         repulsionRadius: 20,
         repulsionRadiusDefault: 20,
@@ -345,7 +354,6 @@ const behaviourControlledCreature_1 = require("./behaviourControlledCreature");
 class Boid extends behaviourControlledCreature_1.BehaviourControlledCreature {
     constructor() {
         super(...arguments);
-        this.mousePosition = null;
         this.defaultColour = config_1.config.boid.defaultColour;
         this.maxSpeed = config_1.config.boid.maxSpeed;
         this.minSpeed = config_1.config.boid.minSpeed;
@@ -354,7 +362,6 @@ class Boid extends behaviourControlledCreature_1.BehaviourControlledCreature {
         this.heading = 2 * Math.PI * Math.random();
         this.speed = config_1.config.boid.maxSpeed;
         this.priorities = [
-            new behaviour_1.Behaviour(() => this.mouseAvoidVector(), () => "red"),
             new behaviour_1.Behaviour(() => this.hunterEvasionVector(), () => "red"),
             new behaviour_1.Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "red" : "orange"),
             new behaviour_1.Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "red" : "blue"),
@@ -370,15 +377,6 @@ class Boid extends behaviourControlledCreature_1.BehaviourControlledCreature {
             this.fearCountdown--;
         }
         this.move();
-    }
-    mouseAvoidVector() {
-        if (this.mousePosition) {
-            const vectorFromMouse = this.mousePosition.vectorTo(this.position);
-            if (vectorFromMouse.length < config_1.config.boid.mouseAvoidRadius) {
-                return vectorFromMouse.scaleToLength(this.maxSpeed);
-            }
-        }
-        return null;
     }
     hunterEvasionVector() {
         const huntersInSight = this.creatureStorage.getHuntersInArea(this.position, config_1.config.boid.visionRadius).filter((hunter) => {
@@ -583,25 +581,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const vector2_1 = require("./vector2");
 const config_1 = require("./config");
 class InputHandler {
-    constructor(mouseArea, createBoid, createHunter) {
+    constructor(canvas, createBoid, createHunter) {
         this.left = false;
         this.right = false;
         this.leftCount = 0;
         this.rightCount = 0;
-        this.mousePosition = new vector2_1.Vector2(-1, -1);
-        this.mouseArea = mouseArea;
+        this.canvas = canvas;
         this.createBoid = createBoid;
         this.createHunter = createHunter;
         this.separationLabel = document.getElementById("separation-status");
         this.alignmentLabel = document.getElementById("alignment-status");
         this.cohesionLabel = document.getElementById("cohesion-status");
-        this.mouseArea.onmousemove = (event) => {
-            this.setMousePosition(event);
-        };
-        this.mouseArea.onmouseout = () => { this.handleMouseOut(); };
-        this.mouseArea.onclick = (event) => {
+        this.canvas.onclick((event) => {
             this.handleMouseClick(event);
-        };
+        });
         window.addEventListener("keyup", (event) => {
             this.handleKeyUp(event);
         });
@@ -612,23 +605,14 @@ class InputHandler {
             this.setArrow(event.key, true);
         });
     }
-    setMousePosition(event) {
-        const rect = this.mouseArea.getBoundingClientRect();
-        this.mousePosition = new vector2_1.Vector2(event.clientX - rect.left, event.clientY - rect.top);
-    }
     handleMouseClick(event) {
-        this.setMousePosition(event);
-        if (this.mousePosition) {
-            if (event.ctrlKey || event.metaKey) {
-                this.createHunter(this.mousePosition);
-            }
-            else {
-                this.createBoid(this.mousePosition);
-            }
+        const mousePosition = this.canvas.getPositionInWorldSpace(new vector2_1.Vector2(event.clientX, event.clientY));
+        if (event.ctrlKey || event.metaKey) {
+            this.createHunter(mousePosition);
         }
-    }
-    handleMouseOut() {
-        this.mousePosition = null;
+        else {
+            this.createBoid(mousePosition);
+        }
     }
     handleKeyUp(event) {
         const oneKeyCode = 49;
@@ -730,7 +714,7 @@ class SimulationManager {
         }
         this.canvas = new canvas_1.Canvas(canvasElement);
         this.simulationViewModel = new simulationViewModel_1.SimulationViewModel(this);
-        this.inputHandler = new inputHandler_1.InputHandler(canvasElement, (position) => this.createBoid(position), (position) => this.createHunter(position));
+        this.inputHandler = new inputHandler_1.InputHandler(this.canvas, (position) => this.createBoid(position), (position) => this.createHunter(position));
         ko.applyBindings(this.simulationViewModel);
         this.creatureStorage = new creatureStorage_1.CreatureStorage(this.inputHandler);
         for (let i = 0; i < config_1.config.boid.quantity; i++) {
@@ -753,15 +737,13 @@ class SimulationManager {
     tick() {
         this.creatureStorage.update();
         for (const boid of this.creatureStorage.getAllBoids()) {
-            boid.mousePosition = this.inputHandler.mousePosition;
             boid.update();
         }
         for (const hunter of this.creatureStorage.getAllHunters()) {
             hunter.update();
         }
         this.playerFish.update();
-        this.canvas.cameraPosition = this.playerFish.position;
-        this.canvas.draw(this.creatureStorage.getAllCreatures());
+        this.canvas.draw(this.creatureStorage.getAllCreatures(), this.playerFish.position);
         this.simulationViewModel.updateHunterCount(this.creatureStorage.getHunterCount());
         this.simulationViewModel.updateBoidCount(this.creatureStorage.getBoidCount());
         ((thisCaptured) => {
@@ -781,14 +763,6 @@ const config_1 = require("./config");
 class SimulationViewModel {
     constructor(simulationManager) {
         this.simulationManager = simulationManager;
-        this.mouseRadius = ko.observable(config_1.config.boid.mouseAvoidRadius);
-        this.mouseRadius.subscribe((newValue) => {
-            config_1.config.boid.mouseAvoidRadius = newValue;
-        });
-        this.turningMax = ko.observable(config_1.config.creature.turningMax);
-        this.turningMax.subscribe((newValue) => {
-            config_1.config.creature.turningMax = newValue;
-        });
         this.numberOfBoids = ko.observable(config_1.config.boid.quantity);
         this.numberOfHunters = ko.observable(config_1.config.hunter.quantity);
         this.createBoid = () => {

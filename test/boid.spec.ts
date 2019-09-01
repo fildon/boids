@@ -105,42 +105,6 @@ describe("Boid", () => {
         });
     });
 
-    describe("mouse avoid vector", () => {
-        const mouseAvoidRadiusOriginalValue = config.boid.mouseAvoidRadius;
-        /* This before/after ensure that these tests 'make sense' even when
-        I'm regularly playing around with the particulars of the config values */
-        before(() => { 
-            config.boid.mouseAvoidRadius = 10;
-        });
-        after(() => {
-            config.boid.mouseAvoidRadius = mouseAvoidRadiusOriginalValue;
-        });
-        it("points away from the mouse when within it's radius", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2();
-            boid.mousePosition = new Vector2(1, 1);
-            const actual = boid.mouseAvoidVector()!;
-            const expected = new Vector2(-1, -1).scaleToLength(config.boid.maxSpeed);
-            expect(actual.distance(expected)).to.be.lessThan(0.0000001);
-        });
-
-        it("uses strict equality distance checking", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2();
-            boid.mousePosition = new Vector2(config.boid.mouseAvoidRadius, 0);
-            const actual = boid.mouseAvoidVector();
-            expect(actual).to.equal(null);
-        });
-
-        it("returns null if mouse is out of area", () => {
-            const boid = creatureStorage.addBoid();
-            boid.position = new Vector2();
-            boid.mousePosition = null;
-            const actual = boid.mouseAvoidVector();
-            expect(actual).to.equal(null);
-        });
-    });
-
     describe("update heading towards", () => {
         before(() => {
             sinon.stub(Math, 'random').returns(0.5);

@@ -3,7 +3,7 @@ import { Creature } from "./creatures/creature";
 import { Vector2 } from "./vector2";
 
 export class Canvas {
-    public cameraPosition: Vector2;
+    private cameraPosition: Vector2;
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
 
@@ -22,6 +22,10 @@ export class Canvas {
         this.setScreenSize();
     }
 
+    public onclick(callback: ((ev: MouseEvent) =>  any)) {
+        this.canvas.onclick = callback;
+    }
+
     public setScreenSize(): void {
         if (window) {
             config.screen.maxX = window.innerWidth;
@@ -33,7 +37,9 @@ export class Canvas {
 
     public draw(
         creatures: Creature[],
+        cameraPosition: Vector2,
     ): void {
+        this.cameraPosition = cameraPosition;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.setScreenSize();
         this.drawGhosts(creatures);
@@ -66,6 +72,13 @@ export class Canvas {
         return position
             .add(new Vector2(window.innerWidth / 2, window.innerHeight / 2))
             .subtract(this.cameraPosition)
+            .normalize();
+    }
+
+    public getPositionInWorldSpace(position: Vector2): Vector2 {
+        return position
+            .subtract(new Vector2(window.innerWidth / 2, window.innerHeight / 2))
+            .add(this.cameraPosition)
             .normalize();
     }
 
