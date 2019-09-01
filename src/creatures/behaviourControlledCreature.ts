@@ -96,5 +96,24 @@ export abstract class BehaviourControlledCreature extends Creature {
         return;
     }
 
+    public nearestCreatureToPosition(creatures: Creature[]): Creature {
+        if (creatures.length === 0) {
+            throw new Error("Nearest creature is undefined for zero creatures");
+        }
+        return creatures.reduce((previous, current) => {
+            const currentDistance = this.position.vectorTo(current.position).length;
+            if (previous.distance > currentDistance) {
+                return {
+                    distance: currentDistance,
+                    nearest: current,
+                };
+            }
+            return previous;
+        }, {
+            distance: this.position.vectorTo(creatures[0].position).length,
+            nearest: creatures[0],
+        }).nearest;
+    }
+
     public abstract die(): void;
 }

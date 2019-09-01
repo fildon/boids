@@ -1,7 +1,6 @@
 import { config } from "../config";
 import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
-import { StaticTools } from "./staticTools";
 import { BehaviourControlledCreature } from "./behaviourControlledCreature";
 
 export class Boid extends BehaviourControlledCreature {
@@ -44,8 +43,9 @@ export class Boid extends BehaviourControlledCreature {
 
         this.fearCountdown = config.boid.fearDuration;
 
-        const nearestHunter = StaticTools
-            .nearestCreatureToPosition(huntersInSight, this.position);
+        const nearestHunter = this.nearestCreatureToPosition(
+            huntersInSight,
+        );
 
         return nearestHunter.position
             .vectorTo(this.position)
@@ -98,8 +98,9 @@ export class Boid extends BehaviourControlledCreature {
             return null;
         }
 
-        const nearestNeighbour = StaticTools
-            .nearestCreatureToPosition(neighbours, this.position);
+        const nearestNeighbour = this.nearestCreatureToPosition(
+            neighbours,
+        );
 
         return this.position
             .vectorTo(nearestNeighbour.position)
