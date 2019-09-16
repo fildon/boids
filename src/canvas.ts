@@ -3,11 +3,13 @@ import { Creature } from "./creatures/creature";
 import { Vector2 } from "./vector2";
 
 export class Canvas {
+    private frameCount: number;
     private cameraPosition: Vector2;
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
 
     constructor(canvasElement: HTMLCanvasElement) {
+        this.frameCount = 0;
         this.cameraPosition = new Vector2(window.innerWidth, window.innerHeight);
         this.canvas = canvasElement;
         const context = this.canvas.getContext("2d");
@@ -39,9 +41,11 @@ export class Canvas {
         creatures: Creature[],
         cameraPosition: Vector2,
     ): void {
+        this.frameCount++;
         this.cameraPosition = cameraPosition;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.setScreenSize();
+        this.drawRipples();
         this.drawGhosts(creatures);
         creatures.forEach((creature) => {
             this.drawCreature(creature);
@@ -107,5 +111,37 @@ export class Canvas {
             creature.size / 2, 0, 2 * Math.PI);
         this.ctx.fillStyle = "black";
         this.ctx.fill();
+    }
+
+    public drawRipples(): void {
+        const palette = [
+            'rgba(214, 245, 245, 0.8)',
+            'rgba(51, 204, 204, 0.8)',
+            'rgba(20, 82, 82, 0.8)',
+            'rgba(51, 204, 204, 0.8)',
+        ];
+        const ripple = this.ctx.createLinearGradient(
+            0, 0,
+            this.canvas.width, 0
+        );
+        const wavelength = 200;
+        const rippleLength = this.canvas.width;
+        const gradientStep = wavelength / rippleLength;
+        const frameStep = this.frameCount / rippleLength;
+
+        let rippleOffset = 0;
+        while(rippleOffset * wavelength < this.canvas.width) {
+            ripple.addColorStop(
+                (gradientStep * rippleOffset + frameStep) % 1,
+                palette[rippleOffset % palette.length]
+            );
+            rippleOffset++;
+        }
+        this.ctx.fillStyle = ripple
+        this.ctx.fillRect(
+            0, 0,
+            this.canvas.width,
+            this.canvas.height
+        )
     }
 }
