@@ -114,34 +114,63 @@ export class Canvas {
     }
 
     public drawRipples(): void {
-        const palette = [
-            'rgba(214, 245, 245, 0.8)',
-            'rgba(51, 204, 204, 0.8)',
-            'rgba(20, 82, 82, 0.8)',
-            'rgba(51, 204, 204, 0.8)',
-        ];
-        const ripple = this.ctx.createLinearGradient(
-            0, 0,
-            this.canvas.width, 0
-        );
-        const wavelength = 200;
-        const rippleLength = this.canvas.width;
-        const gradientStep = wavelength / rippleLength;
-        const frameStep = this.frameCount / rippleLength;
-
-        let rippleOffset = 0;
-        while(rippleOffset * wavelength < this.canvas.width) {
-            ripple.addColorStop(
-                (gradientStep * rippleOffset + frameStep) % 1,
-                palette[rippleOffset % palette.length]
-            );
-            rippleOffset++;
+        const getColourFromAngle = (theta: number) => {
+            return `hsla(170, 60%, ${50 + 20 * Math.sin(theta)}%, .2)`
         }
-        this.ctx.fillStyle = ripple
-        this.ctx.fillRect(
-            0, 0,
-            this.canvas.width,
-            this.canvas.height
-        )
+        const ripples = [
+            {
+                gradient: this.ctx.createLinearGradient(
+                    0, this.canvas.height / 2,
+                    this.canvas.width, 0
+                ),
+                wavelength: 0.02,
+                speed: 0.002
+            },
+            {
+                gradient: this.ctx.createLinearGradient(
+                    this.canvas.width, 0,
+                    0, this.canvas.height / 3
+                ),
+                wavelength: 0.07,
+                speed: 0.008
+            },
+            {
+                gradient: this.ctx.createLinearGradient(
+                    this.canvas.width / 3, 0,
+                    0, this.canvas.height
+                ),
+                wavelength: 0.02,
+                speed: 0.002
+            },
+            {
+                gradient: this.ctx.createLinearGradient(
+                    0, this.canvas.height,
+                    this.canvas.width / 7, 0
+                ),
+                wavelength: 0.07,
+                speed: 0.006
+            }
+        ]
+
+        ripples.forEach(ripple => {
+            let rippleOffset = 0;
+            while(ripple.wavelength * rippleOffset < 1) {
+                ripple.gradient.addColorStop(
+                    (ripple.wavelength * rippleOffset + ripple.speed * this.frameCount) % 1,
+                    getColourFromAngle(rippleOffset)
+                );
+                rippleOffset++;
+            }
+        })
+
+
+        ripples.forEach(ripple => {
+            this.ctx.fillStyle = ripple.gradient
+            this.ctx.fillRect(
+                0, 0,
+                this.canvas.width,
+                this.canvas.height
+            )
+        })
     }
 }
