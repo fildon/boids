@@ -1,13 +1,16 @@
 import { config } from "./config";
 import { Creature } from "./creatures/creature";
 import { Vector2 } from "./vector2";
+import { Metric } from "./metric";
 
 export class Canvas {
+    private readonly metric: Metric;
     private cameraPosition: Vector2;
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
 
     constructor(canvasElement: HTMLCanvasElement) {
+        this.metric = Metric.getMetric();
         this.cameraPosition = new Vector2(window.innerWidth, window.innerHeight);
         this.canvas = canvasElement;
         const context = this.canvas.getContext("2d");
@@ -46,6 +49,9 @@ export class Canvas {
         creatures.forEach((creature) => {
             this.drawCreature(creature);
         });
+
+        this.metric.addDraw();
+        this.metric.updateFps();
     }
 
     public drawGhosts(creatures: Creature[]) {
