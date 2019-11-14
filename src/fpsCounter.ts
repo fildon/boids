@@ -1,12 +1,12 @@
-export class Metric {
+export class FpsCounter {
     private readonly SECOND = 1000;
-    private static _metric: Metric;
+    private static _fpsCounter: FpsCounter;
 
     private fpsLabel: HTMLElement;
     private recentDraws: number[] = [];
 
-    public static getMetric(): Metric {
-        return this._metric || (this._metric = new Metric());
+    public static getFpsCounter(): FpsCounter {
+        return this._fpsCounter || (this._fpsCounter = new FpsCounter());
     }
 
     private constructor() {
