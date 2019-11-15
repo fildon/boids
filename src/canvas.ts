@@ -50,7 +50,7 @@ export class Canvas {
             this.drawCreature(creature);
         });
 
-        this.fpsCounter.addDraw();
+        this.fpsCounter.countFrame();
         this.fpsCounter.updateFps();
     }
 
