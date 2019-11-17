@@ -1,7 +1,6 @@
 import { config } from "../config";
 import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
-import { StaticTools } from "./staticTools";
 import { BehaviourControlledCreature } from "./behaviourControlledCreature";
 
 export class Hunter extends BehaviourControlledCreature {
@@ -44,8 +43,9 @@ export class Hunter extends BehaviourControlledCreature {
             return null;
         }
 
-        const nearestPrey = StaticTools
-            .nearestCreatureToPosition(preyInSight, this.position);
+        const nearestPrey = this.nearestCreatureToPosition(
+            preyInSight,
+        );
         return this.position
             .vectorTo(nearestPrey.position.add(nearestPrey.velocity()))
             .scaleToLength(config.hunter.maxSpeed);

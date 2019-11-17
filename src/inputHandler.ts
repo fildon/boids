@@ -12,8 +12,8 @@ export class InputHandler {
 
     private left = false;
     private right = false;
-    private leftCount = 0;
-    private rightCount = 0;
+    private up = false;
+    private down = false;
 
     constructor(
         canvas: Canvas,
@@ -102,18 +102,12 @@ export class InputHandler {
         }
     }
 
-    public getDirectionInput() {
-        if (this.left && !this.right) {
-            this.rightCount = 0;
-            this.leftCount++;
-        } else if (this.right && !this.left) {
-            this.leftCount = 0;
-            this.rightCount++;
-        } else {
-            this.leftCount = 0;
-            this.rightCount = 0;
-        }
-        return this.rightCount - this.leftCount;
+    public getHeadingUpdate() {
+        return 0.1 * (+this.right - +this.left);
+    }
+
+    public getSpeedUpdate() {
+        return 0.5 * (+this.up - +this.down);
     }
 
     private setArrow(key: string, newState: boolean) {
@@ -123,6 +117,12 @@ export class InputHandler {
                 break;
             case "ArrowRight":
                 this.right = newState;
+                break;
+            case "ArrowUp":
+                this.up = newState;
+                break;
+            case "ArrowDown":
+                this.down = newState;
                 break;
             default:
                 return;
