@@ -41,15 +41,28 @@ export class SimulationManager {
     }
 
     public runSimulation(): void {
-        this.tick();
+        this.tick(performance.now(), 0)
     }
 
-    public tick(): void {
-        ((thisCaptured) => {
-            setTimeout(() => {
-                thisCaptured.tick();
-            }, 1000 / 60);
-        }) (this);
+    public tick(previousTime: number, lag: number): void {
+        let currentTime = performance.now();
+        let elapsed = currentTime - previousTime;
+        previousTime = currentTime
+        lag += elapsed;
+
+        while (lag >= 1000/60) {
+            this.playerFish.update();
+            this.updateSimulation();
+            lag -= 1000/60;
+        }
+
+        this.renderSimulation();
+        setTimeout(() => {
+            this.tick(previousTime, lag)
+        }, 0);
+    }
+
+    public updateSimulation(): void {
         this.creatureStorage.update();
         for (const boid of this.creatureStorage.getAllBoids()) {
             boid.update();
@@ -57,7 +70,9 @@ export class SimulationManager {
         for (const hunter of this.creatureStorage.getAllHunters()) {
             hunter.update();
         }
-        this.playerFish.update();
+    }
+
+    public renderSimulation(): void {
         this.canvas.draw(
             this.creatureStorage.getAllCreatures(),
             this.playerFish.position,
