@@ -19,9 +19,9 @@ export class FpsCounter {
 
     public updateFps(): void {
         const currentTime = performance.now()
-        this.recentFrames = this.recentFrames.filter((drawTime: number) => drawTime >= currentTime - this.SECOND);
+        this.recentFrames = this.recentFrames.filter(
+            (drawTime: number) => drawTime >= currentTime - this.SECOND
+        );
         this.fpsLabel.textContent = this.recentFrames.length.toString();
     }
 }
-
-

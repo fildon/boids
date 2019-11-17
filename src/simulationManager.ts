@@ -45,6 +45,11 @@ export class SimulationManager {
     }
 
     public tick(): void {
+        ((thisCaptured) => {
+            setTimeout(() => {
+                thisCaptured.tick();
+            }, 1000 / 60);
+        }) (this);
         this.creatureStorage.update();
         for (const boid of this.creatureStorage.getAllBoids()) {
             boid.update();
@@ -63,11 +68,6 @@ export class SimulationManager {
         this.updateBoidCountDisplay(
             this.creatureStorage.getBoidCount(),
         );
-        ((thisCaptured) => {
-            setTimeout(() => {
-                thisCaptured.tick();
-            }, 1000 / 60);
-        }) (this);
     }
 
     private updateHunterCountDisplay(count: number) {
