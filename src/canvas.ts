@@ -44,7 +44,6 @@ export class Canvas {
     ): void {
         this.cameraPosition = cameraPosition;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.setScreenSize();
         this.drawGhosts(creatures);
         creatures.forEach((creature) => {
             this.drawCreature(creature);
