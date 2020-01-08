@@ -42,7 +42,7 @@ export class InputHandler {
         });
         this.hunterSpeedSlider.addEventListener("input", () => {
             this.updateHunterSpeed(+this.hunterSpeedSlider.value, +this.hunterSpeedSlider.min, +this.hunterSpeedSlider.max);
-        })
+        });
     }
 
     public handleMouseClick(event: MouseEvent) {
@@ -135,7 +135,7 @@ export class InputHandler {
     }
 
     private updateHunterSpeed(sliderValue: number, sliderMin: number, sliderMax: number) {
-        const percentageAlongSlider = (sliderValue - sliderMin) / (sliderMax - sliderMin)
+        const percentageAlongSlider = (sliderValue - sliderMin) / (sliderMax - sliderMin);
         const newMaxSpeed = this.getValueInRangeByPercentage(config.hunter.lowerMaxSpeed, config.hunter.upperMaxSpeed, percentageAlongSlider);
         const newMinSpeed = this.getValueInRangeByPercentage(config.hunter.lowerMinSpeed, config.hunter.upperMinSpeed, percentageAlongSlider);
         config.hunter.minSpeed = newMinSpeed;
