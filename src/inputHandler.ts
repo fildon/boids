@@ -9,6 +9,7 @@ export class InputHandler {
     private separationLabel: HTMLElement;
     private alignmentLabel: HTMLElement;
     private cohesionLabel: HTMLElement;
+    private hunterSpeedSlider: HTMLInputElement;
 
     private left = false;
     private right = false;
@@ -26,6 +27,7 @@ export class InputHandler {
         this.separationLabel = document.getElementById("separation-status")!;
         this.alignmentLabel = document.getElementById("alignment-status")!;
         this.cohesionLabel = document.getElementById("cohesion-status")!;
+        this.hunterSpeedSlider = document.getElementById("hunter-speed-slider") as HTMLInputElement;
         this.canvas.onclick((event: MouseEvent) => {
             this.handleMouseClick(event);
         });
@@ -38,6 +40,9 @@ export class InputHandler {
         window.addEventListener("keydown", (event) => {
             this.setArrow(event.key, true);
         });
+        this.hunterSpeedSlider.addEventListener("input", () => {
+            this.updateHunterSpeed(+this.hunterSpeedSlider.value, +this.hunterSpeedSlider.min, +this.hunterSpeedSlider.max);
+        })
     }
 
     public handleMouseClick(event: MouseEvent) {
@@ -127,5 +132,17 @@ export class InputHandler {
             default:
                 return;
           }
+    }
+
+    private updateHunterSpeed(sliderValue: number, sliderMin: number, sliderMax: number) {
+        const percentageAlongSlider = (sliderValue - sliderMin) / (sliderMax - sliderMin)
+        const newMaxSpeed = this.getValueInRangeByPercentage(config.hunter.lowerMaxSpeed, config.hunter.upperMaxSpeed, percentageAlongSlider);
+        const newMinSpeed = this.getValueInRangeByPercentage(config.hunter.lowerMinSpeed, config.hunter.upperMinSpeed, percentageAlongSlider);
+        config.hunter.minSpeed = newMinSpeed;
+        config.hunter.maxSpeed = newMaxSpeed;
+    }
+
+    private getValueInRangeByPercentage(min: number, max: number, percentageBetween: number) {
+        return min + ((max - min) * percentageBetween);
     }
 }

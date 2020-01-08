@@ -20,6 +20,8 @@ export class Hunter extends BehaviourControlledCreature {
     }
 
     public update() {
+        this.minSpeed = config.hunter.minSpeed;
+        this.maxSpeed = config.hunter.maxSpeed;
         this.eat();
         this.move();
     }
