@@ -10,11 +10,11 @@
     "main": "app.js",
     "scripts": {
         "build": "tsc && npx webpack --config webpack.config.js --mode=production",
-        "full": "npm run build && npm run lint && npm run coverage",
+        "full": "npm run build && npm run lint && npm run test",
         "lint": "tslint -c tslint.json src/**/*.ts",
         "mutation": "stryker run",
         "test": "nyc mocha",
-        "coverage": "nyc --check-coverage --lines 85 mocha"
+        "coverage": "nyc --check-coverage mocha"
     },
     "nyc": {
         "include": [
