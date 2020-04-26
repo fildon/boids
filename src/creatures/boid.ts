@@ -11,11 +11,11 @@ export class Boid extends BehaviourControlledCreature {
   public fearCountdown = 0;
   public heading = 2 * Math.PI * Math.random();
   public speed = config.boid.maxSpeed;
-  public priorities = [
-    new Behaviour(() => this.hunterEvasionVector(), () => "red"),
-    new Behaviour(() => this.repulsionVector(), () => this.fearCountdown ? "red" : "orange"),
-    new Behaviour(() => this.alignmentVector(), () => this.fearCountdown ? "red" : "blue"),
-    new Behaviour(() => this.attractionVector(), () => this.fearCountdown ? "red" : "green"),
+  public behaviours = [
+    new Behaviour(() => this.hunterEvasionVector(), () => 100, () => "red"),
+    new Behaviour(() => this.repulsionVector(), () => 50, () => this.fearCountdown ? "red" : "orange"),
+    new Behaviour(() => this.alignmentVector(), () => 20, () => this.fearCountdown ? "red" : "blue"),
+    new Behaviour(() => this.attractionVector(), () => 10, () => this.fearCountdown ? "red" : "green"),
   ];
 
   public initializeVelocity(): void {

@@ -8,7 +8,7 @@ import { Creature } from "./creature";
 export abstract class BehaviourControlledCreature extends Creature {
   public abstract defaultColour: string;
   public colour = "black";
-  public abstract priorities: Behaviour[];
+  public abstract behaviours: Behaviour[];
   public abstract maxSpeed: number;
   public abstract minSpeed: number;
   public position: Vector2;
@@ -45,24 +45,19 @@ export abstract class BehaviourControlledCreature extends Creature {
   }
 
   public updateHeading(): void {
-    const priority = this.getCurrentPriorityOrNull();
-    if (priority) {
-      this.updateHeadingTowards(priority.idealHeading);
-      this.colour = priority.color;
+    const priorities = this.getCurrentPriorities().sort((a, b) => b.weight - a.weight);
+    if (priorities.length === 0) {
+      this.defaultBehaviour();
       return;
     }
-
-    this.defaultBehaviour();
+    this.colour = priorities[0].color;
+    this.updateHeadingTowards(Vector2.weightedAverage(priorities));
   }
 
-  public getCurrentPriorityOrNull(): Priority | null {
-    for (const priority of this.priorities) {
-      const priorityNow = priority.getCurrentPriority();
-      if (priorityNow) {
-        return priorityNow;
-      }
-    }
-    return null;
+  public getCurrentPriorities(): Priority[] {
+    return this.behaviours
+      .map((behaviour) => behaviour.getCurrentPriority())
+      .filter((priority) => priority && priority.vector.length && priority.weight) as Priority[];
   }
 
   public defaultBehaviour(): void {

@@ -10,8 +10,8 @@ export class Hunter extends BehaviourControlledCreature {
   public size = config.hunter.size;
   public heading = 0;
   public speed = 0;
-  public priorities = [
-    new Behaviour(() => this.huntingVector(), () => "DeepPink"),
+  public behaviours = [
+    new Behaviour(() => this.huntingVector(), () => 10, () => "DeepPink"),
   ];
 
   public initializeVelocity(): void {
