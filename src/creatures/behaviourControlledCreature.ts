@@ -4,6 +4,7 @@ import { Behaviour } from "./behaviour";
 import { Priority } from "./priority";
 import { CreatureStorage } from "../creatureStorage";
 import { Creature } from "./creature";
+import WeightedVector2 from "../weightedVector2";
 
 export abstract class BehaviourControlledCreature extends Creature {
   public abstract defaultColour: string;
@@ -45,19 +46,22 @@ export abstract class BehaviourControlledCreature extends Creature {
   }
 
   public updateHeading(): void {
-    const priorities = this.getCurrentPriorities().sort((a, b) => b.weight - a.weight);
+    const priorities = this.getCurrentPriorities().sort((a, b) => b.weightedVector.weight - a.weightedVector.weight);
     if (priorities.length === 0) {
       this.defaultBehaviour();
       return;
     }
     this.colour = priorities[0].color;
-    this.updateHeadingTowards(Vector2.weightedAverage(priorities));
+    this.updateHeadingTowards(WeightedVector2.average(priorities.map((priority) => priority.weightedVector)));
   }
 
   public getCurrentPriorities(): Priority[] {
     return this.behaviours
       .map((behaviour) => behaviour.getCurrentPriority())
-      .filter((priority) => priority && priority.vector.length && priority.weight) as Priority[];
+      .filter((priority) =>
+        priority &&
+        priority.weightedVector.vector.length && priority.weightedVector.weight,
+    ) as Priority[];
   }
 
   public defaultBehaviour(): void {

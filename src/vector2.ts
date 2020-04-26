@@ -12,23 +12,6 @@ export class Vector2 {
     return totalVector.scaleByScalar(1 / vectors.length);
   }
 
-  public static weightedAverage(weightedVectors: Array<{ vector: Vector2, weight: number}>): Vector2 {
-    if (weightedVectors.length === 0) {
-      return new Vector2();
-    }
-    const weightedAverage = weightedVectors.reduce((partial, current) => {
-      return {
-        vector: partial.vector.add(current.vector.scaleByScalar(current.weight)),
-        weight: partial.weight + current.weight,
-      };
-    }, {
-      vector: new Vector2(),
-      weight: 0,
-    });
-
-    return weightedAverage.vector.scaleByScalar(1 / weightedAverage.weight);
-  }
-
   public static fromHeadingAndSpeed(heading: number, speed: number): Vector2 {
     if (!speed) {
       return new Vector2(0, 0);

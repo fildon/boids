@@ -2,6 +2,7 @@ import { config } from "../config";
 import { Vector2 } from "../vector2";
 import { Behaviour } from "./behaviour";
 import { BehaviourControlledCreature } from "./behaviourControlledCreature";
+import WeightedVector2 from "../weightedVector2";
 
 export class Boid extends BehaviourControlledCreature {
   public defaultColour = config.boid.defaultColour;
@@ -12,10 +13,10 @@ export class Boid extends BehaviourControlledCreature {
   public heading = 2 * Math.PI * Math.random();
   public speed = config.boid.maxSpeed;
   public behaviours = [
-    new Behaviour(() => this.hunterEvasionVector(), () => 100, () => "red"),
-    new Behaviour(() => this.repulsionVector(), () => 50, () => this.fearCountdown ? "red" : "orange"),
-    new Behaviour(() => this.alignmentVector(), () => 20, () => this.fearCountdown ? "red" : "blue"),
-    new Behaviour(() => this.attractionVector(), () => 10, () => this.fearCountdown ? "red" : "green"),
+    new Behaviour(() => this.hunterEvasion(), () => "red"),
+    new Behaviour(() => this.repulsion(), () => this.fearCountdown ? "red" : "orange"),
+    new Behaviour(() => this.alignment(), () => this.fearCountdown ? "red" : "blue"),
+    new Behaviour(() => this.attraction(), () => this.fearCountdown ? "red" : "green"),
   ];
 
   public initializeVelocity(): void {
@@ -30,7 +31,7 @@ export class Boid extends BehaviourControlledCreature {
     this.move();
   }
 
-  public hunterEvasionVector(): Vector2 | null {
+  public hunterEvasion(): WeightedVector2 {
     const huntersInSight = this.creatureStorage.getHuntersInArea(
       this.position,
       config.boid.visionRadius,
@@ -38,7 +39,7 @@ export class Boid extends BehaviourControlledCreature {
       return Math.random() < hunter.chanceToSee(this.position, config.boid.visionRadius);
     });
     if (huntersInSight.length === 0) {
-      return null;
+      return new WeightedVector2();
     }
 
     this.fearCountdown = config.boid.fearDuration;
@@ -47,67 +48,91 @@ export class Boid extends BehaviourControlledCreature {
       huntersInSight,
     );
 
-    return nearestHunter.position
-      .vectorTo(this.position)
-      .scaleToLength(this.maxSpeed);
+    const vectorToMe = nearestHunter.position.vectorTo(this.position);
+
+    return new WeightedVector2(
+      vectorToMe
+        .scaleToLength(this.maxSpeed),
+      100,
+    );
   }
 
-  public repulsionVector(): Vector2 | null {
+  public repulsion(): WeightedVector2 {
     const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(
       this.position,
       config.boid.repulsionRadius,
     ).filter((boid) => boid !== this);
     if (neighbours.length === 0) {
-      return null;
+      return new WeightedVector2();
     }
-    return Vector2.average(
-      neighbours.map((creature) => {
-        return creature.position.vectorTo(this.position);
-      }),
-    ).scaleToLength(
-      this.fearCountdown
-      ? this.maxSpeed
-      : this.speed * 0.9);
+
+    const repulsionVectors = neighbours
+    .map((creature) =>
+      creature.position.vectorTo(this.position),
+    ).map((vector) => new WeightedVector2(
+      vector,
+      this.repulsionWeightFrom(vector),
+    ));
+    const totalWeight = repulsionVectors.reduce((partialWeight, current) => {
+      return partialWeight + current.weight;
+    }, 0);
+
+    return new WeightedVector2(
+      WeightedVector2.average(repulsionVectors),
+      totalWeight,
+    );
   }
 
-  public alignmentVector(): Vector2 | null {
+  public repulsionWeightFrom(vector: Vector2): number {
+    const intrusion = config.boid.repulsionRadius - vector.length;
+    const normalizedIntrusion = intrusion / config.boid.repulsionRadius;
+    const smoothedIntrusion = Math.pow(normalizedIntrusion, 2);
+    return smoothedIntrusion * config.boid.repulsionRadius;
+  }
+
+  public alignment(): WeightedVector2 {
     const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(
       this.position,
       config.boid.alignmentRadius,
     ).filter((boid) => boid !== this);
     if (neighbours.length === 0) {
-      return null;
+      return new WeightedVector2();
     }
     const averageAlignmentVector = Vector2.average(
       neighbours.map((creature) => {
         return creature.velocity();
       }),
     );
-    if (this.fearCountdown) {
-      return averageAlignmentVector.scaleToLength(this.maxSpeed);
-    }
-    return averageAlignmentVector;
+    return new WeightedVector2(
+      this.fearCountdown ?
+        averageAlignmentVector.scaleToLength(this.maxSpeed) :
+        averageAlignmentVector,
+      15,
+    );
   }
 
-  public attractionVector(): Vector2 | null {
+  public attraction(): WeightedVector2 {
     const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(
       this.position,
       config.boid.attractionRadius,
     ).filter((boid) => boid !== this);
     if (neighbours.length === 0) {
-      return null;
+      return new WeightedVector2();
     }
 
     const nearestNeighbour = this.nearestCreatureToPosition(
       neighbours,
     );
 
-    return this.position
-      .vectorTo(nearestNeighbour.position)
-      .scaleToLength(
-        this.fearCountdown
-        ? this.maxSpeed
-        : nearestNeighbour.speed * 1.1);
+    return new WeightedVector2(
+      this.position
+        .vectorTo(nearestNeighbour.position)
+        .scaleToLength(
+          this.fearCountdown
+          ? this.maxSpeed
+          : nearestNeighbour.speed * 1.1),
+      10,
+    );
   }
 
   public die(): void {

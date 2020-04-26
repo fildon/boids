@@ -1,19 +1,17 @@
-import { Vector2 } from "../vector2";
+import WeightedVector2 from "../weightedVector2";
 import { Priority } from "./priority";
 
 export class Behaviour {
   constructor(
-    public getIdealHeading: (() => Vector2 | null),
-    public getWeight: () => number,
+    public getIdealWeightedHeading: (() => WeightedVector2),
     public getColor: () => string,
   ) {
   }
   public getCurrentPriority(): Priority | null {
-    const currentPriority = this.getIdealHeading();
-    if (currentPriority) {
+    const weightedHeading = this.getIdealWeightedHeading();
+    if (weightedHeading.weight > 0) {
       return new Priority(
-        currentPriority,
-        this.getWeight(),
+        weightedHeading,
         this.getColor(),
       );
     }

@@ -11,7 +11,7 @@ export class Hunter extends BehaviourControlledCreature {
   public heading = 0;
   public speed = 0;
   public behaviours = [
-    new Behaviour(() => this.huntingVector(), () => 10, () => "DeepPink"),
+     // new Behaviour(() => this.huntingVector(), () => 10, () => "DeepPink"),
   ];
 
   public initializeVelocity(): void {

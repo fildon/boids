@@ -1,9 +1,8 @@
-import { Vector2 } from "../vector2";
+import WeightedVector2 from "../weightedVector2";
 
 export class Priority {
   constructor(
-    public vector: Vector2,
-    public weight: number,
+    public weightedVector: WeightedVector2,
     public color: string,
   ) {}
 }

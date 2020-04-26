@@ -44,11 +44,11 @@ describe("Boid", () => {
       boidA.position = new Vector2(1, 1).scaleToLength(config.boid.repulsionRadius / 2);
       creatureStorage.update();
 
-      const actual = boid.repulsionVector();
+      const actual = boid.repulsion();
       const expected = new Vector2(-1, -1);
 
       expect(actual).not.to.be.null;
-      expect(actual!.isParallelTo(expected)).to.be.true;
+      expect(actual!.vector.isParallelTo(expected)).to.be.true;
     });
 
     it("gets a repulsion vector with multiple boids too near", () => {
@@ -60,20 +60,20 @@ describe("Boid", () => {
       boidB.position = new Vector2(1, 0).scaleToLength(config.boid.repulsionRadius / 2);
       creatureStorage.update();
 
-      const actual = boid.repulsionVector()!;
+      const actual = boid.repulsion()!;
       const expected = new Vector2(-1, -1);
 
-      expect(actual.isParallelTo(expected)).to.be.true;
+      expect(actual.vector.isParallelTo(expected)).to.be.true;
     });
   });
 
   describe("attraction", () => {
-    it("returns null if no other boids in range", () => {
+    it("returns zero weighted vector if no other boids in range", () => {
       const boid = creatureStorage.addBoid();
 
-      const actual = boid.attractionVector();
+      const actual = boid.attraction();
 
-      expect(actual).to.equal(null);
+      expect(actual.weight).to.equal(0);
     });
 
     it("attracts to sole boid in range", () => {
@@ -83,10 +83,10 @@ describe("Boid", () => {
       nearBoid.position = new Vector2(1, 1);
       creatureStorage.update();
 
-      const actual = boid.attractionVector()!;
+      const actual = boid.attraction()!;
       const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
-      expect(actual.isParallelTo(expected)).to.be.true;
+      expect(actual.vector.isParallelTo(expected)).to.be.true;
     });
 
     it("attracts only to nearest of multiple near boids", () => {
@@ -98,10 +98,10 @@ describe("Boid", () => {
       boidFurther.position = new Vector2(1.1, 1.1);
       creatureStorage.update();
 
-      const actual = boid.attractionVector()!;
+      const actual = boid.attraction()!;
       const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
-      expect(actual.isParallelTo(expected)).to.be.true;
+      expect(actual.vector.isParallelTo(expected)).to.be.true;
     });
   });
 
