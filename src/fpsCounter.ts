@@ -8,20 +8,28 @@ export class FpsCounter {
 
   private fpsLabel: HTMLElement;
   private recentFrames: number[] = [];
+  private start: number;
 
   private constructor() {
     this.fpsLabel = document.getElementById("fps-status")!;
+    this.start = performance.now();
   }
 
   public countFrame(): void {
     this.recentFrames.push(performance.now());
   }
 
-  public updateFps(): void {
+  public getFPS(): number {
     const currentTime = performance.now();
-    this.recentFrames = this.recentFrames.filter(
+    const multiplier = currentTime - this.start < this.SECOND ?
+      Math.floor(1000 / (currentTime - this.start)) :
+      1;
+    return this.recentFrames.filter(
       (drawTime: number) => drawTime >= currentTime - this.SECOND,
-    );
-    this.fpsLabel.textContent = this.recentFrames.length.toString();
+    ).length * multiplier;
+  }
+
+  public updateFps(): void {
+    this.fpsLabel.textContent = this.getFPS().toString();
   }
 }

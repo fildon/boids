@@ -1,15 +1,15 @@
 import { Canvas } from "./canvas";
-import { config } from "./config";
 import { InputHandler } from "./inputHandler";
 import { CreatureStorage } from "./creatureStorage";
 import { Vector2 } from "./vector2";
-import PlayerFish from "./creatures/playerFish";
+import { FpsCounter } from "./fpsCounter";
 
 export class SimulationManager {
   private canvas: Canvas;
   private inputHandler: InputHandler;
   private creatureStorage: CreatureStorage;
-  private playerFish: PlayerFish;
+  private addingBoids = true;
+  private readonly fpsTarget = 60;
   constructor() {
     const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
     if (!canvasElement) {
@@ -23,13 +23,6 @@ export class SimulationManager {
     );
 
     this.creatureStorage = new CreatureStorage(this.inputHandler);
-    for (let i = 0; i < config.boid.quantity; i++) {
-      this.creatureStorage.addBoid();
-    }
-    for (let i = 0; i < config.hunter.quantity; i++) {
-      this.creatureStorage.addHunter();
-    }
-    this.playerFish = this.creatureStorage.addPlayerFish();
   }
 
   public createBoid(position?: Vector2) {
@@ -50,10 +43,9 @@ export class SimulationManager {
     previousTime = currentTime;
     lag += elapsed;
 
-    while (lag >= 1000 / 60) {
-      this.playerFish.update();
+    while (lag >= 1000 / this.fpsTarget) {
       this.updateSimulation();
-      lag -= 1000 / 60;
+      lag -= 1000 / this.fpsTarget;
     }
 
     this.renderSimulation();
@@ -61,6 +53,15 @@ export class SimulationManager {
   }
 
   public updateSimulation(): void {
+    if (this.addingBoids) {
+      if (FpsCounter.getFpsCounter().getFPS() > this.fpsTarget * 1.2) {
+        if (Math.random() < 0.2) {
+          this.creatureStorage.addBoid();
+        }
+      } else {
+        this.addingBoids = false;
+      }
+    }
     this.creatureStorage.update();
     for (const boid of this.creatureStorage.getAllBoids()) {
       boid.update();
@@ -73,7 +74,6 @@ export class SimulationManager {
   public renderSimulation(): void {
     this.canvas.draw(
       this.creatureStorage.getAllCreatures(),
-      this.playerFish.position,
     );
     this.updateHunterCountDisplay(
       this.creatureStorage.getHunterCount(),

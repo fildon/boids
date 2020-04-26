@@ -40,7 +40,7 @@ export class Canvas {
 
   public draw(
     creatures: Creature[],
-    cameraPosition: Vector2,
+    cameraPosition: Vector2 = new Vector2(window.innerWidth / 2, window.innerHeight / 2),
   ): void {
     this.cameraPosition = cameraPosition;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
