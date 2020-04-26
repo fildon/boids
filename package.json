@@ -3,7 +3,7 @@
     "description": "An implementation of boids",
     "repository": {
         "type": "git",
-        "url": "https://github.corm/fildon/fildon.github.io"
+        "url": "https://github.com/fildon/fildon.github.io"
     },
     "license": "MIT",
     "version": "1.0.0",
