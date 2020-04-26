@@ -1,13 +1,13 @@
 export class FpsCounter {
+    public static getFpsCounter(): FpsCounter {
+        return this.fpsCounter || (this.fpsCounter = new FpsCounter());
+    }
+
+    private static fpsCounter: FpsCounter;
     private readonly SECOND = 1000;
-    private static _fpsCounter: FpsCounter;
 
     private fpsLabel: HTMLElement;
     private recentFrames: number[] = [];
-
-    public static getFpsCounter(): FpsCounter {
-        return this._fpsCounter || (this._fpsCounter = new FpsCounter());
-    }
 
     private constructor() {
         this.fpsLabel = document.getElementById("fps-status")!;
@@ -18,9 +18,9 @@ export class FpsCounter {
     }
 
     public updateFps(): void {
-        const currentTime = performance.now()
+        const currentTime = performance.now();
         this.recentFrames = this.recentFrames.filter(
-            (drawTime: number) => drawTime >= currentTime - this.SECOND
+            (drawTime: number) => drawTime >= currentTime - this.SECOND,
         );
         this.fpsLabel.textContent = this.recentFrames.length.toString();
     }
