@@ -1,18 +1,37 @@
 import { config } from "../config";
 import { Vector2 } from "../vector2";
-import { Behaviour } from "./behaviour";
-import { BehaviourControlledCreature } from "./behaviourControlledCreature";
+import { Creature } from "./creature";
+import { CreatureStorage } from "../creatureStorage";
+import { Net } from "../neural/net";
 
-export class Hunter extends BehaviourControlledCreature {
-  public defaultColour = config.hunter.defaultColour;
+export class Hunter extends Creature {
+  public colour = config.hunter.defaultColour;
   public maxSpeed = config.hunter.maxSpeed;
   public minSpeed = config.hunter.minSpeed;
   public size = config.hunter.size;
   public heading = 0;
   public speed = 0;
-  public behaviours = [
-     // new Behaviour(() => this.huntingVector(), () => 10, () => "DeepPink"),
-  ];
+  public history: Vector2[] = [];
+  public position: Vector2;
+  private static readonly netSizeSchema = [1, 3, 2]
+  private net: Net;
+
+  constructor(
+    public readonly id: number = 0,
+    public creatureStorage: CreatureStorage,
+    position?: Vector2,
+  ) {
+    super();
+    this.position = position || new Vector2(
+      Math.random() * config.screen.maxX,
+      Math.random() * config.screen.maxY,
+    );
+    for (let i = 0; i < config.creature.maxHistory; i++) {
+      this.history.push(this.position);
+    }
+    this.initializeVelocity();
+    this.net = new Net(Hunter.netSizeSchema)
+  }
 
   public initializeVelocity(): void {
     this.heading = Math.random() * 2 * Math.PI;
@@ -22,33 +41,7 @@ export class Hunter extends BehaviourControlledCreature {
   public update() {
     this.eat();
     this.move();
-  }
-
-  public chanceToSee(viewerPosition: Vector2, viewerSightRange: number): number {
-    const distance = viewerPosition.distance(this.position);
-    const visibilityFromDistance = (viewerSightRange - distance) / viewerSightRange;
-    const visibilityFromSpeed =
-      (this.speed - config.hunter.minSpeed)
-      / (config.hunter.maxSpeed - config.hunter.minSpeed);
-    return visibilityFromDistance * visibilityFromSpeed;
-  }
-
-  public huntingVector(): Vector2 | null {
-    const preyInSight = this.creatureStorage.getBoidsInArea(
-      this.position,
-      config.hunter.visionRadius,
-    );
-
-    if (preyInSight.length === 0) {
-      return null;
-    }
-
-    const nearestPrey = this.nearestCreatureToPosition(
-      preyInSight,
-    );
-    return this.position
-      .vectorTo(nearestPrey.position.add(nearestPrey.velocity()))
-      .scaleToLength(config.hunter.maxSpeed);
+    this.updateHistory();
   }
 
   public eat() {
@@ -58,7 +51,39 @@ export class Hunter extends BehaviourControlledCreature {
     ).forEach((prey) => prey.die());
   }
 
-  public die(): void {
-    this.creatureStorage.remove(this.id);
+  public move() {
+    this.updateHistory();
+    this.position = this.position.add(this.velocity()).normalize();
+    const inputVector = this.getNeuralNetInputVector();
+    const outputVector = this.net.processInput(inputVector);
+    this.parseOutputToAction(outputVector);
+
+    // TODO ... update net to learn?
+  }
+
+  private getNeuralNetInputVector(): number[] {
+    // TODO this will error if there are no boids
+    const nearestBoid = this.creatureStorage.getAllBoids().sort((a, b) => {
+      return a.distanceToCreature(this) - b.distanceToCreature(this)
+    })[0]
+
+    const shortestPath = this.position.vectorTo(nearestBoid.position)
+
+    const targetHeadingRadians = this.velocity().angleTo(shortestPath)
+    const normalisedTarget = (targetHeadingRadians / (2 * Math.PI)) + 0.5
+    return [normalisedTarget]
+  }
+
+  private parseOutputToAction(outputVector: number[]): void {
+    const rotationDecision = outputVector[0]
+    const maximumLeft = this.heading - config.creature.turningMax
+    const fullTurningRange = config.creature.turningMax * 2
+    this.heading = maximumLeft + rotationDecision * fullTurningRange
+
+    const accelerationDecision = outputVector[1]
+    const minimumSpeed = this.speed - config.creature.acceleration
+    const fullSpeedRange = config.creature.acceleration * 2
+    const targetSpeed = minimumSpeed + fullSpeedRange * accelerationDecision
+    this.speed = Math.min(Math.max(targetSpeed, 0), config.hunter.maxSpeed)
   }
 }

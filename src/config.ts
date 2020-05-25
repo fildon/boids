@@ -21,11 +21,11 @@ export const config = {
     turningMax: 0.2, // radians
   },
   hunter: {
-    defaultColour: "yellow",
+    defaultColour: "pink",
     eatRadius: 20,
     maxSpeed: 5,
-    minSpeed: 4,
-    quantity: 0,
+    minSpeed: 0,
+    quantity: 1,
     size: 8,
     visionRadius: 90,
   },

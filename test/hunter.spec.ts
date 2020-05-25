@@ -31,35 +31,6 @@ describe("Hunter", () => {
     })
   });
 
-  describe("hunting vector", () => {
-    it("returns null if no prey in sight", () => {
-      const hunter = creatureStorage.addHunter();
-
-      const actual = hunter.huntingVector();
-
-      expect(actual).to.equal(null);
-    });
-
-    it("points towards nearest prey in sight", () => {
-      const hunter = creatureStorage.addHunter();
-      const boid = creatureStorage.addBoid();
-      hunter.position = new Vector2(1, 1);
-      boid.position = new Vector2(2, 3);
-      boid.speed = 0;
-      creatureStorage.update();
-
-      const actual = hunter.huntingVector();
-      const expected = new Vector2(1, 2);
-
-      expect(actual).to.not.equal(null);
-      expect(Math.abs(actual!.toHeading() - expected.toHeading()))
-        .to.be.lte(
-          0.001,
-          `huntingVector was ${actual!.toString()}`
-        );
-    });
-  });
-
   describe("eating", () => {
     it("eats a boid in range", () => {
       const hunter = creatureStorage.addHunter();

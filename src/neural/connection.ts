@@ -5,7 +5,7 @@ export class Connection {
   private output: Neuron;
   private weight: number;
 
-  constructor(input: Neuron, output: Neuron, weight: number = 2 * Math.random() - 1) {
+  constructor(input: Neuron, output: Neuron, weight: number = Math.random() * 2) {
     this.input = input;
     this.output = output;
     this.weight = weight;

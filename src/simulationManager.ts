@@ -25,6 +25,9 @@ export class SimulationManager {
     for (let i = 0; i < config.boid.quantity; i++) {
       this.creatureStorage.addBoid();
     }
+    for (let i = 0; i < config.hunter.quantity; i++) {
+      this.creatureStorage.addHunter();
+    }
   }
 
   public createBoid(position?: Vector2) {
