@@ -10,11 +10,17 @@
   "main": "entry.ts",
   "scripts": {
     "build": "yarn webpack --config webpack.config.js --mode=production",
+    "coverage": "jest --coverage",
     "lint": "yarn eslint . --ext .ts",
     "mutation": "stryker run",
     "test": "jest",
-    "coverage": "jest --coverage"
+    "uploadCoverage": "grunt coveralls:main"
   },
+  "pre-commit": [
+    "lint",
+    "coverage",
+    "uploadCoverage"
+  ],
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.10.1",
@@ -32,6 +38,7 @@
     "grunt": "^1.1.0",
     "grunt-coveralls": "^2.0.0",
     "jest": "^26.0.1",
+    "pre-commit": "^1.2.2",
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.3",
     "webpack": "^4.43.0",
