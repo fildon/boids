@@ -9,6 +9,9 @@ The concept is simple, flocking can be simulated with just three fundamental rul
 - Alignment (travel in the same direction as nearby birds)
 - Cohesion (get close to nearby birds)
 
+You can view the currently deployed simulation here:
+https://fildon.github.io/boids/
+
 ## Local Development
 
     yarn install
