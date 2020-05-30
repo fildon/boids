@@ -9,9 +9,8 @@ The concept is simple, flocking can be simulated with just three fundamental rul
 
 ## Getting Started
 
-```
-npm install
-npm run build
-```
+    yarn install
+    yarn run build
+
 
 Then open index.html in the root folder of the project
