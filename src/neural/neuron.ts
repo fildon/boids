@@ -27,12 +27,36 @@ export class Neuron {
 
   // Activation function
   public updateValue(): void {
+    this.step3Function()
+  }
+
+  private step2Function(): void {
     // This implementation is the classic step function
     const inputSum = this.inputs.reduce(
-      (prev, curr) => prev + curr.getWeightedOutput(),
+      (prev, curr) => prev + curr.getNormalizedOutput(),
       0
     )
+
     const averageInput = inputSum / this.inputs.length;
     this.value = averageInput < 0.5 ? 0 : 1;
+  }
+
+  private step3Function(): void {
+    // Variant step function allow 3-state outputs
+    const inputSum = this.inputs.reduce(
+      (prev, curr) => prev + curr.getNormalizedOutput(),
+      0
+    )
+
+    const averageInput = inputSum / this.inputs.length;
+    if (averageInput < 1 / 3) {
+      this.value = 0
+      return;
+    }
+    if (averageInput < 2 / 3) {
+      this.value = 0.5
+      return;
+    }
+    this.value = 1
   }
 }

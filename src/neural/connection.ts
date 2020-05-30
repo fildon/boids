@@ -5,13 +5,13 @@ export class Connection {
   private output: Neuron;
   private weight: number;
 
-  constructor(input: Neuron, output: Neuron, weight: number = Math.random() * 2) {
+  constructor(input: Neuron, output: Neuron, weight: number = Math.random()) {
     this.input = input;
     this.output = output;
     this.weight = weight;
   }
 
-  public getWeightedOutput(): number {
-    return this.input.value * this.weight
+  public getNormalizedOutput(): number {
+    return 2 * this.input.value * this.weight
   }
 }
