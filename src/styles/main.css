@@ -1,26 +1,26 @@
 body {
-    overflow: hidden;
-    margin: 0;
+  overflow: hidden;
+  margin: 0;
 }
 
 canvas {
-    position: absolute;
-    top: 0;
+  position: absolute;
+  top: 0;
 }
 
 #side-bar {
-    position: absolute;
-    z-index: 1;
+  position: absolute;
+  z-index: 1;
 }
 
 .info-block {
-    display: table-row;
+  display: table-row;
 }
 
 .rule-status {
-    color: green;
-    font-weight: bold;
-    margin: 0 10px;
-    width: 50px;
-    display: inline-block
+  color: green;
+  font-weight: bold;
+  margin: 0 10px;
+  width: 50px;
+  display: inline-block
 }
