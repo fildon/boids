@@ -1,20 +1,15 @@
-import * as chai from "chai";
-import * as mocha from "mocha";
-import * as sinon from "sinon";
 import { Vector2 } from "geometry/vector2";
 import { CreatureStorage } from "stateManagement/creatureStorage";
 import { InputHandler } from "ui/inputHandler";
 
-const expect = chai.expect;
-
-describe("Hunter", () => {
+describe.skip("Hunter", () => {
   let creatureStorage: CreatureStorage;
   beforeEach(() => {
     const inputHandlerMock = <InputHandler> <any> (sinon.mock(InputHandler));
     creatureStorage = new CreatureStorage(inputHandlerMock);
   });
   afterEach(() => {
-    sinon.restore();
+    // sinon.restore();
   });
 
   describe("update", () => {
