@@ -1,5 +1,5 @@
-import { Vector } from 'geometry/vector';
-import { config } from 'stateManagement/config';
+import { Vector } from '../geometry/vector';
+import { config } from '../stateManagement/config';
 import { Canvas } from './canvas';
 
 export class InputHandler {

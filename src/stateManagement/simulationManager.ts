@@ -1,8 +1,8 @@
-import { Canvas } from 'ui/canvas';
+import { Canvas } from '../ui/canvas';
 import { config } from './config';
-import { InputHandler } from 'ui/inputHandler';
+import { InputHandler } from '../ui/inputHandler';
 import { CreatureStorage } from './creatureStorage';
-import { Vector } from 'geometry/vector';
+import { Vector } from '../geometry/vector';
 
 export class SimulationManager {
   private canvas: Canvas;

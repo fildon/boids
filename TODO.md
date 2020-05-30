@@ -18,9 +18,7 @@ Need a way to serialize a net to file
 Need a way to load a net from a file
 This will allow learning to take place over multiple separate training runs
 
-Convert to jest
-ignore file currently mentions mocha etc
-Stryker will need reconfiguring
+Stryker will need reconfiguring to jest
 
 Update all dependencies
 

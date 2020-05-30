@@ -1,8 +1,8 @@
-import { config } from 'stateManagement/config';
-import { Vector } from 'geometry/vector';
+import { config } from '../stateManagement/config';
+import { Vector } from '../geometry/vector';
 import { Behaviour } from './behaviour';
 import { BehaviourControlledCreature } from './behaviourControlledCreature';
-import WeightedVector from 'geometry/weightedVector';
+import WeightedVector from '../geometry/weightedVector';
 
 export class Boid extends BehaviourControlledCreature {
   public defaultColour = config.boid.defaultColour;

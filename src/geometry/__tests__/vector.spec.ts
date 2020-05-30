@@ -1,5 +1,5 @@
-import { config } from 'stateManagement/config';
-import { Vector } from 'geometry/vector';
+import { config } from '../../stateManagement/config';
+import { Vector } from '../../geometry/vector';
 
 describe('Vector', () => {
   describe('distance', () => {

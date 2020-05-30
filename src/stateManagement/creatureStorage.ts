@@ -1,7 +1,7 @@
-import { Creature } from 'creatures/creature';
-import { Hunter } from 'creatures/hunter';
-import { Boid } from 'creatures/boid';
-import { Vector } from 'geometry/vector';
+import { Creature } from '../creatures/creature';
+import { Hunter } from '../creatures/hunter';
+import { Boid } from '../creatures/boid';
+import { Vector } from '../geometry/vector';
 import { config } from './config';
 
 export class CreatureStorage {

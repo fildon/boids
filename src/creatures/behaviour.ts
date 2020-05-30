@@ -1,5 +1,5 @@
-import WeightedVector from 'geometry/weightedVector';
-import { Priority } from 'creatures/priority';
+import WeightedVector from '../geometry/weightedVector';
+import { Priority } from './priority';
 
 export class Behaviour {
   constructor(

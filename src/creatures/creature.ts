@@ -1,4 +1,4 @@
-import { Vector } from 'geometry/vector';
+import { Vector } from '../geometry/vector';
 
 export abstract class Creature {
   public abstract position: Vector;

@@ -1,6 +1,6 @@
-import { config } from 'stateManagement/config';
-import { Vector } from 'geometry/vector';
-import { CreatureStorage } from 'stateManagement/creatureStorage';
+import { config } from '../../stateManagement/config';
+import { Vector } from '../../geometry/vector';
+import { CreatureStorage } from '../../stateManagement/creatureStorage';
 
 describe('Boid', () => {
   let creatureStorage: CreatureStorage;

@@ -1,5 +1,5 @@
-import { Vector } from 'geometry/vector';
-import { CreatureStorage } from 'stateManagement/creatureStorage';
+import { Vector } from '../../geometry/vector';
+import { CreatureStorage } from '../../stateManagement/creatureStorage';
 
 describe('Hunter', () => {
   let creatureStorage: CreatureStorage;

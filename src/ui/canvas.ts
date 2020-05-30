@@ -1,6 +1,6 @@
-import { config } from 'stateManagement/config';
-import { Creature } from 'creatures/creature';
-import { Vector } from 'geometry/vector';
+import { config } from '../stateManagement/config';
+import { Creature } from '../creatures/creature';
+import { Vector } from '../geometry/vector';
 import { FpsCounter } from './fpsCounter';
 
 export class Canvas {

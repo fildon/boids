@@ -1,4 +1,4 @@
-import { Net } from 'neural/net';
+import { Net } from '../net';
 
 describe('Neural Net', () => {
   it('constructs a net with all neurons', () => {

@@ -1,5 +1,7 @@
 module.exports = {
-  modulePaths: [
-    "<rootDir>/src",
-  ]
-};
+  collectCoverageFrom: ['**/*.ts'],
+  coverageDirectory: 'reports/coverage',
+  testPathIgnorePatterns: [
+    "<rootDir>/.stryker-tmp",
+  ],
+}
