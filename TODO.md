@@ -24,4 +24,7 @@ Convert to jest
 
 Update all dependencies
 
-switch from 4 space to 2 space indents
+Nice to have:
+build flag for source map or no
+- Notes: would need to coordinate with both webpack and typescript
+- Probably have webpack.config.js and tsconfig.json read from an env_var
