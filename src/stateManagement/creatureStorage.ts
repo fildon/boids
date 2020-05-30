@@ -1,7 +1,7 @@
 import { Creature } from 'creatures/creature';
 import { Hunter } from 'creatures/hunter';
 import { Boid } from 'creatures/boid';
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 import { config } from './config';
 
 export class CreatureStorage {
@@ -31,7 +31,7 @@ export class CreatureStorage {
     });
   }
 
-  public addHunter(position?: Vector2): Hunter {
+  public addHunter(position?: Vector): Hunter {
     const newHunter = new Hunter(
       this.nextId,
       this,
@@ -42,7 +42,7 @@ export class CreatureStorage {
     return newHunter;
   }
 
-  public addBoid(position?: Vector2): Boid {
+  public addBoid(position?: Vector): Boid {
     const newBoid = new Boid(
       this.nextId,
       this,
@@ -69,7 +69,7 @@ export class CreatureStorage {
     return [...this.creatures.values()];
   }
 
-  public getHuntersInArea(center: Vector2, radius: number): Hunter[] {
+  public getHuntersInArea(center: Vector, radius: number): Hunter[] {
     return this.getCreaturesInArea(center, radius)
       .filter((creature) => {
         return creature instanceof Hunter &&
@@ -77,7 +77,7 @@ export class CreatureStorage {
       }) as Hunter[];
   }
 
-  public getBoidsInArea(center: Vector2, radius: number): Boid[] {
+  public getBoidsInArea(center: Vector, radius: number): Boid[] {
     return this.getCreaturesInArea(center, radius)
       .filter((creature) => {
         return creature instanceof Boid &&
@@ -85,7 +85,7 @@ export class CreatureStorage {
       }) as Boid[];
   }
 
-  public getCreaturesInArea(center: Vector2, radius: number): Creature[] {
+  public getCreaturesInArea(center: Vector, radius: number): Creature[] {
     const bucketX = Math.floor(center.x / this.bucketSize);
     const bucketY = Math.floor(center.y / this.bucketSize);
     const bucketRadius = Math.ceil(radius / this.bucketSize);

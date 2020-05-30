@@ -1,5 +1,5 @@
 import { config } from 'stateManagement/config';
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 import { CreatureStorage } from 'stateManagement/creatureStorage';
 
 describe('Boid', () => {
@@ -32,13 +32,13 @@ describe('Boid', () => {
   describe('repulsion', () => {
     it('gets a repulsion vector with one boid too near', () => {
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2();
+      boid.position = new Vector();
       const boidA = creatureStorage.addBoid();
-      boidA.position = new Vector2(1, 1).scaleToLength(config.boid.repulsionRadius / 2);
+      boidA.position = new Vector(1, 1).scaleToLength(config.boid.repulsionRadius / 2);
       creatureStorage.update();
 
       const actual = boid.repulsion();
-      const expected = new Vector2(-1, -1);
+      const expected = new Vector(-1, -1);
 
       expect(actual).toBeTruthy();
       expect(actual.vector.isParallelTo(expected)).toBe(true);
@@ -46,15 +46,15 @@ describe('Boid', () => {
 
     it('gets a repulsion vector with multiple boids too near', () => {
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2();
+      boid.position = new Vector();
       const boidA = creatureStorage.addBoid();
-      boidA.position = new Vector2(0, 1).scaleToLength(config.boid.repulsionRadius / 2);
+      boidA.position = new Vector(0, 1).scaleToLength(config.boid.repulsionRadius / 2);
       const boidB = creatureStorage.addBoid();
-      boidB.position = new Vector2(1, 0).scaleToLength(config.boid.repulsionRadius / 2);
+      boidB.position = new Vector(1, 0).scaleToLength(config.boid.repulsionRadius / 2);
       creatureStorage.update();
 
       const actual = boid.repulsion();
-      const expected = new Vector2(-1, -1);
+      const expected = new Vector(-1, -1);
 
       expect(actual.vector.isParallelTo(expected)).toBe(true);
     });
@@ -71,28 +71,28 @@ describe('Boid', () => {
 
     it('attracts to sole boid in range', () => {
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2();
+      boid.position = new Vector();
       const nearBoid = creatureStorage.addBoid();
-      nearBoid.position = new Vector2(1, 1);
+      nearBoid.position = new Vector(1, 1);
       creatureStorage.update();
 
       const actual = boid.attraction();
-      const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
+      const expected = new Vector(1, 1).scaleToLength(boid.velocity.length);
 
       expect(actual.vector.isParallelTo(expected)).toBe(true);
     });
 
     it('attracts only to nearest of multiple near boids', () => {
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2();
+      boid.position = new Vector();
       const boidNearer = creatureStorage.addBoid();
-      boidNearer.position = new Vector2(1, 1);
+      boidNearer.position = new Vector(1, 1);
       const boidFurther = creatureStorage.addBoid();
-      boidFurther.position = new Vector2(1.1, 1.1);
+      boidFurther.position = new Vector(1.1, 1.1);
       creatureStorage.update();
 
       const actual = boid.attraction();
-      const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
+      const expected = new Vector(1, 1).scaleToLength(boid.velocity.length);
 
       expect(actual.vector.isParallelTo(expected)).toBe(true);
     });
@@ -105,22 +105,22 @@ describe('Boid', () => {
 
     it('limits leftward turn by the turningMax', () => {
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2();
+      boid.position = new Vector();
       boid.speed = config.boid.maxSpeed;
       boid.heading = Math.PI / 4;
       const expected = boid.heading + config.creature.turningMax;
-      boid.updateHeadingTowards(new Vector2(-100, -99));
+      boid.updateHeadingTowards(new Vector(-100, -99));
       const actual = boid.heading;
       expect(actual).toBeCloseTo(expected);
     });
 
     it('limits rightward turn by the turningMax', () => {
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2();
+      boid.position = new Vector();
       boid.speed = config.boid.maxSpeed;
       boid.heading = Math.PI / 4;
       const expected = boid.heading - config.creature.turningMax;
-      boid.updateHeadingTowards(new Vector2(-99, -100));
+      boid.updateHeadingTowards(new Vector(-99, -100));
       const actual = boid.heading;
       expect(actual).toBeCloseTo(expected);
     });
@@ -129,7 +129,7 @@ describe('Boid', () => {
   describe('update heading', () => {
     it('rotates by a boundedly random turn if no ideal vectors', () => {
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2(500, 500);
+      boid.position = new Vector(500, 500);
       boid.speed = config.boid.maxSpeed;
       boid.heading = Math.PI / 4;
       const expectedMin = boid.heading - config.creature.turningMax;

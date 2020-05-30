@@ -1,4 +1,4 @@
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 import { CreatureStorage } from 'stateManagement/creatureStorage';
 
 describe('Hunter', () => {
@@ -10,9 +10,9 @@ describe('Hunter', () => {
   describe('eating', () => {
     it('eats a boid in range', () => {
       const hunter = creatureStorage.addHunter();
-      hunter.position = new Vector2();
+      hunter.position = new Vector();
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2();
+      boid.position = new Vector();
       creatureStorage.update();
 
       hunter.eat();
@@ -22,9 +22,9 @@ describe('Hunter', () => {
 
     it('does not eat a boid out of range', () => {
       const hunter = creatureStorage.addHunter();
-      hunter.position = new Vector2(0, 0);
+      hunter.position = new Vector(0, 0);
       const boid = creatureStorage.addBoid();
-      boid.position = new Vector2(100, 100);
+      boid.position = new Vector(100, 100);
       creatureStorage.update();
 
       hunter.eat();

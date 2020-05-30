@@ -1,8 +1,8 @@
-import WeightedVector2 from 'geometry/weightedVector2';
+import WeightedVector from 'geometry/weightedVector';
 
 export class Priority {
   constructor(
-    public weightedVector: WeightedVector2,
+    public weightedVector: WeightedVector,
     public color: string,
   ) {}
 }

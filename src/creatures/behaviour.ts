@@ -1,9 +1,9 @@
-import WeightedVector2 from 'geometry/weightedVector2';
+import WeightedVector from 'geometry/weightedVector';
 import { Priority } from 'creatures/priority';
 
 export class Behaviour {
   constructor(
-    public getIdealWeightedHeading: (() => WeightedVector2),
+    public getIdealWeightedHeading: (() => WeightedVector),
     public getColor: () => string,
   ) {
   }

@@ -1,19 +1,19 @@
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 import { config } from 'stateManagement/config';
 import { Canvas } from './canvas';
 
 export class InputHandler {
   private canvas: Canvas;
-  private createBoid: (position: Vector2) => void;
-  private createHunter: (position: Vector2) => void;
+  private createBoid: (position: Vector) => void;
+  private createHunter: (position: Vector) => void;
   private separationLabel: HTMLElement;
   private alignmentLabel: HTMLElement;
   private cohesionLabel: HTMLElement;
 
   constructor(
     canvas: Canvas,
-    createBoid: (position: Vector2) => void,
-    createHunter: (position: Vector2) => void,
+    createBoid: (position: Vector) => void,
+    createHunter: (position: Vector) => void,
   ) {
     this.canvas = canvas;
     this.createBoid = createBoid;
@@ -31,7 +31,7 @@ export class InputHandler {
 
   public handleMouseClick(event: MouseEvent): void {
     const mousePosition = this.canvas.getPositionInWorldSpace(
-      new Vector2(
+      new Vector(
         event.clientX,
         event.clientY,
       ),

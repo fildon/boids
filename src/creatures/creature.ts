@@ -1,10 +1,10 @@
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 
 export abstract class Creature {
-  public abstract position: Vector2;
+  public abstract position: Vector;
   public abstract heading: number;
   public abstract speed: number;
-  public abstract history: Vector2[];
+  public abstract history: Vector[];
   public abstract colour: string;
   public abstract size: number;
 
@@ -19,7 +19,7 @@ export abstract class Creature {
     this.history = this.history.slice(1);
   }
 
-  public velocity(): Vector2 {
-    return Vector2.fromHeadingAndSpeed(this.heading, this.speed);
+  public velocity(): Vector {
+    return Vector.fromHeadingAndSpeed(this.heading, this.speed);
   }
 }

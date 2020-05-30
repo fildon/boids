@@ -1,5 +1,5 @@
 import { config } from 'stateManagement/config';
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 import { Creature } from './creature';
 import { CreatureStorage } from 'stateManagement/creatureStorage';
 import { Net } from 'neural/net';
@@ -11,18 +11,18 @@ export class Hunter extends Creature {
   public size = config.hunter.size;
   public heading = 0;
   public speed = 0;
-  public history: Vector2[] = [];
-  public position: Vector2;
+  public history: Vector[] = [];
+  public position: Vector;
   private static readonly netSizeSchema = [1, 3, 2]
   private net: Net;
 
   constructor(
     public readonly id: number = 0,
     public creatureStorage: CreatureStorage,
-    position?: Vector2,
+    position?: Vector,
   ) {
     super();
-    this.position = position || new Vector2(
+    this.position = position || new Vector(
       Math.random() * config.screen.maxX,
       Math.random() * config.screen.maxY,
     );

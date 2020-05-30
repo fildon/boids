@@ -1,9 +1,9 @@
-import { Vector2 } from './vector2';
+import { Vector } from './vector';
 
-export default class WeightedVector2 {
-  public static average(weightedVectors: WeightedVector2[]): Vector2 {
+export default class WeightedVector {
+  public static average(weightedVectors: WeightedVector[]): Vector {
     if (weightedVectors.length === 0) {
-      return new Vector2();
+      return new Vector();
     }
     const weightedAverage = weightedVectors.reduce((partial, current) => {
       return {
@@ -11,7 +11,7 @@ export default class WeightedVector2 {
         weight: partial.weight + current.weight,
       };
     }, {
-      vector: new Vector2(),
+      vector: new Vector(),
       weight: 0,
     });
 
@@ -19,7 +19,7 @@ export default class WeightedVector2 {
   }
 
   constructor(
-    public vector: Vector2 = new Vector2(),
+    public vector: Vector = new Vector(),
     public weight: number = 0,
   ) {}
 }

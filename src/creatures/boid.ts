@@ -1,8 +1,8 @@
 import { config } from 'stateManagement/config';
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 import { Behaviour } from './behaviour';
 import { BehaviourControlledCreature } from './behaviourControlledCreature';
-import WeightedVector2 from 'geometry/weightedVector2';
+import WeightedVector from 'geometry/weightedVector';
 
 export class Boid extends BehaviourControlledCreature {
   public defaultColour = config.boid.defaultColour;
@@ -31,13 +31,13 @@ export class Boid extends BehaviourControlledCreature {
     this.move();
   }
 
-  public hunterEvasion(): WeightedVector2 {
+  public hunterEvasion(): WeightedVector {
     const huntersInSight = this.creatureStorage.getHuntersInArea(
       this.position,
       config.boid.visionRadius,
     );
     if (huntersInSight.length === 0) {
-      return new WeightedVector2();
+      return new WeightedVector();
     }
 
     this.fearCountdown = config.boid.fearDuration;
@@ -48,26 +48,26 @@ export class Boid extends BehaviourControlledCreature {
 
     const vectorToMe = nearestHunter.position.vectorTo(this.position);
 
-    return new WeightedVector2(
+    return new WeightedVector(
       vectorToMe
         .scaleToLength(this.maxSpeed),
       100,
     );
   }
 
-  public repulsion(): WeightedVector2 {
+  public repulsion(): WeightedVector {
     const neighbours = this.creatureStorage.getBoidsInArea(
       this.position,
       config.boid.repulsionRadius,
     ).filter((boid) => boid !== this);
     if (neighbours.length === 0) {
-      return new WeightedVector2();
+      return new WeightedVector();
     }
 
     const repulsionVectors = neighbours
     .map((creature) =>
       creature.position.vectorTo(this.position),
-    ).map((vector) => new WeightedVector2(
+    ).map((vector) => new WeightedVector(
       vector,
       this.repulsionWeightFrom(vector),
     ));
@@ -75,33 +75,33 @@ export class Boid extends BehaviourControlledCreature {
       return partialWeight + current.weight;
     }, 0);
 
-    return new WeightedVector2(
-      WeightedVector2.average(repulsionVectors),
+    return new WeightedVector(
+      WeightedVector.average(repulsionVectors),
       totalWeight,
     );
   }
 
-  public repulsionWeightFrom(vector: Vector2): number {
+  public repulsionWeightFrom(vector: Vector): number {
     const intrusion = config.boid.repulsionRadius - vector.length;
     const normalizedIntrusion = intrusion / config.boid.repulsionRadius;
     const smoothedIntrusion = Math.pow(normalizedIntrusion, 2);
     return smoothedIntrusion * config.boid.repulsionRadius;
   }
 
-  public alignment(): WeightedVector2 {
+  public alignment(): WeightedVector {
     const neighbours = this.creatureStorage.getBoidsInArea(
       this.position,
       config.boid.alignmentRadius,
     ).filter((boid) => boid !== this);
     if (neighbours.length === 0) {
-      return new WeightedVector2();
+      return new WeightedVector();
     }
-    const averageAlignmentVector = Vector2.average(
+    const averageAlignmentVector = Vector.average(
       neighbours.map((creature) => {
         return creature.velocity();
       }),
     );
-    return new WeightedVector2(
+    return new WeightedVector(
       this.fearCountdown ?
         averageAlignmentVector.scaleToLength(this.maxSpeed) :
         averageAlignmentVector,
@@ -109,20 +109,20 @@ export class Boid extends BehaviourControlledCreature {
     );
   }
 
-  public attraction(): WeightedVector2 {
+  public attraction(): WeightedVector {
     const neighbours = this.creatureStorage.getBoidsInArea(
       this.position,
       config.boid.attractionRadius,
     ).filter((boid) => boid !== this);
     if (neighbours.length === 0) {
-      return new WeightedVector2();
+      return new WeightedVector();
     }
 
     const nearestNeighbour = this.nearestCreatureToPosition(
       neighbours,
     );
 
-    return new WeightedVector2(
+    return new WeightedVector(
       this.position
         .vectorTo(nearestNeighbour.position)
         .scaleToLength(

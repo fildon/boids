@@ -2,7 +2,7 @@ import { Canvas } from 'ui/canvas';
 import { config } from './config';
 import { InputHandler } from 'ui/inputHandler';
 import { CreatureStorage } from './creatureStorage';
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 
 export class SimulationManager {
   private canvas: Canvas;
@@ -17,8 +17,8 @@ export class SimulationManager {
     this.canvas = new Canvas(canvasElement);
     this.inputHandler = new InputHandler(
       this.canvas,
-      (position: Vector2) => this.createBoid(position),
-      (position: Vector2) => this.createHunter(position),
+      (position: Vector) => this.createBoid(position),
+      (position: Vector) => this.createHunter(position),
     );
 
     this.creatureStorage = new CreatureStorage();
@@ -30,11 +30,11 @@ export class SimulationManager {
     }
   }
 
-  public createBoid(position?: Vector2): void {
+  public createBoid(position?: Vector): void {
     this.creatureStorage.addBoid(position);
   }
 
-  public createHunter(position?: Vector2): void {
+  public createHunter(position?: Vector): void {
     this.creatureStorage.addHunter(position);
   }
 

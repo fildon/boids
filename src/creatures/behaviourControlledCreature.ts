@@ -1,10 +1,10 @@
 import { config } from 'stateManagement/config';
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 import { Behaviour } from './behaviour';
 import { Priority } from './priority';
 import { CreatureStorage } from 'stateManagement/creatureStorage';
 import { Creature } from './creature';
-import WeightedVector2 from 'geometry/weightedVector2';
+import WeightedVector from 'geometry/weightedVector';
 
 export abstract class BehaviourControlledCreature extends Creature {
   public abstract defaultColour: string;
@@ -12,16 +12,16 @@ export abstract class BehaviourControlledCreature extends Creature {
   public abstract behaviours: Behaviour[];
   public abstract maxSpeed: number;
   public abstract minSpeed: number;
-  public position: Vector2;
-  public history: Vector2[] = [];
+  public position: Vector;
+  public history: Vector[] = [];
 
   constructor(
     public readonly id: number = 0,
     public creatureStorage: CreatureStorage,
-    position?: Vector2,
+    position?: Vector,
   ) {
     super();
-    this.position = position || new Vector2(
+    this.position = position || new Vector(
       Math.random() * config.screen.maxX,
       Math.random() * config.screen.maxY,
     );
@@ -52,7 +52,7 @@ export abstract class BehaviourControlledCreature extends Creature {
       return;
     }
     this.colour = priorities[0].color;
-    this.updateHeadingTowards(WeightedVector2.average(priorities.map((priority) => priority.weightedVector)));
+    this.updateHeadingTowards(WeightedVector.average(priorities.map((priority) => priority.weightedVector)));
   }
 
   public getCurrentPriorities(): Priority[] {
@@ -71,7 +71,7 @@ export abstract class BehaviourControlledCreature extends Creature {
     this.heading = this.heading + randomTurn;
   }
 
-  public updateHeadingTowards(vector: Vector2 | null): void {
+  public updateHeadingTowards(vector: Vector | null): void {
     if (!vector) {
       return;
     }

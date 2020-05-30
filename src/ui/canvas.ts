@@ -1,17 +1,17 @@
 import { config } from 'stateManagement/config';
 import { Creature } from 'creatures/creature';
-import { Vector2 } from 'geometry/vector2';
+import { Vector } from 'geometry/vector';
 import { FpsCounter } from './fpsCounter';
 
 export class Canvas {
   private readonly fpsCounter: FpsCounter;
-  private cameraPosition: Vector2;
+  private cameraPosition: Vector;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
   constructor(canvasElement: HTMLCanvasElement) {
     this.fpsCounter = FpsCounter.getFpsCounter();
-    this.cameraPosition = new Vector2(window.innerWidth, window.innerHeight);
+    this.cameraPosition = new Vector(window.innerWidth, window.innerHeight);
     this.canvas = canvasElement;
     const context = this.canvas.getContext('2d');
     if (!context) {
@@ -40,7 +40,7 @@ export class Canvas {
 
   public draw(
     creatures: Creature[],
-    cameraPosition: Vector2 = new Vector2(window.innerWidth / 2, window.innerHeight / 2),
+    cameraPosition: Vector = new Vector(window.innerWidth / 2, window.innerHeight / 2),
   ): void {
     this.cameraPosition = cameraPosition;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -74,16 +74,16 @@ export class Canvas {
     this.drawCreatureBeak(creature);
   }
 
-  public getPositionInCameraSpace(position: Vector2): Vector2 {
+  public getPositionInCameraSpace(position: Vector): Vector {
     return position
-      .add(new Vector2(window.innerWidth / 2, window.innerHeight / 2))
+      .add(new Vector(window.innerWidth / 2, window.innerHeight / 2))
       .subtract(this.cameraPosition)
       .normalize();
   }
 
-  public getPositionInWorldSpace(position: Vector2): Vector2 {
+  public getPositionInWorldSpace(position: Vector): Vector {
     return position
-      .subtract(new Vector2(window.innerWidth / 2, window.innerHeight / 2))
+      .subtract(new Vector(window.innerWidth / 2, window.innerHeight / 2))
       .add(this.cameraPosition)
       .normalize();
   }
