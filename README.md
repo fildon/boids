@@ -1,5 +1,7 @@
 # Boids
 
+[![Coverage Status](https://coveralls.io/repos/github/fildon/boids/badge.svg?branch=master)](https://coveralls.io/github/fildon/boids?branch=master)
+
 Boids is an implementation of an artificial life program originally developed in the 1980s. 
 
 The concept is simple, flocking can be simulated with just three fundamental rules:

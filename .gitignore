@@ -9,3 +9,6 @@ reports/mutation/
 
 # Mutation testing sandbox
 .stryker-tmp/
+
+# Private repo token for coveralls authentication
+.coveralls.yml
