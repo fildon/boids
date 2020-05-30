@@ -58,8 +58,8 @@ describe("Vector2", () => {
       const actual = v.rotate(Math.PI / 4);
 
       const expected = new Vector2(1, 1);
-      expect(actual.x).toBeCloseTo(expected.x)
-      expect(actual.y).toBeCloseTo(expected.y)
+      expect(actual.x).toBeCloseTo(expected.x);
+      expect(actual.y).toBeCloseTo(expected.y);
     });
 
     it("rotates a vector through a quarter turn", () => {
@@ -68,8 +68,8 @@ describe("Vector2", () => {
       const actual = v.rotate(Math.PI / 2);
 
       const expected = new Vector2(-1, 1);
-      expect(actual.x).toBeCloseTo(expected.x)
-      expect(actual.y).toBeCloseTo(expected.y)
+      expect(actual.x).toBeCloseTo(expected.x);
+      expect(actual.y).toBeCloseTo(expected.y);
     });
   });
 
@@ -77,13 +77,13 @@ describe("Vector2", () => {
     it("measures a quarter rotation from one vector to another", () => {
       const v0 = new Vector2(3, 4);
       const v1 = new Vector2(-4, 3);
-      expect(v0.angleTo(v1)).toBeCloseTo(Math.PI / 2)
+      expect(v0.angleTo(v1)).toBeCloseTo(Math.PI / 2);
     });
 
     it("measures a 1 radian angle from one vector to another", () => {
       const v0 = new Vector2(5, 9);
       const v1 = new Vector2(-4.87, 9.07);
-      expect(v0.angleTo(v1)).toBeCloseTo(1)
+      expect(v0.angleTo(v1)).toBeCloseTo(1);
     });
 
     it("measures clockwise angles", () => {
@@ -110,7 +110,7 @@ describe("Vector2", () => {
       const actual = Vector2.average([]);
       
       const expected = new Vector2(0, 0);
-      expect(actual).toStrictEqual(expected)
+      expect(actual).toStrictEqual(expected);
     });
 
     it("returns the same vector if only one input", () => {
@@ -152,7 +152,7 @@ describe("Vector2", () => {
 
       expect(actual).toStrictEqual(v);
     });
-  })
+  });
 
   describe("normalize", () => {
     it("puts a negative vector into the positive space", () => {
@@ -161,7 +161,7 @@ describe("Vector2", () => {
       const expected = new Vector2(config.screen.maxX - 1, config.screen.maxY - 1);
       const actual = v.normalize();
 
-      expect(actual).toStrictEqual(expected)
-    })
+      expect(actual).toStrictEqual(expected);
+    });
   });
 });

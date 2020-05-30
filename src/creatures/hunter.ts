@@ -30,7 +30,7 @@ export class Hunter extends Creature {
       this.history.push(this.position);
     }
     this.initializeVelocity();
-    this.net = new Net(Hunter.netSizeSchema)
+    this.net = new Net(Hunter.netSizeSchema);
   }
 
   public initializeVelocity(): void {
@@ -64,26 +64,26 @@ export class Hunter extends Creature {
   private getNeuralNetInputVector(): number[] {
     // TODO this will error if there are no boids
     const nearestBoid = this.creatureStorage.getAllBoids().sort((a, b) => {
-      return a.distanceToCreature(this) - b.distanceToCreature(this)
-    })[0]
+      return a.distanceToCreature(this) - b.distanceToCreature(this);
+    })[0];
 
-    const shortestPath = this.position.vectorTo(nearestBoid.position)
+    const shortestPath = this.position.vectorTo(nearestBoid.position);
 
-    const targetHeadingRadians = this.velocity().angleTo(shortestPath)
-    const normalisedTarget = (targetHeadingRadians / (2 * Math.PI)) + 0.5
-    return [normalisedTarget]
+    const targetHeadingRadians = this.velocity().angleTo(shortestPath);
+    const normalisedTarget = (targetHeadingRadians / (2 * Math.PI)) + 0.5;
+    return [normalisedTarget];
   }
 
   private parseOutputToAction(outputVector: number[]): void {
-    const rotationDecision = outputVector[0]
-    const maximumLeft = this.heading - config.creature.turningMax
-    const fullTurningRange = config.creature.turningMax * 2
-    this.heading = maximumLeft + rotationDecision * fullTurningRange
+    const rotationDecision = outputVector[0];
+    const maximumLeft = this.heading - config.creature.turningMax;
+    const fullTurningRange = config.creature.turningMax * 2;
+    this.heading = maximumLeft + rotationDecision * fullTurningRange;
 
-    const accelerationDecision = outputVector[1]
-    const minimumSpeed = this.speed - config.creature.acceleration
-    const fullSpeedRange = config.creature.acceleration * 2
-    const targetSpeed = minimumSpeed + fullSpeedRange * accelerationDecision
-    this.speed = Math.min(Math.max(targetSpeed, 0), config.hunter.maxSpeed)
+    const accelerationDecision = outputVector[1];
+    const minimumSpeed = this.speed - config.creature.acceleration;
+    const fullSpeedRange = config.creature.acceleration * 2;
+    const targetSpeed = minimumSpeed + fullSpeedRange * accelerationDecision;
+    this.speed = Math.min(Math.max(targetSpeed, 0), config.hunter.maxSpeed);
   }
 }

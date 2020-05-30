@@ -100,7 +100,7 @@ describe("Boid", () => {
 
   describe("update heading towards", () => {
     beforeAll(() => {
-      jest.spyOn(Math, 'random').mockReturnValue(0.5)
+      jest.spyOn(Math, 'random').mockReturnValue(0.5);
     });
 
     it("limits leftward turn by the turningMax", () => {

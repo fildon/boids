@@ -10,4 +10,7 @@ module.exports = {
     '@typescript-eslint',
   ],
   root: true,
+  rules: {
+    'semi': 'error',
+  }
 };

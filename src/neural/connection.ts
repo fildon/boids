@@ -12,6 +12,6 @@ export class Connection {
   }
 
   public getNormalizedOutput(): number {
-    return 2 * this.input.value * this.weight
+    return 2 * this.input.value * this.weight;
   }
 }
