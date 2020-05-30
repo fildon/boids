@@ -9,10 +9,25 @@ The concept is simple, flocking can be simulated with just three fundamental rul
 - Alignment (travel in the same direction as nearby birds)
 - Cohesion (get close to nearby birds)
 
-## Getting Started
+## Local Development
 
     yarn install
     yarn run build
 
-
 Then open index.html in the root folder of the project
+
+## Testing
+
+Unit tests and test coverage are provided by Jest
+
+    yarn test
+    yarn coverage
+
+Additionally mutation can be run by Stryker with
+
+    yarn mutation
+
+Test coverage reports should be kept in sync with coveralls.io.
+For this to work you'll need to add a .coveralls.yml file with only a single line:
+
+    repo_token: 'put coveralls auth token here'
