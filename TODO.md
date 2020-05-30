@@ -20,6 +20,7 @@ This will allow learning to take place over multiple separate training runs
 
 Convert to jest
 ignore file currently mentions mocha etc
+Stryker will need reconfiguring
 
 Update all dependencies
 
