@@ -13,7 +13,7 @@
     "lint": "yarn eslint . --ext .ts",
     "mutation": "stryker run",
     "test": "jest",
-    "coverage": "error"
+    "coverage": "jest --coverage --collectCoverageFrom=**/*.ts"
   },
   "dependencies": {},
   "devDependencies": {

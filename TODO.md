@@ -36,3 +36,6 @@ Enforce trailing slashes in the linter
 Prefer single quoted strings
 Prefer default export for classes
 Warn about todo notes
+Enforce semicolons
+
+Rename vector2 to vector

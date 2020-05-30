@@ -5,7 +5,4 @@ node_modules
 yarn-error.log
 
 # Test coverage
-*.map
-.nyc_output
 coverage
-.stryker-tmp/
