@@ -25,7 +25,9 @@ export class Neuron {
     next.connectInput(connection)
   }
 
+  // Activation function
   public updateValue(): void {
+    // This implementation is the classic step function
     const inputSum = this.inputs.reduce(
       (prev, curr) => prev + curr.getWeightedOutput(),
       0
