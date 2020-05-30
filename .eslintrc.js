@@ -12,5 +12,6 @@ module.exports = {
   root: true,
   rules: {
     'semi': 'error',
+    'no-warning-comments': 'warn',
   }
 };
