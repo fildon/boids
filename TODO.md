@@ -31,8 +31,4 @@ build flag for source map or no
 
 Fix favicon
 
-Lint rules
-Prefer single quoted strings
-Prefer default export for classes
-
 Rename vector2 to vector

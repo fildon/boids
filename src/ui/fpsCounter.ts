@@ -11,7 +11,7 @@ export class FpsCounter {
   private start: number;
 
   private constructor() {
-    this.fpsLabel = document.getElementById("fps-status")!;
+    this.fpsLabel = document.getElementById('fps-status')!;
     this.start = performance.now();
   }
 

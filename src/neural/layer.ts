@@ -1,4 +1,4 @@
-import { Neuron } from "./neuron";
+import { Neuron } from './neuron';
 
 export class Layer {
   public neurons: Neuron[]

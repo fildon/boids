@@ -1,8 +1,8 @@
-import { Canvas } from "ui/canvas";
-import { config } from "./config";
-import { InputHandler } from "ui/inputHandler";
-import { CreatureStorage } from "./creatureStorage";
-import { Vector2 } from "geometry/vector2";
+import { Canvas } from 'ui/canvas';
+import { config } from './config';
+import { InputHandler } from 'ui/inputHandler';
+import { CreatureStorage } from './creatureStorage';
+import { Vector2 } from 'geometry/vector2';
 
 export class SimulationManager {
   private canvas: Canvas;
@@ -10,9 +10,9 @@ export class SimulationManager {
   private creatureStorage: CreatureStorage;
   private readonly fpsTarget = 60;
   constructor() {
-    const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
+    const canvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     if (!canvasElement) {
-      throw new Error("couldn't find 'canvas' on document");
+      throw new Error('couldn\'t find \'canvas\' on document');
     }
     this.canvas = new Canvas(canvasElement);
     this.inputHandler = new InputHandler(
@@ -80,14 +80,14 @@ export class SimulationManager {
   }
 
   private updateHunterCountDisplay(count: number) {
-    const countDisplay = document.getElementById("number-of-hunters");
+    const countDisplay = document.getElementById('number-of-hunters');
     if (countDisplay) {
       countDisplay.textContent = `${count}`;
     }
   }
 
   private updateBoidCountDisplay(count: number) {
-    const countDisplay = document.getElementById("number-of-boids");
+    const countDisplay = document.getElementById('number-of-boids');
     if (countDisplay) {
       countDisplay.textContent = `${count}`;
     }

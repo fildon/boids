@@ -1,14 +1,14 @@
-import { Vector2 } from "geometry/vector2";
-import { CreatureStorage } from "stateManagement/creatureStorage";
+import { Vector2 } from 'geometry/vector2';
+import { CreatureStorage } from 'stateManagement/creatureStorage';
 
-describe("Hunter", () => {
+describe('Hunter', () => {
   let creatureStorage: CreatureStorage;
   beforeEach(() => {
     creatureStorage = new CreatureStorage();
   });
 
-  describe("eating", () => {
-    it("eats a boid in range", () => {
+  describe('eating', () => {
+    it('eats a boid in range', () => {
       const hunter = creatureStorage.addHunter();
       hunter.position = new Vector2();
       const boid = creatureStorage.addBoid();
@@ -20,7 +20,7 @@ describe("Hunter", () => {
       expect(creatureStorage.getBoidCount()).toBe(0);
     });
 
-    it("does not eat a boid out of range", () => {
+    it('does not eat a boid out of range', () => {
       const hunter = creatureStorage.addHunter();
       hunter.position = new Vector2(0, 0);
       const boid = creatureStorage.addBoid();

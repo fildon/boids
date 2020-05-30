@@ -1,8 +1,8 @@
-import { Creature } from "creatures/creature";
-import { Hunter } from "creatures/hunter";
-import { Boid } from "creatures/boid";
-import { Vector2 } from "geometry/vector2";
-import { config } from "./config";
+import { Creature } from 'creatures/creature';
+import { Hunter } from 'creatures/hunter';
+import { Boid } from 'creatures/boid';
+import { Vector2 } from 'geometry/vector2';
+import { config } from './config';
 
 export class CreatureStorage {
   private nextId = 0;

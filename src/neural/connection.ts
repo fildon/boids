@@ -1,4 +1,4 @@
-import { Neuron } from "./neuron";
+import { Neuron } from './neuron';
 
 export class Connection {
   private input: Neuron;

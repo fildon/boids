@@ -1,5 +1,5 @@
-import { SimulationManager } from "./stateManagement/simulationManager";
+import { SimulationManager } from './stateManagement/simulationManager';
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   new SimulationManager().runSimulation();
 }, false);

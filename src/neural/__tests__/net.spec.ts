@@ -1,7 +1,7 @@
-import { Net } from "neural/net";
+import { Net } from 'neural/net';
 
-describe("Neural Net", () => {
-  it("constructs a net with all neurons", () => {
+describe('Neural Net', () => {
+  it('constructs a net with all neurons', () => {
     const net = new Net([0, 0, 0]);
 
     expect(net.layers).toHaveLength(3);

@@ -1,8 +1,8 @@
-import { config } from "stateManagement/config";
-import { Vector2 } from "geometry/vector2";
-import { Behaviour } from "./behaviour";
-import { BehaviourControlledCreature } from "./behaviourControlledCreature";
-import WeightedVector2 from "geometry/weightedVector2";
+import { config } from 'stateManagement/config';
+import { Vector2 } from 'geometry/vector2';
+import { Behaviour } from './behaviour';
+import { BehaviourControlledCreature } from './behaviourControlledCreature';
+import WeightedVector2 from 'geometry/weightedVector2';
 
 export class Boid extends BehaviourControlledCreature {
   public defaultColour = config.boid.defaultColour;
@@ -13,10 +13,10 @@ export class Boid extends BehaviourControlledCreature {
   public heading = 2 * Math.PI * Math.random();
   public speed = config.boid.maxSpeed;
   public behaviours = [
-    new Behaviour(() => this.hunterEvasion(), () => "red"),
-    new Behaviour(() => this.repulsion(), () => this.fearCountdown ? "red" : "orange"),
-    new Behaviour(() => this.alignment(), () => this.fearCountdown ? "red" : "blue"),
-    new Behaviour(() => this.attraction(), () => this.fearCountdown ? "red" : "green"),
+    new Behaviour(() => this.hunterEvasion(), () => 'red'),
+    new Behaviour(() => this.repulsion(), () => this.fearCountdown ? 'red' : 'orange'),
+    new Behaviour(() => this.alignment(), () => this.fearCountdown ? 'red' : 'blue'),
+    new Behaviour(() => this.attraction(), () => this.fearCountdown ? 'red' : 'green'),
   ];
 
   public initializeVelocity(): void {

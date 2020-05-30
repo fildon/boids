@@ -1,7 +1,7 @@
-import { config } from "stateManagement/config";
-import { Creature } from "creatures/creature";
-import { Vector2 } from "geometry/vector2";
-import { FpsCounter } from "./fpsCounter";
+import { config } from 'stateManagement/config';
+import { Creature } from 'creatures/creature';
+import { Vector2 } from 'geometry/vector2';
+import { FpsCounter } from './fpsCounter';
 
 export class Canvas {
   private readonly fpsCounter: FpsCounter;
@@ -13,9 +13,9 @@ export class Canvas {
     this.fpsCounter = FpsCounter.getFpsCounter();
     this.cameraPosition = new Vector2(window.innerWidth, window.innerHeight);
     this.canvas = canvasElement;
-    const context = this.canvas.getContext("2d");
+    const context = this.canvas.getContext('2d');
     if (!context) {
-      throw new Error("could not get canvas context");
+      throw new Error('could not get canvas context');
     } else {
       this.ctx = context;
     }
@@ -111,7 +111,7 @@ export class Canvas {
       position.x + (creature.size + 1) * Math.cos(creature.heading),
       position.y + (creature.size + 1) * Math.sin(creature.heading),
       creature.size / 2, 0, 2 * Math.PI);
-    this.ctx.fillStyle = "black";
+    this.ctx.fillStyle = 'black';
     this.ctx.fill();
   }
 }

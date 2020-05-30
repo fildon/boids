@@ -13,6 +13,7 @@ module.exports = {
   rules: {
     'comma-dangle': ['error', 'always-multiline'],
     'no-warning-comments': 'warn',
+    'quotes': ['error', 'single'],
     'semi': 'error',
   }
 };
