@@ -7,7 +7,7 @@
   },
   "license": "MIT",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "entry.ts",
   "scripts": {
     "build": "yarn webpack --config webpack.config.js --mode=production",
     "lint": "yarn eslint . --ext .ts",
