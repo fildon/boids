@@ -4,8 +4,8 @@ node_modules
 # Compilation error logs
 yarn-error.log
 
-# Test coverage and mutation reports
-reports
+# Mutation testing reports
+reports/mutation/
 
 # Mutation testing sandbox
 .stryker-tmp/
