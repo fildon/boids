@@ -52,7 +52,7 @@ describe("Vector2", () => {
   });
 
   describe("rotate", () => {
-    it("rotates a vector", () => {
+    it("rotates a vector through an eighth turn ", () => {
       const v = new Vector2(Math.sqrt(2), 0);
 
       const actual = v.rotate(Math.PI / 4);
@@ -62,7 +62,7 @@ describe("Vector2", () => {
       expect(actual.y).toBeCloseTo(expected.y)
     });
 
-    it("rotates a vector", () => {
+    it("rotates a vector through a quarter turn", () => {
       const v = new Vector2(1, 1);
 
       const actual = v.rotate(Math.PI / 2);
@@ -71,26 +71,16 @@ describe("Vector2", () => {
       expect(actual.x).toBeCloseTo(expected.x)
       expect(actual.y).toBeCloseTo(expected.y)
     });
-
-    it("rotates a vector", () => {
-      const v = new Vector2(1, 1);
-
-      const actual = v.rotate(Math.PI / 4);
-
-      const expected = new Vector2(0, Math.sqrt(2));
-      expect(actual.x).toBeCloseTo(expected.x)
-      expect(actual.y).toBeCloseTo(expected.y)
-    });
   });
 
   describe("angleTo", () => {
-    it("measures the angle from one vector to another", () => {
+    it("measures a quarter rotation from one vector to another", () => {
       const v0 = new Vector2(3, 4);
       const v1 = new Vector2(-4, 3);
       expect(v0.angleTo(v1)).toBeCloseTo(Math.PI / 2)
     });
 
-    it("measures the angle from one vector to another", () => {
+    it("measures a 1 radian angle from one vector to another", () => {
       const v0 = new Vector2(5, 9);
       const v1 = new Vector2(-4.87, 9.07);
       expect(v0.angleTo(v1)).toBeCloseTo(1)

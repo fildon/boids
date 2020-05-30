@@ -41,7 +41,7 @@ describe("Boid", () => {
       const expected = new Vector2(-1, -1);
 
       expect(actual).toBeTruthy();
-      expect(actual!.vector.isParallelTo(expected)).toBe(true);
+      expect(actual.vector.isParallelTo(expected)).toBe(true);
     });
 
     it("gets a repulsion vector with multiple boids too near", () => {
@@ -53,7 +53,7 @@ describe("Boid", () => {
       boidB.position = new Vector2(1, 0).scaleToLength(config.boid.repulsionRadius / 2);
       creatureStorage.update();
 
-      const actual = boid.repulsion()!;
+      const actual = boid.repulsion();
       const expected = new Vector2(-1, -1);
 
       expect(actual.vector.isParallelTo(expected)).toBe(true);
@@ -76,7 +76,7 @@ describe("Boid", () => {
       nearBoid.position = new Vector2(1, 1);
       creatureStorage.update();
 
-      const actual = boid.attraction()!;
+      const actual = boid.attraction();
       const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
       expect(actual.vector.isParallelTo(expected)).toBe(true);
@@ -91,7 +91,7 @@ describe("Boid", () => {
       boidFurther.position = new Vector2(1.1, 1.1);
       creatureStorage.update();
 
-      const actual = boid.attraction()!;
+      const actual = boid.attraction();
       const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
       expect(actual.vector.isParallelTo(expected)).toBe(true);
@@ -103,7 +103,7 @@ describe("Boid", () => {
       jest.spyOn(Math, 'random').mockReturnValue(0.5)
     });
 
-    it("limits the turn by the turningMax", () => {
+    it("limits leftward turn by the turningMax", () => {
       const boid = creatureStorage.addBoid();
       boid.position = new Vector2();
       boid.speed = config.boid.maxSpeed;
@@ -114,7 +114,7 @@ describe("Boid", () => {
       expect(actual).toBeCloseTo(expected);
     });
 
-    it("limits the turn by the turningMax", () => {
+    it("limits rightward turn by the turningMax", () => {
       const boid = creatureStorage.addBoid();
       boid.position = new Vector2();
       boid.speed = config.boid.maxSpeed;
