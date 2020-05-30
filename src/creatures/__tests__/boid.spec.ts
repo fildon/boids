@@ -1,22 +1,20 @@
 import { config } from "stateManagement/config";
 import { Vector2 } from "geometry/vector2";
 import { CreatureStorage } from "stateManagement/creatureStorage";
-import { InputHandler } from "ui/inputHandler";
 
-describe.skip("Boid", () => {
+describe("Boid", () => {
   let creatureStorage: CreatureStorage;
   beforeEach(() => {
-    // const inputHandlerMock = <InputHandler> <any> (sinon.mock(InputHandler));
-    // creatureStorage = new CreatureStorage(inputHandlerMock);
+    creatureStorage = new CreatureStorage();
   });
 
   describe("constructor", () => {
     it("clips position inside area", () => {
       const boid = creatureStorage.addBoid();
-      // expect(boid.position.x).to.be.gte(0);
-      // expect(boid.position.x).to.be.lte(config.screen.maxX);
-      // expect(boid.position.y).to.be.gte(0);
-      // expect(boid.position.y).to.be.lte(config.screen.maxY);
+      expect(boid.position.x).toBeGreaterThanOrEqual(0);
+      expect(boid.position.x).toBeLessThanOrEqual(config.screen.maxX);
+      expect(boid.position.y).toBeGreaterThanOrEqual(0);
+      expect(boid.position.y).toBeLessThanOrEqual(config.screen.maxY);
     });
   });
 
@@ -27,7 +25,7 @@ describe.skip("Boid", () => {
 
       boid.update();
 
-      // expect(boid.fearCountdown).to.equal(9);
+      expect(boid.fearCountdown).toBe(9);
     });
   });
 
@@ -42,8 +40,8 @@ describe.skip("Boid", () => {
       const actual = boid.repulsion();
       const expected = new Vector2(-1, -1);
 
-      // expect(actual).not.to.be.null;
-      // expect(actual!.vector.isParallelTo(expected)).to.be.true;
+      expect(actual).toBeTruthy();
+      expect(actual!.vector.isParallelTo(expected)).toBe(true);
     });
 
     it("gets a repulsion vector with multiple boids too near", () => {
@@ -58,7 +56,7 @@ describe.skip("Boid", () => {
       const actual = boid.repulsion()!;
       const expected = new Vector2(-1, -1);
 
-      // expect(actual.vector.isParallelTo(expected)).to.be.true;
+      expect(actual.vector.isParallelTo(expected)).toBe(true);
     });
   });
 
@@ -68,7 +66,7 @@ describe.skip("Boid", () => {
 
       const actual = boid.attraction();
 
-      // expect(actual.weight).to.equal(0);
+      expect(actual.weight).toBe(0);
     });
 
     it("attracts to sole boid in range", () => {
@@ -81,7 +79,7 @@ describe.skip("Boid", () => {
       const actual = boid.attraction()!;
       const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
-      // expect(actual.vector.isParallelTo(expected)).to.be.true;
+      expect(actual.vector.isParallelTo(expected)).toBe(true);
     });
 
     it("attracts only to nearest of multiple near boids", () => {
@@ -96,14 +94,14 @@ describe.skip("Boid", () => {
       const actual = boid.attraction()!;
       const expected = new Vector2(1, 1).scaleToLength(boid.velocity.length);
 
-      // expect(actual.vector.isParallelTo(expected)).to.be.true;
+      expect(actual.vector.isParallelTo(expected)).toBe(true);
     });
   });
 
   describe("update heading towards", () => {
-    // before(() => {
-    //   sinon.stub(Math, 'random').returns(0.5);
-    // });
+    beforeAll(() => {
+      jest.spyOn(Math, 'random').mockReturnValue(0.5)
+    });
 
     it("limits the turn by the turningMax", () => {
       const boid = creatureStorage.addBoid();
@@ -113,7 +111,7 @@ describe.skip("Boid", () => {
       const expected = boid.heading + config.creature.turningMax;
       boid.updateHeadingTowards(new Vector2(-100, -99));
       const actual = boid.heading;
-      // expect(Math.abs(actual - expected)).to.be.lte(0.0001);
+      expect(actual).toBeCloseTo(expected);
     });
 
     it("limits the turn by the turningMax", () => {
@@ -124,7 +122,7 @@ describe.skip("Boid", () => {
       const expected = boid.heading - config.creature.turningMax;
       boid.updateHeadingTowards(new Vector2(-99, -100));
       const actual = boid.heading;
-      // expect(Math.abs(actual - expected)).to.be.lte(0.0001);
+      expect(actual).toBeCloseTo(expected);
     });
   });
 
@@ -136,7 +134,7 @@ describe.skip("Boid", () => {
       boid.heading = Math.PI / 4;
       const expectedMin = boid.heading - config.creature.turningMax;
       boid.updateHeading();
-      // expect(expectedMin - boid.heading).to.be.lt(config.creature.turningMax * 2);
+      expect(boid.heading - expectedMin).toBeLessThan(config.creature.turningMax * 2);
     });
   });
 });
