@@ -1,5 +1,8 @@
+# Dependencies
 node_modules
-dist
+
+# Compilation error logs
+yarn-error.log
 
 # Test coverage
 *.map
