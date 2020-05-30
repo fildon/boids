@@ -11,7 +11,8 @@ module.exports = {
   ],
   root: true,
   rules: {
-    'semi': 'error',
+    'comma-dangle': ['error', 'always-multiline'],
     'no-warning-comments': 'warn',
+    'semi': 'error',
   }
 };

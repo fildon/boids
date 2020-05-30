@@ -32,7 +32,6 @@ build flag for source map or no
 Fix favicon
 
 Lint rules
-Enforce trailing slashes in the linter
 Prefer single quoted strings
 Prefer default export for classes
 
