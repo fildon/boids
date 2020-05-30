@@ -38,20 +38,20 @@ export class Hunter extends Creature {
     this.speed = config.hunter.minSpeed;
   }
 
-  public update() {
+  public update(): void {
     this.eat();
     this.move();
     this.updateHistory();
   }
 
-  public eat() {
+  public eat(): void {
     this.creatureStorage.getBoidsInArea(
       this.position,
       config.hunter.eatRadius,
     ).forEach((prey) => prey.die());
   }
 
-  public move() {
+  public move(): void {
     this.updateHistory();
     this.position = this.position.add(this.velocity()).normalize();
     const inputVector = this.getNeuralNetInputVector();

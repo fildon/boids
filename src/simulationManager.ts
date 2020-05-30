@@ -30,11 +30,11 @@ export class SimulationManager {
     }
   }
 
-  public createBoid(position?: Vector2) {
+  public createBoid(position?: Vector2): void {
     this.creatureStorage.addBoid(position);
   }
 
-  public createHunter(position?: Vector2) {
+  public createHunter(position?: Vector2): void {
     this.creatureStorage.addHunter(position);
   }
 

@@ -25,7 +25,7 @@ export class Vector2 {
   public x: number;
   public y: number;
   public length: number;
-  constructor(x: number = 0, y: number = 0) {
+  constructor(x = 0, y = 0) {
     this.x = x % config.screen.maxX;
     this.y = y % config.screen.maxY;
     this.length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
@@ -109,11 +109,11 @@ export class Vector2 {
     );
   }
 
-  public toHeading() {
+  public toHeading(): number {
     return Math.atan2(this.y, this.x);
   }
 
-  public toString() {
+  public toString(): string {
     return `[${this.x}, ${this.y}]`;
   }
 }

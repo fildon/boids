@@ -25,7 +25,7 @@ export class Canvas {
     this.setScreenSize();
   }
 
-  public onclick(callback: ((ev: MouseEvent) => any)) {
+  public onclick(callback: ((ev: MouseEvent) => void)): void {
     this.canvas.onclick = callback;
   }
 
@@ -54,7 +54,7 @@ export class Canvas {
     this.fpsCounter.updateFps();
   }
 
-  public drawGhosts(creatures: Creature[]) {
+  public drawGhosts(creatures: Creature[]): void {
     if (!config.creature.maxHistory) {
       return;
     }
@@ -65,7 +65,7 @@ export class Canvas {
     }
   }
 
-  public drawGhost(creature: Creature, historyIndex: number) {
+  public drawGhost(creature: Creature, historyIndex: number): void {
     this.drawCreatureBody(creature, historyIndex);
   }
 

@@ -10,8 +10,8 @@ export class CreatureStorage {
   private nextId = 0;
   private creatures = new Map<number, Creature>();
   private bucketMap: Creature[][][] = [];
-  private bucketColumns: number = 1;
-  private bucketRows: number = 1;
+  private bucketColumns: 1;
+  private bucketRows: 1;
   private readonly bucketSize = 100;
 
   constructor(public inputHandler: InputHandler) {
@@ -55,7 +55,7 @@ export class CreatureStorage {
     return newBoid;
   }
 
-  public addPlayerFish() {
+  public addPlayerFish(): PlayerFish {
     const newPlayer = new PlayerFish(
       this.inputHandler,
     );

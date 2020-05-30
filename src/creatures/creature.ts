@@ -14,12 +14,12 @@ export abstract class Creature {
 
   public abstract update(): void;
 
-  public updateHistory() {
+  public updateHistory(): void {
     this.history.push(this.position);
     this.history = this.history.slice(1);
   }
 
-  public velocity() {
+  public velocity(): Vector2 {
     return Vector2.fromHeadingAndSpeed(this.heading, this.speed);
   }
 }

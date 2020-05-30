@@ -24,7 +24,7 @@ export default class PlayerFish extends Creature {
     }
   }
 
-  public update() {
+  public update(): void {
     this.updateHistory();
     this.heading += this.inputHandler.getHeadingUpdate();
     this.speed += this.inputHandler.getSpeedUpdate();

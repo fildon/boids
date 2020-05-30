@@ -40,7 +40,7 @@ export class InputHandler {
     });
   }
 
-  public handleMouseClick(event: MouseEvent) {
+  public handleMouseClick(event: MouseEvent): void {
     const mousePosition = this.canvas.getPositionInWorldSpace(
       new Vector2(
         event.clientX,
@@ -54,7 +54,7 @@ export class InputHandler {
     }
   }
 
-  public handleKeyUp(event: KeyboardEvent) {
+  public handleKeyUp(event: KeyboardEvent): void {
     const oneKeyCode = 49;
     const twoKeyCode = 50;
     const threeKeyCode = 51;
@@ -66,7 +66,7 @@ export class InputHandler {
     }
   }
 
-  public toggleSeparation() {
+  public toggleSeparation(): void {
     if (config.boid.repulsionRadius) {
       config.boid.repulsionRadius = 0;
       this.separationLabel.textContent = "OFF";
@@ -78,7 +78,7 @@ export class InputHandler {
     }
   }
 
-  public toggleAlignment() {
+  public toggleAlignment(): void {
     if (config.boid.alignmentRadius) {
       config.boid.alignmentRadius = 0;
       this.alignmentLabel.textContent = "OFF";
@@ -90,7 +90,7 @@ export class InputHandler {
     }
   }
 
-  public toggleCohesion() {
+  public toggleCohesion(): void {
     if (config.boid.attractionRadius) {
       config.boid.attractionRadius = 0;
       this.cohesionLabel.textContent = "OFF";
@@ -102,15 +102,15 @@ export class InputHandler {
     }
   }
 
-  public getHeadingUpdate() {
+  public getHeadingUpdate(): number {
     return 0.1 * (+this.right - +this.left);
   }
 
-  public getSpeedUpdate() {
+  public getSpeedUpdate(): number {
     return 0.5 * (+this.up - +this.down);
   }
 
-  private setArrow(key: string, newState: boolean) {
+  private setArrow(key: string, newState: boolean): void {
     switch (key) {
       case "ArrowLeft":
         this.left = newState;

@@ -39,7 +39,7 @@ export abstract class BehaviourControlledCreature extends Creature {
 
   public abstract update(): void;
 
-  public move() {
+  public move(): void {
     this.updateHistory();
     this.position = this.position.add(this.velocity()).normalize();
     this.updateHeading();
@@ -71,7 +71,7 @@ export abstract class BehaviourControlledCreature extends Creature {
     this.heading = this.heading + randomTurn;
   }
 
-  public updateHeadingTowards(vector: Vector2 | null) {
+  public updateHeadingTowards(vector: Vector2 | null): void {
     if (!vector) {
       return;
     }
@@ -92,7 +92,6 @@ export abstract class BehaviourControlledCreature extends Creature {
     this.heading = this.heading
       + limitedTurn
       + 2 * config.creature.headingFuzz * Math.random() - config.creature.headingFuzz;
-    return;
   }
 
   public nearestCreatureToPosition(creatures: Creature[]): Creature {
