@@ -1,7 +1,7 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
-import { config } from "../src/config";
-import { Vector2 } from "../src/vector2";
+import { config } from "stateManagement/config";
+import { Vector2 } from "geometry/vector2";
 
 const expect = chai.expect;
 

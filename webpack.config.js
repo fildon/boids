@@ -14,9 +14,13 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.ts' ],
+    modules: [
+      path.resolve('./node_modules'),
+      path.resolve('./src'),
+    ],
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve()
-  }
+    path: path.resolve(),
+  },
 };

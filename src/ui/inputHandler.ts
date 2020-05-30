@@ -1,5 +1,5 @@
-import { Vector2 } from "./vector2";
-import { config } from "./config";
+import { Vector2 } from "geometry/vector2";
+import { config } from "stateManagement/config";
 import { Canvas } from "./canvas";
 
 export class InputHandler {
@@ -9,11 +9,6 @@ export class InputHandler {
   private separationLabel: HTMLElement;
   private alignmentLabel: HTMLElement;
   private cohesionLabel: HTMLElement;
-
-  private left = false;
-  private right = false;
-  private up = false;
-  private down = false;
 
   constructor(
     canvas: Canvas,
@@ -31,12 +26,6 @@ export class InputHandler {
     });
     window.addEventListener("keyup", (event: KeyboardEvent) => {
       this.handleKeyUp(event);
-    });
-    window.addEventListener("keyup", (event) => {
-      this.setArrow(event.key, false);
-    });
-    window.addEventListener("keydown", (event) => {
-      this.setArrow(event.key, true);
     });
   }
 
@@ -100,32 +89,5 @@ export class InputHandler {
       this.cohesionLabel.textContent = "ON";
       this.cohesionLabel.style.color = "green";
     }
-  }
-
-  public getHeadingUpdate(): number {
-    return 0.1 * (+this.right - +this.left);
-  }
-
-  public getSpeedUpdate(): number {
-    return 0.5 * (+this.up - +this.down);
-  }
-
-  private setArrow(key: string, newState: boolean): void {
-    switch (key) {
-      case "ArrowLeft":
-        this.left = newState;
-        break;
-      case "ArrowRight":
-        this.right = newState;
-        break;
-      case "ArrowUp":
-        this.up = newState;
-        break;
-      case "ArrowDown":
-        this.down = newState;
-        break;
-      default:
-        return;
-     }
   }
 }

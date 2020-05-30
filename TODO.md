@@ -30,3 +30,8 @@ build flag for source map or no
 - Probably have webpack.config.js and tsconfig.json read from an env_var
 
 Fix favicon
+
+Lint rules
+Enforce trailing slashes in the linter
+Prefer single quoted strings
+Prefer default export for classes

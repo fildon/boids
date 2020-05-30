@@ -1,5 +1,5 @@
 import * as chai from "chai"
-import { Net } from "../src/neural/net"
+import { Net } from "neural/net"
 
 const expect = chai.expect
 

@@ -1,4 +1,4 @@
-import { config } from "./config";
+import { config } from "stateManagement/config";
 
 export class Vector2 {
   public static average(vectors: Vector2[]): Vector2 {

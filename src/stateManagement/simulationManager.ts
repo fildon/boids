@@ -1,8 +1,8 @@
-import { Canvas } from "./canvas";
+import { Canvas } from "ui/canvas";
 import { config } from "./config";
-import { InputHandler } from "./inputHandler";
+import { InputHandler } from "ui/inputHandler";
 import { CreatureStorage } from "./creatureStorage";
-import { Vector2 } from "./vector2";
+import { Vector2 } from "geometry/vector2";
 
 export class SimulationManager {
   private canvas: Canvas;
@@ -21,7 +21,7 @@ export class SimulationManager {
       (position: Vector2) => this.createHunter(position),
     );
 
-    this.creatureStorage = new CreatureStorage(this.inputHandler);
+    this.creatureStorage = new CreatureStorage();
     for (let i = 0; i < config.boid.quantity; i++) {
       this.creatureStorage.addBoid();
     }

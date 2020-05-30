@@ -1,8 +1,8 @@
-import { config } from "../config";
-import { Vector2 } from "../vector2";
+import { config } from "stateManagement/config";
+import { Vector2 } from "geometry/vector2";
 import { Behaviour } from "./behaviour";
 import { BehaviourControlledCreature } from "./behaviourControlledCreature";
-import WeightedVector2 from "../weightedVector2";
+import WeightedVector2 from "geometry/weightedVector2";
 
 export class Boid extends BehaviourControlledCreature {
   public defaultColour = config.boid.defaultColour;
@@ -56,7 +56,7 @@ export class Boid extends BehaviourControlledCreature {
   }
 
   public repulsion(): WeightedVector2 {
-    const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(
+    const neighbours = this.creatureStorage.getBoidsInArea(
       this.position,
       config.boid.repulsionRadius,
     ).filter((boid) => boid !== this);
@@ -89,7 +89,7 @@ export class Boid extends BehaviourControlledCreature {
   }
 
   public alignment(): WeightedVector2 {
-    const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(
+    const neighbours = this.creatureStorage.getBoidsInArea(
       this.position,
       config.boid.alignmentRadius,
     ).filter((boid) => boid !== this);
@@ -110,7 +110,7 @@ export class Boid extends BehaviourControlledCreature {
   }
 
   public attraction(): WeightedVector2 {
-    const neighbours = this.creatureStorage.getBoidsOrPlayersInArea(
+    const neighbours = this.creatureStorage.getBoidsInArea(
       this.position,
       config.boid.attractionRadius,
     ).filter((boid) => boid !== this);

@@ -1,8 +1,8 @@
-import { config } from "../config";
-import { Vector2 } from "../vector2";
+import { config } from "stateManagement/config";
+import { Vector2 } from "geometry/vector2";
 import { Creature } from "./creature";
-import { CreatureStorage } from "../creatureStorage";
-import { Net } from "../neural/net";
+import { CreatureStorage } from "stateManagement/creatureStorage";
+import { Net } from "neural/net";
 
 export class Hunter extends Creature {
   public colour = config.hunter.defaultColour;

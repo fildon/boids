@@ -1,9 +1,9 @@
 import * as chai from "chai";
 import * as mocha from "mocha";
 import * as sinon from "sinon";
-import { Vector2 } from "../src/vector2";
-import { CreatureStorage } from "../src/creatureStorage";
-import { InputHandler } from "../src/inputHandler";
+import { Vector2 } from "geometry/vector2";
+import { CreatureStorage } from "stateManagement/creatureStorage";
+import { InputHandler } from "ui/inputHandler";
 
 const expect = chai.expect;
 

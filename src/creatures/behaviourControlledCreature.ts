@@ -1,10 +1,10 @@
-import { config } from "../config";
-import { Vector2 } from "../vector2";
+import { config } from "stateManagement/config";
+import { Vector2 } from "geometry/vector2";
 import { Behaviour } from "./behaviour";
 import { Priority } from "./priority";
-import { CreatureStorage } from "../creatureStorage";
+import { CreatureStorage } from "stateManagement/creatureStorage";
 import { Creature } from "./creature";
-import WeightedVector2 from "../weightedVector2";
+import WeightedVector2 from "geometry/weightedVector2";
 
 export abstract class BehaviourControlledCreature extends Creature {
   public abstract defaultColour: string;
