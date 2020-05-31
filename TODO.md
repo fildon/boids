@@ -18,13 +18,4 @@ Need a way to serialize a net to file
 Need a way to load a net from a file
 This will allow learning to take place over multiple separate training runs
 
-Stryker will need reconfiguring to jest
-
-Update all dependencies
-
-Nice to have:
-build flag for source map or no
-- Notes: would need to coordinate with both webpack and typescript
-- Probably have webpack.config.js and tsconfig.json read from an env_var
-
 Fix favicon

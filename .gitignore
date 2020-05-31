@@ -12,3 +12,6 @@ reports/
 
 # Private repo token for coveralls authentication
 .coveralls.yml
+
+# Source map files
+*.js.map

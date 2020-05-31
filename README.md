@@ -32,8 +32,8 @@ Additionally mutation can be run by Stryker with
 
 ## Coveralls
 
-This project synchronizes with Coveralls
-https://coveralls.io/github/fildon/boids
+This project synchronizes with [Coveralls](https://coveralls.io/github/fildon/boids)
+
 A pre-commit hook lints, generates a coverage report and then uploads the report to coveralls. For the upload to work you'll need to add a .coveralls.yml file with only a single line:
 
     repo_token: 'put coveralls auth token here'
