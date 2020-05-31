@@ -12,8 +12,6 @@ export abstract class Creature {
     return this.position.distance(creature.position);
   }
 
-  public abstract update(): void;
-
   public updateHistory(): void {
     this.history.push(this.position);
     this.history = this.history.slice(1);

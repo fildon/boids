@@ -2,6 +2,7 @@
 
 Input vector should abstract out boid heading and position
 - Instead hunter positions and headings should be relative
+- Net should dynamically adapt to number of hunters in pack, by increasing or decreasing the size of the input and output layers
 
 ## Loss function
 
@@ -16,5 +17,8 @@ Input vector should abstract out boid heading and position
 - Need a way to serialize a net to file
 - Need a way to load a net from a file
 - This will allow learning to take place over multiple separate training runs
+
+## Training
+- Need to fix world size. Clip rendering to a box?
 
 Fix favicon

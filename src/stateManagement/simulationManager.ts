@@ -3,10 +3,12 @@ import { config } from './config';
 import { InputHandler } from '../ui/inputHandler';
 import { CreatureStorage } from './creatureStorage';
 import { Vector } from '../geometry/vector';
+import HunterPack from '../creatures/hunterPack';
 
 export class SimulationManager {
   private canvas: Canvas;
   private creatureStorage: CreatureStorage;
+  private packs: HunterPack[];
   private readonly fpsTarget = 60;
   constructor() {
     const canvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -24,9 +26,20 @@ export class SimulationManager {
     for (let i = 0; i < config.boid.quantity; i++) {
       this.creatureStorage.addBoid();
     }
-    for (let i = 0; i < config.hunter.quantity; i++) {
-      this.creatureStorage.addHunter();
+
+    this.packs = [];
+    for (let i = 0; i < config.pack.quantity; i++) {
+      this.packs.push(this.createPack());
     }
+  }
+
+  private createPack(): HunterPack {
+    const pack = new HunterPack(config.pack.size, this.creatureStorage);
+    for (let i = 0; i < config.pack.size; i++) {
+      const newHunter = this.creatureStorage.addHunter();
+      pack.register(newHunter);
+    }
+    return pack;
   }
 
   public createBoid(position?: Vector): void {
@@ -61,8 +74,8 @@ export class SimulationManager {
     for (const boid of this.creatureStorage.getAllBoids()) {
       boid.update();
     }
-    for (const hunter of this.creatureStorage.getAllHunters()) {
-      hunter.update();
+    for (const pack of this.packs) {
+      pack.update();
     }
   }
 

@@ -25,9 +25,12 @@ export const config = {
     eatRadius: 20,
     maxSpeed: 5,
     minSpeed: 0,
-    quantity: 3,
     size: 8,
     visionRadius: 90,
+  },
+  pack: {
+    quantity: 1,
+    size: 3,
   },
   player: {
     maxSpeed: 64,
