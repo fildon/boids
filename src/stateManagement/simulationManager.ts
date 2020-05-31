@@ -6,7 +6,6 @@ import { Vector } from '../geometry/vector';
 
 export class SimulationManager {
   private canvas: Canvas;
-  private inputHandler: InputHandler;
   private creatureStorage: CreatureStorage;
   private readonly fpsTarget = 60;
   constructor() {
@@ -15,7 +14,7 @@ export class SimulationManager {
       throw new Error('couldn\'t find \'canvas\' on document');
     }
     this.canvas = new Canvas(canvasElement);
-    this.inputHandler = new InputHandler(
+    new InputHandler(
       this.canvas,
       (position: Vector) => this.createBoid(position),
       (position: Vector) => this.createHunter(position),
