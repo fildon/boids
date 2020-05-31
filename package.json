@@ -18,8 +18,7 @@
   },
   "pre-commit": [
     "lint",
-    "coverage",
-    "uploadCoverage"
+    "coverage"
   ],
   "dependencies": {},
   "devDependencies": {
