@@ -23,7 +23,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.10.1",
+    "@babel/core": "^7.10.4",
     "@babel/preset-env": "^7.10.1",
     "@babel/preset-typescript": "^7.10.1",
     "@stryker-mutator/core": "^3.2.4",
