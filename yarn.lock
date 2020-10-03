@@ -1086,12 +1086,12 @@
     typed-inject "~2.2.1"
     typed-rest-client "~1.7.1"
 
-"@stryker-mutator/jest-runner@^3.2.4":
-  version "3.2.4"
-  resolved "https://registry.yarnpkg.com/@stryker-mutator/jest-runner/-/jest-runner-3.2.4.tgz#a7c94204eec9bbe8a243dbaf5a2f74e9531acbc9"
-  integrity sha512-MooAGDubqw/cbLnrQ1K27AI9vgeQlr/GqALW0x/lp7YXsSutf9UPk+efjo18g4wHO9+gBM7EdjkRydf6QHuynQ==
+"@stryker-mutator/jest-runner@^3.3.1":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@stryker-mutator/jest-runner/-/jest-runner-3.3.1.tgz#9f42d5a5afeea11aa41de76bd192588173e3985f"
+  integrity sha512-TAZ/TUTxZawASHPqc+iRgNyYMu3zYT4FlT/SJkf/hOsOTJk/QDu1woueTQGDb1cRs+OA0j5oOjh/mvdPvbxm3A==
   dependencies:
-    "@stryker-mutator/api" "^3.2.4"
+    "@stryker-mutator/api" "^3.3.1"
     semver "~6.3.0"
 
 "@stryker-mutator/typescript@^3.2.4":
