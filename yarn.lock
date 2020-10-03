@@ -1094,18 +1094,18 @@
     "@stryker-mutator/api" "^3.2.4"
     semver "~6.3.0"
 
-"@stryker-mutator/typescript@^3.2.4":
-  version "3.2.4"
-  resolved "https://registry.yarnpkg.com/@stryker-mutator/typescript/-/typescript-3.2.4.tgz#de40376a7672eebd95fa88bb66e8ef72700ad03c"
-  integrity sha512-ZVYVMeTFSiy0Nfj+y7AxvtL+GH/gHbBf1D/vgRwpUn15G3AZ7j6ip7KVvahTSTwzeKlXwSU2sYu1/vCf3i+92Q==
+"@stryker-mutator/typescript@^3.3.1":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@stryker-mutator/typescript/-/typescript-3.3.1.tgz#8e5a1ed1623d4ff0cc99fde2815d8a71af20ce74"
+  integrity sha512-fWQSXTiFJ8eVyQdlwN5IUy4nQ5HpzqVmUcCO90EnUX0HSsp7DQlec3hjBgE3X7XNGzTawjVwQlww2Fe91CX/kw==
   dependencies:
-    "@stryker-mutator/api" "^3.2.4"
-    "@stryker-mutator/util" "^3.2.4"
+    "@stryker-mutator/api" "^3.3.1"
+    "@stryker-mutator/util" "^3.3.1"
     lodash.flatmap "~4.5.0"
     semver "~6.3.0"
     tslib "~2.0.0"
 
-"@stryker-mutator/util@^3.2.4", "@stryker-mutator/util@^3.3.1":
+"@stryker-mutator/util@^3.3.1":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@stryker-mutator/util/-/util-3.3.1.tgz#a530cc62eb022f30ca419ee62f1bebe6ee46c95b"
   integrity sha512-JE9PT6/Fqo4343fQWb3YzbkGmBU4bUeuynYhsTeDmY0fhTT653oGHeyEKWeV39/kgSyKfIpY5ABb1RvJclOgkg==
