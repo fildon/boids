@@ -4,16 +4,17 @@ import { Creature } from './creature';
 import { CreatureStorage } from '../stateManagement/creatureStorage';
 import { Net } from '../neural/net';
 
+const netSizeSchema = [1, 3, 2];
+
 export class Hunter extends Creature {
-  public colour = config.hunter.defaultColour;
-  public maxSpeed = config.hunter.maxSpeed;
-  public minSpeed = config.hunter.minSpeed;
-  public size = config.hunter.size;
-  public heading = 0;
-  public speed = 0;
-  public history: Vector[] = [];
+  public colour: string;
+  public maxSpeed: number;
+  public minSpeed: number;
+  public size: number;
+  public heading: number;
+  public speed: number;
+  public history: Vector[];
   public position: Vector;
-  private static readonly netSizeSchema = [1, 3, 2]
   private net: Net;
 
   constructor(
@@ -22,6 +23,13 @@ export class Hunter extends Creature {
     position?: Vector,
   ) {
     super();
+    this.colour = config.hunter.defaultColour;
+    this.maxSpeed = config.hunter.maxSpeed;
+    this.minSpeed = config.hunter.minSpeed;
+    this.size = config.hunter.size;
+    this.heading = 0;
+    this.speed = 0;
+    this.history = [];
     this.position = position || new Vector(
       Math.random() * config.screen.maxX,
       Math.random() * config.screen.maxY,
@@ -30,7 +38,8 @@ export class Hunter extends Creature {
       this.history.push(this.position);
     }
     this.initializeVelocity();
-    this.net = new Net(Hunter.netSizeSchema);
+
+    this.net = new Net(netSizeSchema);
   }
 
   public initializeVelocity(): void {

@@ -4,15 +4,21 @@ import { Boid } from '../creatures/boid';
 import { Vector } from '../geometry/vector';
 import { config } from './config';
 
+const bucketSize = 100;
+
 export class CreatureStorage {
-  private nextId = 0;
-  private creatures = new Map<number, Creature>();
-  private bucketMap: Creature[][][] = [];
-  private bucketColumns = 1;
-  private bucketRows = 1;
-  private readonly bucketSize = 100;
+  private nextId: number;
+  private creatures: Map<number, Creature>;
+  private bucketMap: Creature[][][];
+  private bucketColumns: number;
+  private bucketRows: number;
 
   constructor() {
+    this.nextId = 0;
+    this.creatures = new Map<number, Creature>();
+    this.bucketMap = [];
+    this.bucketColumns = 1;
+    this.bucketRows = 1;
     this.update();
   }
 
@@ -20,11 +26,11 @@ export class CreatureStorage {
     this.resetBucketMap();
     this.creatures.forEach((creature) => {
       const bucketX = Math.min(
-        Math.floor(creature.position.x / this.bucketSize),
+        Math.floor(creature.position.x / bucketSize),
         this.bucketColumns - 1,
       );
       const bucketY = Math.min(
-        Math.floor(creature.position.y / this.bucketSize),
+        Math.floor(creature.position.y / bucketSize),
         this.bucketRows - 1,
       );
       this.bucketMap[bucketX][bucketY].push(creature);
@@ -86,9 +92,9 @@ export class CreatureStorage {
   }
 
   public getCreaturesInArea(center: Vector, radius: number): Creature[] {
-    const bucketX = Math.floor(center.x / this.bucketSize);
-    const bucketY = Math.floor(center.y / this.bucketSize);
-    const bucketRadius = Math.ceil(radius / this.bucketSize);
+    const bucketX = Math.floor(center.x / bucketSize);
+    const bucketY = Math.floor(center.y / bucketSize);
+    const bucketRadius = Math.ceil(radius / bucketSize);
     const minX = (bucketX - bucketRadius + this.bucketColumns) % this.bucketColumns;
     const maxX = (bucketX + bucketRadius + 1) % this.bucketColumns;
     const minY = (bucketY - bucketRadius + this.bucketRows) % this.bucketRows;
@@ -116,8 +122,8 @@ export class CreatureStorage {
 
   private resetBucketMap(): void {
     this.bucketMap = [];
-    this.bucketColumns = Math.ceil(config.screen.maxX / this.bucketSize);
-    this.bucketRows = Math.ceil(config.screen.maxY / this.bucketSize);
+    this.bucketColumns = Math.ceil(config.screen.maxX / bucketSize);
+    this.bucketRows = Math.ceil(config.screen.maxY / bucketSize);
     for (let i = 0; i < this.bucketColumns; i++) {
       const bucketRow: Creature[][] = [];
       for (let j = 0; j < this.bucketRows; j++) {

@@ -1,0 +1,10 @@
+{
+  "collectCoverageFrom": ["**/*.ts"],
+  "coverageDirectory": "reports/coverage",
+  "testPathIgnorePatterns": [
+    "<rootDir>/.stryker-tmp"
+  ],
+  "transform": {
+    "\\.[j|t]s$": "babel-jest"
+  }
+}

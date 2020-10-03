@@ -8,12 +8,12 @@ import WeightedVector from '../geometry/weightedVector';
 
 export abstract class BehaviourControlledCreature extends Creature {
   public abstract defaultColour: string;
-  public colour = 'black';
+  public colour: string;
   public abstract behaviours: Behaviour[];
   public abstract maxSpeed: number;
   public abstract minSpeed: number;
   public position: Vector;
-  public history: Vector[] = [];
+  public history: Vector[];
 
   constructor(
     public readonly id: number = 0,
@@ -21,10 +21,12 @@ export abstract class BehaviourControlledCreature extends Creature {
     position?: Vector,
   ) {
     super();
+    this.colour = 'black',
     this.position = position || new Vector(
       Math.random() * config.screen.maxX,
       Math.random() * config.screen.maxY,
     );
+    this.history = [];
     for (let i = 0; i < config.creature.maxHistory; i++) {
       this.history.push(this.position);
     }

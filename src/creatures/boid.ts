@@ -3,21 +3,34 @@ import { Vector } from '../geometry/vector';
 import { Behaviour } from './behaviour';
 import { BehaviourControlledCreature } from './behaviourControlledCreature';
 import WeightedVector from '../geometry/weightedVector';
+import { CreatureStorage } from '../stateManagement/creatureStorage';
 
 export class Boid extends BehaviourControlledCreature {
-  public defaultColour = config.boid.defaultColour;
-  public maxSpeed = config.boid.maxSpeed;
-  public minSpeed = config.boid.minSpeed;
-  public size = config.boid.size;
-  public fearCountdown = 0;
-  public heading = 2 * Math.PI * Math.random();
-  public speed = config.boid.maxSpeed;
-  public behaviours = [
-    new Behaviour(() => this.hunterEvasion(), () => 'red'),
-    new Behaviour(() => this.repulsion(), () => this.fearCountdown ? 'red' : 'orange'),
-    new Behaviour(() => this.alignment(), () => this.fearCountdown ? 'red' : 'blue'),
-    new Behaviour(() => this.attraction(), () => this.fearCountdown ? 'red' : 'green'),
-  ];
+  public defaultColour: string;
+  public maxSpeed: number;
+  public minSpeed: number;
+  public size: number;
+  public fearCountdown: number;
+  public heading: number;
+  public speed: number;
+  public behaviours: Behaviour[];
+
+  constructor(id: number, creatureStorage: CreatureStorage, position?: Vector) {
+    super(id, creatureStorage, position);
+    this.defaultColour = config.boid.defaultColour;
+    this.maxSpeed = config.boid.maxSpeed;
+    this.minSpeed = config.boid.minSpeed;
+    this.size = config.boid.size;
+    this.fearCountdown = 0;
+    this.heading = 2 * Math.PI * Math.random();
+    this.speed = config.boid.maxSpeed;
+    this.behaviours = [
+      new Behaviour(() => this.hunterEvasion(), () => 'red'),
+      new Behaviour(() => this.repulsion(), () => this.fearCountdown ? 'red' : 'orange'),
+      new Behaviour(() => this.alignment(), () => this.fearCountdown ? 'red' : 'blue'),
+      new Behaviour(() => this.attraction(), () => this.fearCountdown ? 'red' : 'green'),
+    ];
+  }
 
   public initializeVelocity(): void {
     this.heading = Math.random() * 2 * Math.PI;
