@@ -52,7 +52,7 @@ describe('Vector', () => {
   });
 
   describe('rotate', () => {
-    it('rotates a vector through an eighth turn ', () => {
+    it('rotates a vector through an eighth turn', () => {
       const v = new Vector(Math.sqrt(2), 0);
 
       const actual = v.rotate(Math.PI / 4);
