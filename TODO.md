@@ -17,4 +17,4 @@ Input vector should abstract out boid heading and position
 - Need a way to load a net from a file
 - This will allow learning to take place over multiple separate training runs
 
-Fix favicon
+Reinstate mouse fear
