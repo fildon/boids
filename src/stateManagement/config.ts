@@ -25,7 +25,7 @@ export const config = {
     eatRadius: 20,
     maxSpeed: 5,
     minSpeed: 0,
-    quantity: 1,
+    quantity: 0,
     size: 8,
     visionRadius: 90,
   },
