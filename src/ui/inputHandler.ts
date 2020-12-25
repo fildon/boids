@@ -44,13 +44,13 @@ export class InputHandler {
   }
 
   public handleKeyUp(event: KeyboardEvent): void {
-    const oneKeyCode = 49;
-    const twoKeyCode = 50;
-    const threeKeyCode = 51;
-    switch (event.keyCode) {
-      case oneKeyCode: this.toggleSeparation(); break;
-      case twoKeyCode: this.toggleAlignment(); break;
-      case threeKeyCode: this.toggleCohesion(); break;
+    const oneKey = '1';
+    const twoKey = '2';
+    const threeKey = '3';
+    switch (event.key) {
+      case oneKey: this.toggleSeparation(); break;
+      case twoKey: this.toggleAlignment(); break;
+      case threeKey: this.toggleCohesion(); break;
       default: return;
     }
   }
