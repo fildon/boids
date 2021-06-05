@@ -73,7 +73,10 @@ export class SimulationManager {
   }
 
   public renderSimulation(): void {
-    this.canvas.draw(this.creatureStorage.getAllCreatures());
+    this.canvas.draw(
+      this.creatureStorage.getAllCreatures(),
+      this.playerFish.position
+    );
     this.updateHunterCountDisplay(this.creatureStorage.getHunterCount());
     this.updateBoidCountDisplay(this.creatureStorage.getBoidCount());
   }

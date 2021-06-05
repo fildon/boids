@@ -1,7 +1,7 @@
-import { config } from '../stateManagement/config';
-import { Creature } from '../creatures/creature';
-import { Vector } from '../geometry/vector';
-import { FpsCounter } from './fpsCounter';
+import { config } from "../stateManagement/config";
+import { Creature } from "../creatures/creature";
+import { Vector } from "../geometry/vector";
+import { FpsCounter } from "./fpsCounter";
 
 export class Canvas {
   private readonly fpsCounter: FpsCounter;
@@ -13,9 +13,9 @@ export class Canvas {
     this.fpsCounter = FpsCounter.getFpsCounter();
     this.cameraPosition = new Vector(window.innerWidth, window.innerHeight);
     this.canvas = canvasElement;
-    const context = this.canvas.getContext('2d');
+    const context = this.canvas.getContext("2d");
     if (!context) {
-      throw new Error('could not get canvas context');
+      throw new Error("could not get canvas context");
     } else {
       this.ctx = context;
     }
@@ -25,7 +25,7 @@ export class Canvas {
     this.setScreenSize();
   }
 
-  public onclick(callback: ((ev: MouseEvent) => void)): void {
+  public onclick(callback: (ev: MouseEvent) => void): void {
     this.canvas.onclick = callback;
   }
 
@@ -40,11 +40,15 @@ export class Canvas {
 
   public draw(
     creatures: Creature[],
-    cameraPosition: Vector = new Vector(window.innerWidth / 2, window.innerHeight / 2),
+    cameraPosition: Vector = new Vector(
+      window.innerWidth / 2,
+      window.innerHeight / 2
+    )
   ): void {
     this.cameraPosition = cameraPosition;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.setScreenSize();
+    this.drawBackground();
     this.drawGhosts(creatures);
     creatures.forEach((creature) => {
       this.drawCreature(creature);
@@ -52,6 +56,22 @@ export class Canvas {
 
     this.fpsCounter.countFrame();
     this.fpsCounter.updateFps();
+  }
+
+  private drawBackground(): void {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const { x: cameraX, y: cameraY } = this.cameraPosition;
+    for (let x = 0; x < screenWidth; x += 200) {
+      for (let y = 0; y < screenHeight; y += 200) {
+        const clampX = (x + screenWidth - cameraX) % screenWidth;
+        const clampY = (y + screenHeight - cameraY) % screenHeight;
+        this.ctx.beginPath();
+        this.ctx.arc(clampX, clampY, 2, 0, 2 * Math.PI);
+        this.ctx.fillStyle = "silver";
+        this.ctx.fill();
+      }
+    }
   }
 
   public drawGhosts(creatures: Creature[]): void {
@@ -89,17 +109,15 @@ export class Canvas {
   }
 
   public drawCreatureBody(creature: Creature, historyIndex?: number): void {
-    let position = historyIndex ? creature.history[historyIndex] : creature.position;
+    let position = historyIndex
+      ? creature.history[historyIndex]
+      : creature.position;
     position = this.getPositionInCameraSpace(position);
-    const radius = historyIndex ?
-      creature.size * ((historyIndex + 1) / (config.creature.maxHistory + 1)) :
-      creature.size;
+    const radius = historyIndex
+      ? creature.size * ((historyIndex + 1) / (config.creature.maxHistory + 1))
+      : creature.size;
     this.ctx.beginPath();
-    this.ctx.arc(
-      position.x,
-      position.y,
-      radius,
-      0, 2 * Math.PI);
+    this.ctx.arc(position.x, position.y, radius, 0, 2 * Math.PI);
     this.ctx.fillStyle = creature.colour;
     this.ctx.fill();
   }
@@ -110,8 +128,11 @@ export class Canvas {
     this.ctx.arc(
       position.x + (creature.size + 1) * Math.cos(creature.heading),
       position.y + (creature.size + 1) * Math.sin(creature.heading),
-      creature.size / 2, 0, 2 * Math.PI);
-    this.ctx.fillStyle = 'black';
+      creature.size / 2,
+      0,
+      2 * Math.PI
+    );
+    this.ctx.fillStyle = "black";
     this.ctx.fill();
   }
 }

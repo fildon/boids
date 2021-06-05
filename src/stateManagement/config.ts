@@ -4,7 +4,7 @@ export const config = {
     alignmentRadiusDefault: 40,
     attractionRadius: 200,
     attractionRadiusDefault: 200,
-    defaultColour: 'LightSteelBlue',
+    defaultColour: "LightSteelBlue",
     fearDuration: 30,
     maxSpeed: 6,
     minSpeed: 3,
@@ -18,10 +18,10 @@ export const config = {
     acceleration: 0.2,
     headingFuzz: 0.05,
     maxHistory: 5,
-    turningMax: 0.2, // radians
+    turningMax: 1.2, // radians
   },
   hunter: {
-    defaultColour: 'pink',
+    defaultColour: "pink",
     eatRadius: 20,
     maxSpeed: 5,
     minSpeed: 0,
