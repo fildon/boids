@@ -1,4 +1,4 @@
-import { config } from '../stateManagement/config';
+import { config } from "../stateManagement/config";
 
 export class Vector {
   public static average(vectors: Vector[]): Vector {
@@ -16,10 +16,7 @@ export class Vector {
     if (!speed) {
       return new Vector(0, 0);
     }
-    return new Vector(
-      speed * Math.cos(heading),
-      speed * Math.sin(heading),
-    );
+    return new Vector(speed * Math.cos(heading), speed * Math.sin(heading));
   }
 
   public x: number;
@@ -41,14 +38,14 @@ export class Vector {
 
   public vectorTo(vector: Vector): Vector {
     let nearestX = (vector.x - this.x) % config.screen.maxX;
-    if (nearestX > (config.screen.maxX / 2)) {
+    if (nearestX > config.screen.maxX / 2) {
       nearestX -= config.screen.maxX;
     }
     if (nearestX < -(config.screen.maxX / 2)) {
       nearestX += config.screen.maxX;
     }
     let nearestY = (vector.y - this.y) % config.screen.maxY;
-    if (nearestY > (config.screen.maxY / 2)) {
+    if (nearestY > config.screen.maxY / 2) {
       nearestY -= config.screen.maxY;
     }
     if (nearestY < -(config.screen.maxY / 2)) {
@@ -60,16 +57,13 @@ export class Vector {
   public rotate(radians: number): Vector {
     return new Vector(
       this.x * Math.cos(radians) - this.y * Math.sin(radians),
-      this.x * Math.sin(radians) + this.y * Math.cos(radians),
+      this.x * Math.sin(radians) + this.y * Math.cos(radians)
     );
   }
 
   // Measures anti clockwise from -PI to PI
   public angleTo(v: Vector): number {
-    return Math.atan2(
-      this.x * v.y - this.y * v.x,
-      this.x * v.x + this.y * v.y,
-    );
+    return Math.atan2(this.x * v.y - this.y * v.x, this.x * v.x + this.y * v.y);
   }
 
   public add(v: Vector): Vector {
@@ -89,9 +83,7 @@ export class Vector {
   }
 
   public scaleToLength(length: number): Vector {
-    return this.length ?
-      this.scaleByScalar(length / this.length) :
-      this;
+    return this.length ? this.scaleByScalar(length / this.length) : this;
   }
 
   public isParallelTo(v: Vector): boolean {
@@ -99,13 +91,12 @@ export class Vector {
   }
 
   public normalize(): Vector {
-    if (0 <= this.x &&
-      0 <= this.y) {
+    if (0 <= this.x && 0 <= this.y) {
       return this;
     }
     return new Vector(
       ((this.x % config.screen.maxX) + config.screen.maxX) % config.screen.maxX,
-      ((this.y % config.screen.maxY) + config.screen.maxY) % config.screen.maxY,
+      ((this.y % config.screen.maxY) + config.screen.maxY) % config.screen.maxY
     );
   }
 
