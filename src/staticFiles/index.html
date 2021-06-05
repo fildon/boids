@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Character encoding -->
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <meta content="utf-8" http-equiv="encoding" />
+
+    <!-- Page title -->
+    <title>Boids</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+
+    <!-- JS -->
+    <script src="index.js"></script>
+  </head>
+  <body>
+    <div id="side-bar">
+      <a href="../index.html">Home</a>
+      <div class="info-block">
+        <span>1: Separation </span>
+        <span class="rule-status" id="separation-status">ON</span>
+      </div>
+      <div class="info-block">
+        <span>2: Alignment </span>
+        <span class="rule-status" id="alignment-status">ON</span>
+      </div>
+      <div class="info-block">
+        <span>3: Cohesion </span>
+        <span class="rule-status" id="cohesion-status">ON</span>
+      </div>
+      <div class="info-block">
+        <span>Boids: </span>
+        <span id="number-of-boids">&nbsp;</span>
+      </div>
+      <div class="info-block">
+        <span>Hunters: </span>
+        <span id="number-of-hunters">&nbsp;</span>
+      </div>
+      <div class="info-block">
+        <span>FPS: </span>
+        <span id="fps-status">&nbsp;</span>
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+  </body>
+</html>

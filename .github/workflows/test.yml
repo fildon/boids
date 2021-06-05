@@ -1,0 +1,30 @@
+name: Test
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: "16.x"
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v2
+
+      - name: 🤖 Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📥 Download deps
+        uses: bahmutov/npm-install@v1
+
+      - name: 🏗 npm build
+        run: npm run build
+
+      - name: 🧪 npm test
+        run: npm run test

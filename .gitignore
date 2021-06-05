@@ -1,17 +1,11 @@
 # Dependencies
-node_modules
+node_modules/
 
 # Compilation error logs
 yarn-error.log
 
-# Coverage and Mutation testing reports
+# Coverage testing reports
 reports/
 
-# Mutation testing sandbox
-.stryker-tmp/
-
-# Private repo token for coveralls authentication
-.coveralls.yml
-
-# Source map files
-*.js.map
+# Build output
+dist/

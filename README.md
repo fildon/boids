@@ -1,39 +1,33 @@
 # Boids
 
-[![Coverage Status](https://coveralls.io/repos/github/fildon/boids/badge.svg?branch=master)](https://coveralls.io/github/fildon/boids?branch=master)
+[![.github/workflows/deploy.yml](https://github.com/fildon/boids/actions/workflows/deploy.yml/badge.svg)](https://github.com/fildon/boids/actions/workflows/deploy.yml)
+[![.github/workflows/test.yml](https://github.com/fildon/boids/actions/workflows/test.yml/badge.svg)](https://github.com/fildon/boids/actions/workflows/test.yml)
 
-Boids is an implementation of an artificial life program originally developed in the 1980s. 
+Boids is an implementation of an artificial life program originally developed in the 1980s.
 
 The concept is simple, flocking can be simulated with just three fundamental rules:
+
 - Separation (avoid crashing into other birds)
 - Alignment (travel in the same direction as nearby birds)
 - Cohesion (get close to nearby birds)
 
 You can view the currently deployed simulation here:
-https://fildon.github.io/boids/
+[Boids](https://fildon.github.io/boids/)
 
 ## Local Development
 
-    yarn install
-    yarn run build
+```shell
+yarn install
+yarn build
+```
 
-Then open index.html in the root folder of the project
+Then open dist/index.html in any browser
 
 ## Testing
 
 Unit tests and test coverage are provided by Jest
 
-    yarn test
-    yarn coverage
-
-Additionally mutation can be run by Stryker with
-
-    yarn mutation
-
-## Coveralls
-
-This project synchronizes with [Coveralls](https://coveralls.io/github/fildon/boids)
-
-A pre-commit hook lints, generates a coverage report and then uploads the report to coveralls. For the upload to work you'll need to add a .coveralls.yml file with only a single line:
-
-    repo_token: 'put coveralls auth token here'
+```shell
+yarn test
+yarn test --coverage
+```
