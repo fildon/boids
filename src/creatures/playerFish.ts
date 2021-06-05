@@ -8,7 +8,7 @@ export default class PlayerFish extends Creature {
   public size = 6;
   public position: Vector;
   public heading = 0;
-  public speed = 0;
+  public speed = 4;
   public history: Vector[] = [];
 
   constructor(public inputHandler: InputHandler) {
