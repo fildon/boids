@@ -1,32 +1,37 @@
-import { Canvas } from '../ui/canvas';
-import { config } from './config';
-import { InputHandler } from '../ui/inputHandler';
-import { CreatureStorage } from './creatureStorage';
-import { Vector } from '../geometry/vector';
+import { Canvas } from "../ui/canvas";
+import { config } from "./config";
+import { InputHandler } from "../ui/inputHandler";
+import { CreatureStorage } from "./creatureStorage";
+import { Vector } from "../geometry/vector";
+import PlayerFish from "../creatures/playerFish";
 
 export class SimulationManager {
   private canvas: Canvas;
   private creatureStorage: CreatureStorage;
   private readonly fpsTarget = 60;
+  private playerFish: PlayerFish;
   constructor() {
-    const canvasElement = document.getElementById('canvas') as HTMLCanvasElement;
+    const canvasElement = document.getElementById(
+      "canvas"
+    ) as HTMLCanvasElement;
     if (!canvasElement) {
-      throw new Error('couldn\'t find \'canvas\' on document');
+      throw new Error("couldn't find 'canvas' on document");
     }
     this.canvas = new Canvas(canvasElement);
-    new InputHandler(
+    const inputHandler = new InputHandler(
       this.canvas,
       (position: Vector) => this.createBoid(position),
-      (position: Vector) => this.createHunter(position),
+      (position: Vector) => this.createHunter(position)
     );
 
-    this.creatureStorage = new CreatureStorage();
+    this.creatureStorage = new CreatureStorage(inputHandler);
     for (let i = 0; i < config.boid.quantity; i++) {
       this.creatureStorage.addBoid();
     }
     for (let i = 0; i < config.hunter.quantity; i++) {
       this.creatureStorage.addHunter();
     }
+    this.playerFish = this.creatureStorage.addPlayerFish();
   }
 
   public createBoid(position?: Vector): void {
@@ -64,29 +69,24 @@ export class SimulationManager {
     for (const hunter of this.creatureStorage.getAllHunters()) {
       hunter.update();
     }
+    this.playerFish.update();
   }
 
   public renderSimulation(): void {
-    this.canvas.draw(
-      this.creatureStorage.getAllCreatures(),
-    );
-    this.updateHunterCountDisplay(
-      this.creatureStorage.getHunterCount(),
-    );
-    this.updateBoidCountDisplay(
-      this.creatureStorage.getBoidCount(),
-    );
+    this.canvas.draw(this.creatureStorage.getAllCreatures());
+    this.updateHunterCountDisplay(this.creatureStorage.getHunterCount());
+    this.updateBoidCountDisplay(this.creatureStorage.getBoidCount());
   }
 
   private updateHunterCountDisplay(count: number) {
-    const countDisplay = document.getElementById('number-of-hunters');
+    const countDisplay = document.getElementById("number-of-hunters");
     if (countDisplay) {
       countDisplay.textContent = `${count}`;
     }
   }
 
   private updateBoidCountDisplay(count: number) {
-    const countDisplay = document.getElementById('number-of-boids');
+    const countDisplay = document.getElementById("number-of-boids");
     if (countDisplay) {
       countDisplay.textContent = `${count}`;
     }

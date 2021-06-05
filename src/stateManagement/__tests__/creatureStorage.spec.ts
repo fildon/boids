@@ -1,9 +1,10 @@
-import { Vector } from '../../geometry/vector';
-import { CreatureStorage } from '../creatureStorage';
+import { Vector } from "../../geometry/vector";
+import { InputHandler } from "../../ui/inputHandler";
+import { CreatureStorage } from "../creatureStorage";
 
-describe('CreatureStorage', () => {
-  it('can getAllCreatures', () => {
-    const storage = new CreatureStorage();
+describe("CreatureStorage", () => {
+  it("can getAllCreatures", () => {
+    const storage = new CreatureStorage({} as InputHandler);
     const creature1 = storage.addBoid();
     const creature2 = storage.addHunter();
     const creature3 = storage.addBoid();
@@ -21,8 +22,8 @@ describe('CreatureStorage', () => {
     ]);
   });
 
-  it('can getAllHunters', () => {
-    const storage = new CreatureStorage();
+  it("can getAllHunters", () => {
+    const storage = new CreatureStorage({} as InputHandler);
     storage.addBoid();
     const hunter1 = storage.addHunter();
     storage.addBoid();
@@ -36,8 +37,8 @@ describe('CreatureStorage', () => {
     expect(actual).toContain(hunter2);
   });
 
-  it('can getHunterCount', () => {
-    const storage = new CreatureStorage();
+  it("can getHunterCount", () => {
+    const storage = new CreatureStorage({} as InputHandler);
     storage.addBoid();
     storage.addHunter();
     storage.addBoid();
@@ -47,8 +48,8 @@ describe('CreatureStorage', () => {
     expect(storage.getHunterCount()).toBe(2);
   });
 
-  it('can getHuntersInArea', () => {
-    const storage = new CreatureStorage();
+  it("can getHuntersInArea", () => {
+    const storage = new CreatureStorage({} as InputHandler);
     storage.addBoid();
     const hunterNear1 = storage.addHunter(new Vector(1, 2));
     storage.addBoid();
@@ -59,9 +60,6 @@ describe('CreatureStorage', () => {
 
     const actual = storage.getHuntersInArea(new Vector(1, 1), 2);
 
-    expect(actual).toEqual([
-      hunterNear1,
-      hunterNear2,
-    ]);
+    expect(actual).toEqual([hunterNear1, hunterNear2]);
   });
 });
