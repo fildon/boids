@@ -7,7 +7,7 @@ export default class PlayerFish extends Creature {
   public colour = "black";
   public size = 6;
   public position: Vector;
-  public heading = 0;
+  public heading = 1.5 * Math.PI;
   public speed = 3.1;
   public history: Vector[] = [];
   private inputHandler = new InputHandler();
