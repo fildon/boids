@@ -41,6 +41,10 @@ export class InputHandler {
   constructor() {
     window.addEventListener("keyup", handleKeyUp);
 
+    window.addEventListener("touchcancel", () => {
+      this.left = false;
+      this.right = false;
+    });
     window.addEventListener("touchend", () => {
       this.left = false;
       this.right = false;
@@ -54,6 +58,9 @@ export class InputHandler {
     });
 
     window.addEventListener("touchstart", (event) =>
+      this.handleTouchSteering(event)
+    );
+    window.addEventListener("touchmove", (event) =>
       this.handleTouchSteering(event)
     );
     window.addEventListener("mousedown", (event) =>
