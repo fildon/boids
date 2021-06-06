@@ -1,11 +1,10 @@
 import { Vector } from "../../geometry/vector";
 import { CreatureStorage } from "../../stateManagement/creatureStorage";
-import { InputHandler } from "../../ui/inputHandler";
 
 describe("Hunter", () => {
   let creatureStorage: CreatureStorage;
   beforeEach(() => {
-    creatureStorage = new CreatureStorage({} as InputHandler);
+    creatureStorage = new CreatureStorage();
   });
 
   describe("eating", () => {

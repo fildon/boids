@@ -1,10 +1,9 @@
 import { Vector } from "../../geometry/vector";
-import { InputHandler } from "../../ui/inputHandler";
 import { CreatureStorage } from "../creatureStorage";
 
 describe("CreatureStorage", () => {
   it("can getAllCreatures", () => {
-    const storage = new CreatureStorage({} as InputHandler);
+    const storage = new CreatureStorage();
     const creature1 = storage.addBoid();
     const creature2 = storage.addHunter();
     const creature3 = storage.addBoid();
@@ -23,7 +22,7 @@ describe("CreatureStorage", () => {
   });
 
   it("can getAllHunters", () => {
-    const storage = new CreatureStorage({} as InputHandler);
+    const storage = new CreatureStorage();
     storage.addBoid();
     const hunter1 = storage.addHunter();
     storage.addBoid();
@@ -38,7 +37,7 @@ describe("CreatureStorage", () => {
   });
 
   it("can getHunterCount", () => {
-    const storage = new CreatureStorage({} as InputHandler);
+    const storage = new CreatureStorage();
     storage.addBoid();
     storage.addHunter();
     storage.addBoid();
@@ -49,7 +48,7 @@ describe("CreatureStorage", () => {
   });
 
   it("can getHuntersInArea", () => {
-    const storage = new CreatureStorage({} as InputHandler);
+    const storage = new CreatureStorage();
     storage.addBoid();
     const hunterNear1 = storage.addHunter(new Vector(1, 2));
     storage.addBoid();

@@ -7,8 +7,6 @@ export class InputHandler {
   private down = false;
 
   constructor() {
-    // TODO
-    console.log("Constructed");
     window.addEventListener("keyup", (event: KeyboardEvent) => {
       this.handleKeyUp(event);
     });
@@ -21,23 +19,12 @@ export class InputHandler {
   }
 
   public handleKeyUp(event: KeyboardEvent): void {
-    console.log(`${event.key}`);
-    const oneKey = "1";
-    const twoKey = "2";
-    const threeKey = "3";
-    switch (event.key) {
-      case oneKey:
-        this.toggleSeparation();
-        break;
-      case twoKey:
-        this.toggleAlignment();
-        break;
-      case threeKey:
-        this.toggleCohesion();
-        break;
-      default:
-        return;
-    }
+    const actionMap = {
+      "1": this.toggleSeparation,
+      "2": this.toggleAlignment,
+      "3": this.toggleCohesion,
+    };
+    actionMap[event.key]?.();
   }
 
   public toggleSeparation(): void {
@@ -73,21 +60,12 @@ export class InputHandler {
   }
 
   private setArrow(key: string, newState: boolean): void {
-    switch (key) {
-      case "ArrowLeft":
-        this.left = newState;
-        break;
-      case "ArrowRight":
-        this.right = newState;
-        break;
-      case "ArrowUp":
-        this.up = newState;
-        break;
-      case "ArrowDown":
-        this.down = newState;
-        break;
-      default:
-        return;
-    }
+    const arrowMap = {
+      ArrowLeft: () => (this.left = newState),
+      ArrowRight: () => (this.right = newState),
+      ArrowUp: () => (this.up = newState),
+      ArrowDown: () => (this.down = newState),
+    };
+    arrowMap[key]?.();
   }
 }

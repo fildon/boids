@@ -3,16 +3,18 @@ import { config } from "./config";
 import { CreatureStorage } from "./creatureStorage";
 import PlayerFish from "../creatures/playerFish";
 
+function isCanvasElement(element: HTMLElement): element is HTMLCanvasElement {
+  return element.nodeName === "CANVAS";
+}
+
 export class SimulationManager {
   private canvas: Canvas;
   private creatureStorage: CreatureStorage;
   private readonly fpsTarget = 60;
   private playerFish: PlayerFish;
   constructor() {
-    const canvasElement = document.getElementById(
-      "canvas"
-    ) as HTMLCanvasElement;
-    if (!canvasElement) {
+    const canvasElement = document.getElementById("canvas");
+    if (!isCanvasElement(canvasElement)) {
       throw new Error("couldn't find 'canvas' on document");
     }
     this.canvas = new Canvas(canvasElement);
