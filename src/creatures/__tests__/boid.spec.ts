@@ -1,12 +1,11 @@
 import { config } from "../../stateManagement/config";
 import { Vector } from "../../geometry/vector";
 import { CreatureStorage } from "../../stateManagement/creatureStorage";
-import { InputHandler } from "../../ui/inputHandler";
 
 describe("Boid", () => {
   let creatureStorage: CreatureStorage;
   beforeEach(() => {
-    creatureStorage = new CreatureStorage({} as InputHandler);
+    creatureStorage = new CreatureStorage();
   });
 
   describe("constructor", () => {
