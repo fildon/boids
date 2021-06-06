@@ -4,7 +4,6 @@ import { Boid } from "../creatures/boid";
 import { Vector } from "../geometry/vector";
 import { config } from "./config";
 import PlayerFish from "../creatures/playerFish";
-import { InputHandler } from "../ui/inputHandler";
 
 const bucketSize = 100;
 
@@ -15,7 +14,7 @@ export class CreatureStorage {
   private bucketColumns: number;
   private bucketRows: number;
 
-  constructor(public inputHandler: InputHandler) {
+  constructor() {
     this.nextId = 0;
     this.creatures = new Map<number, Creature>();
     this.bucketMap = [];
@@ -54,7 +53,7 @@ export class CreatureStorage {
   }
 
   public addPlayerFish(): PlayerFish {
-    const newPlayer = new PlayerFish(this.inputHandler);
+    const newPlayer = new PlayerFish();
     this.creatures.set(this.nextId, newPlayer);
     this.nextId++;
     return newPlayer;

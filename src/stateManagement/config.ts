@@ -18,7 +18,7 @@ export const config = {
     acceleration: 0.2,
     headingFuzz: 0.05,
     maxHistory: 5,
-    turningMax: 1.2, // radians
+    turningMax: 0.2, // radians
   },
   hunter: {
     defaultColour: "pink",

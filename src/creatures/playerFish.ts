@@ -8,10 +8,11 @@ export default class PlayerFish extends Creature {
   public size = 6;
   public position: Vector;
   public heading = 0;
-  public speed = 4;
+  public speed = 3;
   public history: Vector[] = [];
+  private inputHandler = new InputHandler();
 
-  constructor(public inputHandler: InputHandler) {
+  constructor() {
     super();
     this.position = new Vector(window.innerWidth / 2, window.innerHeight / 2);
     for (let i = 0; i < config.creature.maxHistory; i++) {

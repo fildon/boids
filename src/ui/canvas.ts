@@ -1,16 +1,13 @@
 import { config } from "../stateManagement/config";
 import { Creature } from "../creatures/creature";
 import { Vector } from "../geometry/vector";
-import { FpsCounter } from "./fpsCounter";
 
 export class Canvas {
-  private readonly fpsCounter: FpsCounter;
   private cameraPosition: Vector;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
   constructor(canvasElement: HTMLCanvasElement) {
-    this.fpsCounter = FpsCounter.getFpsCounter();
     this.cameraPosition = new Vector(window.innerWidth, window.innerHeight);
     this.canvas = canvasElement;
     const context = this.canvas.getContext("2d");
@@ -53,9 +50,6 @@ export class Canvas {
     creatures.forEach((creature) => {
       this.drawCreature(creature);
     });
-
-    this.fpsCounter.countFrame();
-    this.fpsCounter.updateFps();
   }
 
   private drawBackground(): void {
